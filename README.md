@@ -1,44 +1,41 @@
-# A2
 
-Project for Assignment 2
+# Setup
 
-A project template based on gradle and a gitlab pipeline. You should always build and run the application using gradle regularely.
+To be able to run this, you are going to have docker installed.
+To install docker, pls refer to the official website:
 
-[design.md](design.md) contains the prescribed architectural design of the application.
+Go here to <a href=https://docs.docker.com/get-docker/>Download Docker</a>
 
-## Building
-The build must pass by running console command:  
-`./gradlew build`  
-Note that you should get a report over the quality like:
-```
-CodeQualityTests > codeQuality() STANDARD_OUT
-    0 CheckStyle Issues in controller/App.java
-    0 CheckStyle Issues in controller/Simple.java
-    0 CheckStyle Issues in model/Simple.java
-    0 CheckStyle Issues in view/Simple.java
-    0 FindBugs Issues in controller/App.java
-    0 FindBugs Issues in model/Simple.java
-    0 FindBugs Issues in view/Simple.java
-    0 FindBugs Issues in controller/Simple.java
+## How to check out the project
+
+### Building
+
+To build the project run:
+
+```docker
+docker build -t `build_name` .
 ```
 
-Removing or manipulating the code quality checks results in an immediate assignment **Fail**. 
+e.g.:
 
-## Running
-The application should start by running console command:  
-`./gradlew run -q --console=plain`
+```docker
+docker build -t assignment2 .
+```
 
-## Adding Your Own Code
-The `Simple` classes project should likely be removed do not forget to also remove the test case associated to `model.Simple`.  
+### Running
 
-Add your own code to the packages respectively and feel free to add automatic test cases for your own code. A good process is to design a little - code a little - test a little one feature at a time and then iterate.
+```docker
+docker run `build_name`
+```
 
-## Versioning
+e.g.:
 
-Adhere to the git versioning instructions according to the assignment.
+```docker
+docker run assignment2
+```
 
-## System test
-Adhere to the instructions according to the assigment.
+### Linting
 
-## Handing In
-Adhere to the instructions according to the assigment.
+Linting is integrated into the compiler. Meaning when this project is run via `docker run ..` the compiler will display all
+stylistic problems and errors. When there are no errors, warnings or tips, this means the code is clean and functioning.
+
