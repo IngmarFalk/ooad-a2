@@ -1,5 +1,6 @@
 use crate::models::uuid::Uuid;
 use chrono::{self, Local};
+use thiserror::Error;
 
 use super::item::Item;
 
@@ -39,19 +40,36 @@ impl Member {
         }
     }
 
-    pub fn name(&mut self, name: String) -> Member {
-        self.name = name;
-        self.clone()
+    pub fn add_item(&mut self, item: Item) {
+        self.items.push(item);
     }
 
-    pub fn email(&mut self, email: String) -> Member {
-        self.email = email;
-        self.clone()
+    pub fn remove_item(&mut self, item: Item) -> anyhow::Result<()> {
+        let idx = self.items.iter().position(|e| e == &item);
+        match idx {
+            Some(i) => {
+                self.items.remove(i);
+                Ok(())
+            }
+            None => todo!(),
+        }
     }
 
-    pub fn phone_nr(&mut self, phone_nr: String) -> Member {
-        self.phone_nr = phone_nr;
-        self.clone()
+    pub fn add_credits(&mut self, credits: f64) -> Result<(), NegativeCreditInput> {
+        if credits < 0.0 {
+            return Err(NegativeCreditInput);
+        }
+        self.credits += credits;
+        Ok(())
+    }
+
+    pub fn deduce_credits(&mut self, credits: f64) -> Result<(), NegativeCreditInput> {
+        if credits < 0.0 {
+            return Err(NegativeCreditInput);
+        }
+        // TODO : Find out if members can have negative credit
+        self.credits -= credits;
+        Ok(())
     }
 }
 
@@ -69,10 +87,13 @@ impl MemberValidation for Member {
     }
 }
 
+#[derive(Debug, Error)]
+#[error("Tried adding/deducing a negative amount to credits")]
+pub struct NegativeCreditInput;
+
 #[cfg(test)]
 mod member_test {
     use super::Member;
-    use crate::models::category::Category;
     use crate::models::item::Item;
 
     #[test]

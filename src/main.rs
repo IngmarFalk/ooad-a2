@@ -1,15 +1,18 @@
+pub mod controllers;
 pub mod models;
+pub mod views;
 
-use std::iter::FromIterator;
-
-use rand::{distributions::Alphanumeric, thread_rng, Rng};
-
-use crate::models::{member::Member, uuid::Uuid};
+use crate::{
+    controllers::app::{App, MainApp},
+    models::system::System,
+    views::main_view::MainView,
+};
 
 fn main() {
-    println!("Hello, world!");
-    let uuid: Uuid = Uuid::new();
-    let member: Member = Member::default();
-
-    println!("{}", uuid);
+    let main_view: MainView = MainView {};
+    let system: System = System {
+        active_contracts: vec![],
+        members: vec![],
+    };
+    let main_app: App = App { system, main_view };
 }
