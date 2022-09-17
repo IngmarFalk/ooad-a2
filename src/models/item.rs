@@ -1,9 +1,6 @@
 use chrono::Local;
 
-use super::{
-    contract::{self, Contract},
-    uuid::Uuid,
-};
+use super::{contract::Contract, uuid::Uuid};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Category {

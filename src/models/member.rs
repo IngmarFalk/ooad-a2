@@ -10,15 +10,15 @@ pub trait MemberValidation {
     fn validate_email() -> bool;
 }
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Debug)]
 pub struct Member {
     pub credits: f64,
     pub day_of_creation: chrono::DateTime<Local>,
     pub email: String,
     pub name: String,
     pub phone_nr: String,
+    pub uuid: Uuid,
     items: Vec<Item>,
-    uuid: Uuid,
 }
 
 impl Member {
@@ -109,6 +109,7 @@ mod member_test {
         assert_eq!(bob.credits, 200f64);
     }
 
+    #[test]
     fn test_default_creation() {
         let member = Member::default();
         assert_eq!(member.name, String::default()); // String::new()

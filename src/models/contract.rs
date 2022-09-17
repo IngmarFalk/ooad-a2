@@ -1,6 +1,4 @@
-use chrono::{DateTime, Local};
-
-use super::item::Item;
+use chrono::Local;
 
 pub trait ContractValidation {
     fn validate_credits() -> bool;

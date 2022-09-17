@@ -1,5 +1,3 @@
-use clap::{Args, Parser, Subcommand};
-
 use crate::{models::system::System, views::main_view::MainView};
 
 pub trait MainApp {
