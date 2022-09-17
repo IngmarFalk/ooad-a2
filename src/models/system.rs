@@ -24,20 +24,11 @@ impl System {
         self.members = members;
         self
     }
-
-    pub fn add_member(member: Member) -> MResult<()> {
-        println!("{:?}", member);
-        if true {
-            return Err(MError::AlreadyExists);
-        }
-        Ok(())
-    }
 }
 
 impl LendingSystem for System {
     fn add_member(&mut self, member: Member) -> MResult<()> {
-        let exists: bool = self.exists_member(&member);
-        if exists {
+        if self.exists_member(&member) {
             return Err(MError::AlreadyExists);
         }
         self.members.push(member);
@@ -45,24 +36,16 @@ impl LendingSystem for System {
     }
 
     fn remove_member(&mut self, member: Member) -> MResult<()> {
-        println!("{:?}", member);
-        if true {
+        if !self.exists_member(&member) {
             return Err(MError::DoesntExist);
         }
         Ok(())
     }
 
     fn exists_member(&self, member: &Member) -> bool {
-        println!("{:?}", &self.members);
-        for m in self.members.iter() {
-            if m.email == member.email || m.phone_nr == member.phone_nr {
-                return true;
-            }
-        }
-        false
-        // self.members
-        //     .iter()
-        //     .any(|m| m.email == member.email || m.phone_nr == member.phone_nr)
+        self.members
+            .iter()
+            .any(|m| m.email == member.email || m.phone_nr == member.phone_nr)
     }
 
     fn create_item(&self, member: Member, item: Item) -> MResult<()> {
@@ -107,10 +90,6 @@ impl std::fmt::Display for MError {
     }
 }
 
-// #[derive(Debug, Error)]
-// #[error("A member with the same email/phone number/id already exists")]
-// pub struct MemberAlreadyExists;
-
 #[cfg(test)]
 mod system_tests {
     use crate::models::member::Member;
@@ -148,18 +127,17 @@ mod system_tests {
             vec![],
         );
 
-        let members: Vec<&Member> = vec![&allan, &turing1, &turing2, &turing3];
         let mut system = System::new();
         let r1 = system.add_member(allan);
         assert_eq!(r1, Ok(()));
 
         let r2 = system.add_member(turing1);
-        assert_eq!(r1, Err(MError::AlreadyExists));
+        assert_eq!(r2, Err(MError::AlreadyExists));
 
-        // let r3 = system.add_member(turing2);
-        // assert_eq!(r1, Err(MError::AlreadyExists));
+        let r3 = system.add_member(turing2);
+        assert_eq!(r3, Err(MError::AlreadyExists));
 
-        // let r4 = system.add_member(turing3);
-        // assert_eq!(r1, Ok(()));
+        let r4 = system.add_member(turing3);
+        assert_eq!(r4, Ok(()));
     }
 }
