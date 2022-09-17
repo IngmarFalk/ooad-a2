@@ -3,6 +3,7 @@ use chrono::{self, Local};
 use thiserror::Error;
 
 use super::item::Item;
+use super::system::{MError, MResult};
 
 pub trait MemberValidation {
     fn validate_id() -> bool;
@@ -40,8 +41,13 @@ impl Member {
         }
     }
 
-    pub fn add_item(&mut self, item: Item) {
+    pub fn add_item(&mut self, item: Item) -> MResult<()> {
+        let exists = self.items.iter().any(|e| e.uuid == item.uuid);
+        if exists {
+            return Err(MError::AlreadyExists);
+        }
         self.items.push(item);
+        Ok(())
     }
 
     pub fn remove_item(&mut self, item: Item) -> anyhow::Result<()> {
