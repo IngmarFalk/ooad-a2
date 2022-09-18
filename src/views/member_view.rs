@@ -1,8 +1,13 @@
 use std::io::{self, stdin, Write};
 
-use crate::models::domain::member::Member;
+use crate::{
+    models::domain::{member::Member, ToRow},
+    types::MembersList,
+};
 
-pub trait MemberDisplay {
+use super::console::Console;
+
+pub trait MemberView {
     fn display_member_verbose(&self, member: Member);
     fn display_member_simple(&self, member: Member);
     fn ls_simple(&self, members: Vec<Member>);
@@ -12,15 +17,19 @@ pub trait MemberDisplay {
     fn get_str_input(&self, display: &str) -> String;
 }
 
-pub struct MemberView;
+pub struct CliMemberView {
+    console: Console,
+}
 
-impl MemberView {
-    pub fn new() -> MemberView {
-        MemberView {}
+impl CliMemberView {
+    pub fn new() -> CliMemberView {
+        CliMemberView {
+            console: Console::new(),
+        }
     }
 }
 
-impl MemberDisplay for MemberView {
+impl MemberView for CliMemberView {
     fn display_member_verbose(&self, member: Member) {
         let mut items_str = String::new();
         if member.items.len() == 0 {
@@ -49,10 +58,9 @@ impl MemberDisplay for MemberView {
         println!("{out}");
     }
 
-    fn ls_simple(&self, members: Vec<Member>) {
-        for m in members {
-            self.display_member_simple(m);
-        }
+    fn ls_simple(&self, members: MembersList) {
+        let table = members.iter().map(|m| m.to_row()).collect();
+        self.console.table(table);
     }
 
     fn ls_verbose(&self, members: Vec<Member>) {

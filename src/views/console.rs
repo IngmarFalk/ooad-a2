@@ -1,12 +1,13 @@
+use prettytable::Table;
 use thiserror::Error;
 
 type Row = Vec<String>;
-type Table = Vec<Row>;
 
 #[derive(Debug, Error)]
 #[error("The Table to be displayed contained rows with different item counts.")]
 pub struct InconsistentRowLength;
 
+#[derive(Debug)]
 pub struct Console;
 
 impl Console {
@@ -29,24 +30,8 @@ impl Console {
         todo!()
     }
 
-    pub fn table(&self, table: Table) -> Result<(), InconsistentRowLength> {
-        let length: usize = match table.first() {
-            Some(row) => row.len(),
-            None => 0,
-        };
-
-        if table.iter().any(|e| e.len() != length) {
-            return Err(InconsistentRowLength);
-        }
-
-        let filler = "";
-        let frame_len = length * 28 - 1;
-        println!("-{filler:-<frame_len$}-");
-        for row in table {
-            self.row(row);
-            println!("|{filler:-<frame_len$}|");
-        }
-        Ok(())
+    pub fn table(&self, table: Table) {
+        table.printstd()
     }
 
     pub fn row(&self, row: Row) {

@@ -1,8 +1,14 @@
-use models::domain::{member::Member, ToRow};
-use views::console::Console;
+use controllers::app::{App, MainMenu};
+use models::{
+    domain::{member::Member, ToRow},
+    system::System,
+};
+use prettytable::{table, Table};
+use views::main_view::{CliMainView, MainView};
 
 pub mod controllers;
 pub mod models;
+pub mod types;
 pub mod views;
 
 // use crate::{controllers::app::App, models::system::System, views::main_view::MainView};
@@ -36,20 +42,19 @@ fn main() {
         500f64,
         vec![],
     );
-    let members = vec![
-        allan.to_row(),
-        turing1.to_row(),
-        turing2.to_row(),
-        turing3.to_row(),
-    ];
+    // let mut members = Table::new();
 
-    let con = Console::new();
-    match con.table(members) {
-        Ok(_) => {}
-        Err(err) => println!("{err}"),
-    }
+    // members.add_row(allan.to_row());
+    // members.add_row(turing1.to_row());
+    // members.add_row(turing2.to_row());
+    // members.add_row(turing3.to_row());
 
-    // let view = MemberView::new();
+    // let con = Console::new();
+    // con.table(members);
+    let model = System::new();
+    let view = CliMainView::new();
+    let app = MainMenu::new();
+    app.run(model, view);
     // view.display_member_simple(turing3.clone());
     // view.display_member_verbose(turing3.clone());
     // view.get_str_input("Name: ");

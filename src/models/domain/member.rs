@@ -3,6 +3,7 @@ use crate::models::{
     uuid::Uuid,
 };
 use chrono::{self, Local};
+use prettytable::{row, Row};
 use thiserror::Error;
 
 use super::{item::Item, ToRow};
@@ -64,6 +65,7 @@ impl Member {
             return Err(MError::AlreadyExists);
         }
         self.items.push(item);
+        self.add_credits(100f64).unwrap();
         Ok(())
     }
 
@@ -129,12 +131,12 @@ impl MemberValidation for Member {
 }
 
 impl ToRow for Member {
-    fn to_row(&self) -> Vec<String> {
-        vec![
-            self.uuid.to_string(),
+    fn to_row(&self) -> Row {
+        row![
             self.name.clone(),
             self.email.clone(),
             self.phone_nr.clone(),
+            self.uuid.to_string(),
             self.credits.clone().to_string(),
             self.items.len().to_string(),
         ]
@@ -163,11 +165,9 @@ mod member_test {
             phone_nr,
             credits,
             vec![Item::new(
-                crate::models::domain::item::Category::Game,
                 "Monopoly".to_owned(),
                 "Family Game".to_owned(),
-                None,
-                chrono::offset::Local::now(),
+                crate::models::domain::item::Category::Game,
                 20f64,
             )],
         );

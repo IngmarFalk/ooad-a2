@@ -1,4 +1,5 @@
 use chrono::Local;
+use prettytable::{row, Row};
 
 use crate::models::uuid::Uuid;
 
@@ -48,8 +49,8 @@ impl std::fmt::Display for Contract {
 }
 
 impl ToRow for Contract {
-    fn to_row(&self) -> Vec<String> {
-        vec![
+    fn to_row(&self) -> Row {
+        row![
             self.s_day.date().naive_local().to_string(),
             self.e_day.date().naive_local().to_string(),
             self.contract_len.to_string(),

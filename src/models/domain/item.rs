@@ -1,8 +1,9 @@
 use std::fmt::Display;
 
 use chrono::Local;
+use prettytable::{row, Row};
 
-use crate::models::uuid::Uuid;
+use crate::{models::uuid::Uuid, types::ContractsList};
 
 use super::{contract::Contract, ToRow};
 
@@ -42,28 +43,23 @@ pub struct Item {
     pub category: Category,
     pub name: String,
     pub description: String,
-    pub contract: Option<Contract>,
+    pub active_contract: Option<Contract>,
+    pub history: ContractsList,
     day_of_creation: chrono::DateTime<Local>,
     cost_per_day: f64,
 }
 
 impl Item {
-    pub fn new(
-        category: Category,
-        name: String,
-        description: String,
-        contract: Option<Contract>,
-        day_of_creation: chrono::DateTime<Local>,
-        cost_per_day: f64,
-    ) -> Item {
+    pub fn new(name: String, description: String, category: Category, cost_per_day: f64) -> Item {
         Item {
-            uuid: Uuid::new(),
-            category,
             name,
+            category,
             description,
-            contract,
-            day_of_creation,
+            active_contract: None,
             cost_per_day,
+            uuid: Uuid::new(),
+            history: vec![],
+            day_of_creation: chrono::offset::Local::now(),
         }
     }
 
@@ -86,7 +82,7 @@ impl std::fmt::Display for Item {
             self.name,
             self.description,
             self.category,
-            self.contract,
+            self.active_contract,
             self.day_of_creation.date().naive_local(),
             self.cost_per_day,
         ))
@@ -94,12 +90,12 @@ impl std::fmt::Display for Item {
 }
 
 impl ToRow for Item {
-    fn to_row(&self) -> Vec<String> {
-        let contract_str = match &self.contract {
+    fn to_row(&self) -> Row {
+        let contract_str = match &self.active_contract {
             Some(c) => c.uuid.to_string(),
             None => "No Contract".to_owned(),
         };
-        vec![
+        row![
             self.name.clone(),
             self.description.clone(),
             self.category.clone().to_string(),

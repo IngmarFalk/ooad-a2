@@ -2,6 +2,8 @@ use anyhow::Result;
 use std::collections::HashMap;
 use thiserror::Error;
 
+use crate::types::Model;
+
 use super::{
     domain::{item::Item, member::Member},
     uuid::Uuid,
@@ -19,6 +21,8 @@ pub trait LendingSystem {
 pub struct System {
     members: HashMap<Uuid, Member>,
 }
+
+impl Model for System {}
 
 impl System {
     pub fn new() -> System {
