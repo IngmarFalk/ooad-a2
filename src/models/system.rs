@@ -15,6 +15,7 @@ pub trait LendingSystem {
     fn exists_member(&self, member: &Member) -> bool;
     fn create_item(&mut self, member: Member, item: Item) -> MResult<()>;
     fn delete_item(&self, member: Member, item: Item) -> MResult<()>;
+    fn exists_item(&self, member: &Member, item: &Item) -> bool;
 }
 
 #[derive(Debug)]
@@ -57,6 +58,7 @@ impl LendingSystem for System {
         if !self.exists_member(&member) {
             return Err(MError::DoesntExist);
         }
+        self.members.remove(&member.uuid);
         Ok(())
     }
 
@@ -79,6 +81,10 @@ impl LendingSystem for System {
             Ok(mut m) => m.remove_item(item),
             Err(err) => return Err(err),
         }
+    }
+
+    fn exists_item(&self, member: &Member, item: &Item) -> bool {
+        todo!()
     }
 }
 
@@ -105,7 +111,10 @@ impl std::fmt::Display for MError {
 
 #[cfg(test)]
 mod system_tests {
-    use crate::models::domain::member::Member;
+    use crate::models::domain::{
+        item::{Category, Item},
+        member::Member,
+    };
 
     use super::*;
 
@@ -185,5 +194,57 @@ mod system_tests {
 
         let r2 = system.exists_member(&allan);
         assert_eq!(r2, false);
+    }
+
+    #[test]
+    fn test_remove_member() {
+        let turing = Member::new(
+            "Turing".to_owned(),
+            "turing@enigma.com".to_owned(),
+            "123".to_owned(),
+            500f64,
+            vec![],
+        );
+
+        let mut system = System::new();
+        system
+            .add_member(turing.clone())
+            .expect("failed to add member");
+
+        let r1 = system.exists_member(&turing);
+        assert_eq!(r1, true);
+
+        match system.remove_member(turing.clone()) {
+            Ok(_) => {}
+            Err(_) => assert!(false),
+        }
+
+        let r2 = system.exists_member(&turing);
+        assert_eq!(r2, false);
+    }
+
+    #[test]
+    fn test_create_item() {
+        let turing = Member::new(
+            "Turing".to_owned(),
+            "turing@enigma.com".to_owned(),
+            "123".to_owned(),
+            500f64,
+            vec![],
+        );
+
+        let item = Item::default()
+            .name("Monopoly".to_owned())
+            .description("A beautiful Family Game.".to_owned())
+            .cost_per_day(20f64)
+            .category(Category::Game);
+
+        let mut system = System::new();
+        system
+            .add_member(turing.clone())
+            .expect("failed to add member");
+
+        let r1 = system.create_item(turing, item);
+        assert_eq!(r1, Ok(()))
     }
 }

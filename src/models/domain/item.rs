@@ -37,7 +37,7 @@ impl Default for Category {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct Item {
     pub uuid: Uuid,
     pub category: Category,
@@ -68,9 +68,29 @@ impl Item {
         self
     }
 
+    pub fn description(mut self, description: String) -> Item {
+        self.description = description;
+        self
+    }
+
+    pub fn cost_per_day(mut self, cost_per_day: f64) -> Item {
+        self.cost_per_day = cost_per_day;
+        self
+    }
+
     pub fn category(mut self, category: Category) -> Item {
         self.category = category;
         self
+    }
+
+    pub fn active_contract(mut self, contract: Contract) -> Item {
+        self.active_contract = Some(contract.clone());
+        self.add_contract(contract);
+        self
+    }
+
+    pub fn add_contract(&mut self, contract: Contract) {
+        self.history.push(contract);
     }
 }
 
