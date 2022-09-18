@@ -4,5 +4,5 @@ test:cargo:
   script:
     - rustc --version && cargo --version # Print version info for debugging
     - cargo test --workspace --verbose
-    - rustup components add clippy
+    - rustup component add clippy
     - cargo clippy --all
