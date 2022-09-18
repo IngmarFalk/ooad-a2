@@ -1,5 +1,5 @@
 use anyhow::Result;
-use std::collections::{hash_map::Entry, HashMap};
+use std::collections::HashMap;
 use thiserror::Error;
 
 use crate::types::Model;
@@ -129,29 +129,21 @@ mod system_tests {
             "Allan".to_owned(),
             "allan@enigma.com".to_owned(),
             "123456".to_owned(),
-            500f64,
-            vec![],
         );
         let turing1 = Member::new(
             "Turing".to_owned(),
             "allan@enigma.com".to_owned(),
             "123".to_owned(),
-            500f64,
-            vec![],
         );
         let turing2 = Member::new(
             "Turing".to_owned(),
             "turing@enigma.com".to_owned(),
             "123456".to_owned(),
-            500f64,
-            vec![],
         );
         let turing3 = Member::new(
             "Turing".to_owned(),
             "turing@enigma.com".to_owned(),
             "123".to_owned(),
-            500f64,
-            vec![],
         );
 
         let mut system = System::new();
@@ -178,15 +170,11 @@ mod system_tests {
             "Turing".to_owned(),
             "turing@enigma.com".to_owned(),
             "123".to_owned(),
-            500f64,
-            vec![],
         );
         let allan = Member::new(
             "Allan".to_owned(),
             "allan@enigma.com".to_owned(),
             "123567".to_owned(),
-            500f64,
-            vec![],
         );
 
         let mut system = System::new();
@@ -207,8 +195,6 @@ mod system_tests {
             "Turing".to_owned(),
             "turing@enigma.com".to_owned(),
             "123".to_owned(),
-            500f64,
-            vec![],
         );
 
         let mut system = System::new();
@@ -234,8 +220,6 @@ mod system_tests {
             "Turing".to_owned(),
             "turing@enigma.com".to_owned(),
             "123".to_owned(),
-            500f64,
-            vec![],
         );
 
         let item = Item::default()
@@ -259,8 +243,6 @@ mod system_tests {
             "Turing".to_owned(),
             "turing@enigma.com".to_owned(),
             "123".to_owned(),
-            500f64,
-            vec![],
         );
 
         let item = Item::default()
@@ -296,8 +278,6 @@ mod system_tests {
             "Turing".to_owned(),
             "turing@enigma.com".to_owned(),
             "123".to_owned(),
-            500f64,
-            vec![],
         );
 
         let item = Item::default()

@@ -18,29 +18,21 @@ fn main() {
         "Allan".to_owned(),
         "allan@enigma.com".to_owned(),
         "123456".to_owned(),
-        500f64,
-        vec![],
     );
     let turing1 = Member::new(
         "Turing".to_owned(),
         "allan@enigma.com".to_owned(),
         "123".to_owned(),
-        500f64,
-        vec![],
     );
     let turing2 = Member::new(
         "Turing".to_owned(),
         "turing@enigma.com".to_owned(),
         "123456".to_owned(),
-        500f64,
-        vec![],
     );
     let turing3 = Member::new(
         "Turing".to_owned(),
         "turing@enigma.com".to_owned(),
         "123".to_owned(),
-        500f64,
-        vec![],
     );
     // let mut members = Table::new();
 
