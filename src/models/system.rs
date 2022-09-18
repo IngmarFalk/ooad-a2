@@ -1,5 +1,5 @@
 use anyhow::Result;
-use std::collections::HashMap;
+use std::collections::{hash_map::Entry, HashMap};
 use thiserror::Error;
 
 use crate::types::Model;
@@ -61,10 +61,10 @@ impl LendingSystem for System {
     }
 
     fn exists_member(&self, member: &Member) -> bool {
-        match self.members.get(&member.uuid) {
-            Some(_) => true,
-            None => false,
-        }
+        self.members.iter().any(|entry| {
+            let m = entry.1.clone();
+            m.email == member.email || m.phone_nr == member.phone_nr
+        })
     }
 
     fn create_item(&mut self, member: Member, item: Item) -> MResult<()> {
@@ -143,15 +143,19 @@ mod system_tests {
         let mut system = System::new();
         let r1 = system.add_member(allan);
         assert_eq!(r1, Ok(()));
+        println!("1");
 
         let r2 = system.add_member(turing1);
         assert_eq!(r2, Err(MError::AlreadyExists));
+        println!("2");
 
         let r3 = system.add_member(turing2);
         assert_eq!(r3, Err(MError::AlreadyExists));
+        println!("3");
 
         let r4 = system.add_member(turing3);
         assert_eq!(r4, Ok(()));
+        println!("4");
     }
 
     #[test]
