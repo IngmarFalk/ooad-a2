@@ -5,6 +5,8 @@
 # No build directory
 build/*
 target/*
+target/debug/*
+target/debug/incremental/a2-gvvga6hziwb3/s-gdnwm2crhh-zzywp1-1pln2voass3vu/*
 
 # No gradle hidden stuff
 .gradle/*
