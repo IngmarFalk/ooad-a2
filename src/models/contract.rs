@@ -31,3 +31,12 @@ impl Contract {
         }
     }
 }
+
+impl std::fmt::Display for Contract {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!(
+            "Start Day:\t{}\nEnd Day:\t{}\nLength:\t{}\nCredits:\t{}",
+            self.s_day, self.e_day, self.contract_len, self.credits
+        ))
+    }
+}
