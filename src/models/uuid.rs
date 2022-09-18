@@ -2,7 +2,7 @@ use std::fmt;
 
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Uuid {
     pub len: usize,
     value: String,

@@ -1,7 +1,11 @@
 use anyhow::Result;
+use std::collections::HashMap;
 use thiserror::Error;
 
-use super::domain::{item::Item, member::Member};
+use super::{
+    domain::{item::Item, member::Member},
+    uuid::Uuid,
+};
 
 pub trait LendingSystem {
     fn add_member(&mut self, member: Member) -> MResult<()>;
@@ -13,31 +17,24 @@ pub trait LendingSystem {
 
 #[derive(Debug)]
 pub struct System {
-    pub members: Vec<Member>,
+    members: HashMap<Uuid, Member>,
 }
 
 impl System {
     pub fn new() -> System {
-        System { members: vec![] }
+        System {
+            members: HashMap::new(),
+        }
     }
 
-    pub fn members(&mut self, members: Vec<Member>) -> &mut Self {
+    pub fn members(&mut self, members: HashMap<Uuid, Member>) -> &mut Self {
         self.members = members;
         self
     }
 
     pub fn get_member(&self, member: Member) -> MResult<Member> {
-        let idx = self.members.iter().position(|e| e.uuid == member.uuid);
-        match idx {
-            Some(i) => Ok(self.members[i].clone()),
-            None => Err(MError::DoesntExist),
-        }
-    }
-
-    fn get_member_idx(&self, member: Member) -> MResult<usize> {
-        let idx = self.members.iter().position(|e| e.uuid == member.uuid);
-        match idx {
-            Some(i) => Ok(i),
+        match self.members.get(&member.uuid) {
+            Some(m) => Ok(m.clone()),
             None => Err(MError::DoesntExist),
         }
     }
@@ -48,7 +45,7 @@ impl LendingSystem for System {
         if self.exists_member(&member) {
             return Err(MError::AlreadyExists);
         }
-        self.members.push(member);
+        self.members.insert(member.uuid.clone(), member);
         Ok(())
     }
 
@@ -60,21 +57,24 @@ impl LendingSystem for System {
     }
 
     fn exists_member(&self, member: &Member) -> bool {
-        self.members
-            .iter()
-            .any(|m| m.email == member.email || m.phone_nr == member.phone_nr)
+        match self.members.get(&member.uuid) {
+            Some(_) => true,
+            None => false,
+        }
     }
 
     fn create_item(&mut self, member: Member, item: Item) -> MResult<()> {
-        let member = self.get_member_idx(member);
-        match member {
-            Ok(i) => self.members[i].add_item(item),
+        match self.get_member(member) {
+            Ok(mut m) => m.add_item(item),
             Err(err) => return Err(err),
         }
     }
 
     fn delete_item(&self, member: Member, item: Item) -> MResult<()> {
-        todo!()
+        match self.get_member(member) {
+            Ok(mut m) => m.remove_item(item),
+            Err(err) => return Err(err),
+        }
     }
 }
 

@@ -1,9 +1,13 @@
-use chrono::format::format;
-
-pub struct Console;
+use thiserror::Error;
 
 type Row = Vec<String>;
 type Table = Vec<Row>;
+
+#[derive(Debug, Error)]
+#[error("The Table to be displayed contained rows with different item counts.")]
+pub struct InconsistentRowLength;
+
+pub struct Console;
 
 impl Console {
     pub fn new() -> Console {
@@ -15,22 +19,34 @@ impl Console {
     }
 
     pub fn writef(&self, out: String) {
+        // TODO figure out a format for regular messages
+        // TODO Maybe also clear the screen before every message
         todo!()
     }
 
-    pub fn table(&self, table: Table) {
+    pub fn confirm(&self, arg: String, val: String) -> bool {
+        /// TODO Something like this: Are you sure you want to change `arg` to `val` ? (y/n):
+        todo!()
+    }
+
+    pub fn table(&self, table: Table) -> Result<(), InconsistentRowLength> {
         let length: usize = match table.first() {
-            Some(row) => row.len() * 28 - 1,
+            Some(row) => row.len(),
             None => 0,
         };
-        println!("{length}");
 
-        let filler = ' ';
-        println!("|{filler:->length$}|");
-        for row in table {
-            self.row(row)
+        if table.iter().any(|e| e.len() != length) {
+            return Err(InconsistentRowLength);
         }
-        println!("|{filler:->length$}|");
+
+        let filler = "";
+        let frame_len = length * 28 - 1;
+        println!("-{filler:-<frame_len$}-");
+        for row in table {
+            self.row(row);
+            println!("|{filler:-<frame_len$}|");
+        }
+        Ok(())
     }
 
     pub fn row(&self, row: Row) {

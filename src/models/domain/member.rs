@@ -67,7 +67,7 @@ impl Member {
         Ok(())
     }
 
-    pub fn remove_item(&mut self, item: Item) -> anyhow::Result<()> {
+    pub fn remove_item(&mut self, item: Item) -> MResult<()> {
         let idx = self.items.iter().position(|e| e == &item);
         match idx {
             Some(i) => {

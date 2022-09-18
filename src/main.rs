@@ -1,7 +1,5 @@
-use models::domain::{item::Item, member::Member, ToRow};
-use views::{console::Console, member_view::MemberDisplay};
-
-use crate::views::member_view::MemberView;
+use models::domain::{member::Member, ToRow};
+use views::console::Console;
 
 pub mod controllers;
 pub mod models;
@@ -46,7 +44,10 @@ fn main() {
     ];
 
     let con = Console::new();
-    con.table(members);
+    match con.table(members) {
+        Ok(_) => {}
+        Err(err) => println!("{err}"),
+    }
 
     // let view = MemberView::new();
     // view.display_member_simple(turing3.clone());
