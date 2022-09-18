@@ -1,5 +1,5 @@
-use models::{item::Item, member::Member};
-use views::member_view::MemberDisplay;
+use models::domain::{item::Item, member::Member, ToRow};
+use views::{console::Console, member_view::MemberDisplay};
 
 use crate::views::member_view::MemberView;
 
@@ -10,22 +10,46 @@ pub mod views;
 // use crate::{controllers::app::App, models::system::System, views::main_view::MainView};
 
 fn main() {
+    let allan = Member::new(
+        "Allan".to_owned(),
+        "allan@enigma.com".to_owned(),
+        "123456".to_owned(),
+        500f64,
+        vec![],
+    );
+    let turing1 = Member::new(
+        "Turing".to_owned(),
+        "allan@enigma.com".to_owned(),
+        "123".to_owned(),
+        500f64,
+        vec![],
+    );
+    let turing2 = Member::new(
+        "Turing".to_owned(),
+        "turing@enigma.com".to_owned(),
+        "123456".to_owned(),
+        500f64,
+        vec![],
+    );
     let turing3 = Member::new(
         "Turing".to_owned(),
         "turing@enigma.com".to_owned(),
         "123".to_owned(),
         500f64,
-        vec![Item::new(
-            crate::models::item::Category::Game,
-            "Monopoly".to_owned(),
-            "Family Game".to_owned(),
-            None,
-            chrono::offset::Local::now(),
-            20f64,
-        )],
+        vec![],
     );
-    let view = MemberView::new();
+    let members = vec![
+        allan.to_row(),
+        turing1.to_row(),
+        turing2.to_row(),
+        turing3.to_row(),
+    ];
+
+    let con = Console::new();
+    con.table(members);
+
+    // let view = MemberView::new();
     // view.display_member_simple(turing3.clone());
     // view.display_member_verbose(turing3.clone());
-    view.get_str_input("Name: ");
+    // view.get_str_input("Name: ");
 }

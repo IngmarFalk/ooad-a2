@@ -1,9 +1,6 @@
-use std::{
-    io::{self, stdin, Write},
-    mem,
-};
+use std::io::{self, stdin, Write};
 
-use crate::models::{member::Member, uuid::Uuid};
+use crate::models::domain::member::Member;
 
 pub trait MemberDisplay {
     fn display_member_verbose(&self, member: Member);

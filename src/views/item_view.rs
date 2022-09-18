@@ -1,4 +1,4 @@
-use crate::models::item::Item;
+use crate::models::domain::item::Item;
 
 pub trait ItemDisplay {
     fn display_item_info(item: Item);

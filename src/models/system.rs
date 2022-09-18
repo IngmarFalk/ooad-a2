@@ -1,7 +1,7 @@
 use anyhow::Result;
 use thiserror::Error;
 
-use super::{item::Item, member::Member};
+use super::domain::{item::Item, member::Member};
 
 pub trait LendingSystem {
     fn add_member(&mut self, member: Member) -> MResult<()>;
@@ -101,7 +101,7 @@ impl std::fmt::Display for MError {
 
 #[cfg(test)]
 mod system_tests {
-    use crate::models::member::Member;
+    use crate::models::domain::member::Member;
 
     use super::*;
 
