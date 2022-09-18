@@ -37,7 +37,7 @@ impl Default for Category {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct Item {
     pub uuid: Uuid,
     pub category: Category,
@@ -124,3 +124,15 @@ impl ToRow for Item {
         ]
     }
 }
+
+impl PartialEq for Item {
+    fn eq(&self, other: &Self) -> bool {
+        self.uuid == other.uuid
+    }
+
+    fn ne(&self, other: &Self) -> bool {
+        self.uuid != other.uuid
+    }
+}
+
+impl Eq for Item {}

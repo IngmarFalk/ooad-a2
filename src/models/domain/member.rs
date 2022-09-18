@@ -70,14 +70,15 @@ impl Member {
     }
 
     pub fn remove_item(&mut self, item: Item) -> MResult<()> {
-        let idx = self.items.iter().position(|e| e == &item);
-        match idx {
-            Some(i) => {
-                self.items.remove(i);
-                Ok(())
-            }
-            None => todo!(),
+        if !self.has_item(&item) {
+            return Err(MError::DoesntExist);
         }
+        self.items.retain(|i| i != &item);
+        Ok(())
+    }
+
+    pub fn has_item(&self, item: &Item) -> bool {
+        self.items.contains(item)
     }
 
     pub fn add_credits(&mut self, credits: f64) -> Result<(), NegativeCreditInput> {
@@ -142,6 +143,18 @@ impl ToRow for Member {
         ]
     }
 }
+
+impl PartialEq for Member {
+    fn eq(&self, other: &Self) -> bool {
+        self.email == other.email || self.phone_nr == other.phone_nr || self.uuid == other.uuid
+    }
+
+    fn ne(&self, other: &Self) -> bool {
+        self.email != other.email && self.phone_nr != other.phone_nr && self.uuid == other.uuid
+    }
+}
+
+impl Eq for Member {}
 
 #[derive(Debug, Error)]
 #[error("Tried adding/deducing a negative amount to credits")]

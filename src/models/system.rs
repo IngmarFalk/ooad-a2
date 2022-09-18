@@ -13,9 +13,8 @@ pub trait LendingSystem {
     fn add_member(&mut self, member: Member) -> MResult<()>;
     fn remove_member(&mut self, member: Member) -> MResult<()>;
     fn exists_member(&self, member: &Member) -> bool;
-    fn create_item(&mut self, member: Member, item: Item) -> MResult<()>;
-    fn delete_item(&self, member: Member, item: Item) -> MResult<()>;
-    fn exists_item(&self, member: &Member, item: &Item) -> bool;
+    fn create_item(&mut self, member: &Member, item: Item) -> MResult<()>;
+    fn delete_item(&mut self, member: &Member, item: Item) -> MResult<()>;
 }
 
 #[derive(Debug)]
@@ -37,9 +36,16 @@ impl System {
         self
     }
 
-    pub fn get_member(&self, member: Member) -> MResult<Member> {
+    pub fn get_member(&self, member: &Member) -> MResult<Member> {
         match self.members.get(&member.uuid) {
             Some(m) => Ok(m.clone()),
+            None => Err(MError::DoesntExist),
+        }
+    }
+
+    fn get_member_mut(&mut self, member: &Member) -> MResult<&mut Member> {
+        match self.members.get_mut(&member.uuid) {
+            Some(m) => Ok(m),
             None => Err(MError::DoesntExist),
         }
     }
@@ -65,26 +71,25 @@ impl LendingSystem for System {
     fn exists_member(&self, member: &Member) -> bool {
         self.members.iter().any(|entry| {
             let m = entry.1.clone();
-            m.email == member.email || m.phone_nr == member.phone_nr
+            m == member.clone()
         })
     }
 
-    fn create_item(&mut self, member: Member, item: Item) -> MResult<()> {
-        match self.get_member(member) {
-            Ok(mut m) => m.add_item(item),
+    fn create_item(&mut self, member: &Member, item: Item) -> MResult<()> {
+        match self.get_member_mut(&member) {
+            Ok(m) => match m.add_item(item) {
+                Ok(_) => Ok(()),
+                Err(err) => Err(err),
+            },
             Err(err) => return Err(err),
         }
     }
 
-    fn delete_item(&self, member: Member, item: Item) -> MResult<()> {
-        match self.get_member(member) {
-            Ok(mut m) => m.remove_item(item),
+    fn delete_item(&mut self, member: &Member, item: Item) -> MResult<()> {
+        match self.get_member_mut(&member) {
+            Ok(m) => m.remove_item(item),
             Err(err) => return Err(err),
         }
-    }
-
-    fn exists_item(&self, member: &Member, item: &Item) -> bool {
-        todo!()
     }
 }
 
@@ -244,7 +249,81 @@ mod system_tests {
             .add_member(turing.clone())
             .expect("failed to add member");
 
-        let r1 = system.create_item(turing, item);
+        let r1 = system.create_item(&turing, item);
         assert_eq!(r1, Ok(()))
+    }
+
+    #[test]
+    fn test_exists_item() {
+        let turing = Member::new(
+            "Turing".to_owned(),
+            "turing@enigma.com".to_owned(),
+            "123".to_owned(),
+            500f64,
+            vec![],
+        );
+
+        let item = Item::default()
+            .name("Monopoly".to_owned())
+            .description("A beautiful Family Game.".to_owned())
+            .cost_per_day(20f64)
+            .category(Category::Game);
+
+        let mut system = System::new();
+        system
+            .add_member(turing.clone())
+            .expect("failed to add member");
+
+        let r0 = turing.has_item(&item);
+        assert_eq!(r0, false);
+
+        let r1 = system.create_item(&turing, item.clone());
+        assert_eq!(r1, Ok(()));
+
+        let r2 = match system.get_member(&turing) {
+            Ok(member) => {
+                println!("{:?}", member.items);
+                member.has_item(&item)
+            }
+            Err(_) => false,
+        };
+        assert_eq!(r2, true);
+    }
+
+    #[test]
+    fn test_delete_item() {
+        let turing = Member::new(
+            "Turing".to_owned(),
+            "turing@enigma.com".to_owned(),
+            "123".to_owned(),
+            500f64,
+            vec![],
+        );
+
+        let item = Item::default()
+            .name("Monopoly".to_owned())
+            .description("A beautiful Family Game.".to_owned())
+            .cost_per_day(20f64)
+            .category(Category::Game);
+
+        let mut system = System::new();
+        system
+            .add_member(turing.clone())
+            .expect("failed to add member");
+
+        let r1 = system.create_item(&turing, item.clone());
+        assert_eq!(r1, Ok(()));
+
+        let r2 = system.delete_item(&turing, item.clone());
+        assert_eq!(r2, Ok(()));
+
+        let r3 = match system.get_member(&turing) {
+            Ok(member) => {
+                println!("{:?}", member.items);
+                member.has_item(&item)
+            }
+            Err(_) => false,
+        };
+        assert_eq!(r3, false);
     }
 }
