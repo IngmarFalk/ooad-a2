@@ -9,6 +9,9 @@ target/debug/*
 target/debug/deps/*
 target/debug/incremental/a2-gvvga6hziwb3/s-gdnwm2crhh-zzywp1-1pln2voass3vu/*
 
+target/
+!/**/src/**/target/
+
 # No gradle hidden stuff
 .gradle/*
 

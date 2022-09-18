@@ -25,6 +25,6 @@ impl MainMenu {
 
 impl App for MainMenu {
     fn run<M, V>(&self, model: M, view: V) {
-        todo!()
+        println!("hello world");
     }
 }
