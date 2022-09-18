@@ -36,6 +36,6 @@ docker run assignment2
 
 ### Linting
 
-Linting is integrated into the compiler. Meaning when this project is run via `docker run ..` the compiler will display all
+Linting is integrated into the build tool (cargo). Meaning when this project is run via `docker run ..` the compiler will display all
 stylistic problems and errors. When there are no errors, warnings or tips, this means the code is clean and functioning.
 
