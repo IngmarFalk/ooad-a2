@@ -14,7 +14,6 @@ pub trait MemberView {
     fn ls_verbose(&self, members: Vec<Member>);
     fn get_member_info(&self) -> Member;
     fn edit_member_info(&self, member: &mut Member) -> Member;
-    fn get_str_input(&self, display: &str) -> String;
 }
 
 pub struct CliMemberView {
@@ -71,27 +70,13 @@ impl MemberView for CliMemberView {
 
     fn get_member_info(&self) -> Member {
         Member::default()
-            .name(self.get_str_input("Name: "))
-            .email(self.get_str_input("Email: "))
-            .phone_nr(self.get_str_input("Phone number: "))
+            .name(self.console.get_str_input("Name: "))
+            .email(self.console.get_str_input("Email: "))
+            .phone_nr(self.console.get_str_input("Phone number: "))
             .clone()
     }
 
     fn edit_member_info(&self, member: &mut Member) -> Member {
         todo!()
-    }
-
-    fn get_str_input(&self, display: &str) -> String {
-        print!("{display}");
-        match io::stdout().flush() {
-            Ok(_) => {}
-            Err(err) => println!("There was some error displaying to console: {err}"),
-        }
-        let mut buf = String::new();
-        match stdin().read_line(&mut buf) {
-            Ok(_) => {}
-            Err(_) => println!("There was a problem reading the input"),
-        };
-        buf
     }
 }

@@ -37,6 +37,25 @@ impl Default for Category {
     }
 }
 
+impl From<String> for Category {
+    fn from(inp: String) -> Self {
+        let tool = String::from("tool");
+        let vehicle = String::from("vehicle");
+        let game = String::from("game");
+        let toy = String::from("toy");
+        let sport = String::from("sport");
+
+        match inp.to_lowercase() {
+            tool => Category::Tool,
+            vehicle => Category::Tool,
+            game => Category::Game,
+            toy => Category::Toy,
+            sport => Category::Sport,
+            _ => Category::Other,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct Item {
     pub uuid: Uuid,

@@ -1,10 +1,6 @@
 use crate::{
-    models::system::System,
     types::{Model, View},
-    views::{
-        console::Console,
-        main_view::{CliMainView, MainView},
-    },
+    views::main_view::MainView,
 };
 
 pub trait App {

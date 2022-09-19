@@ -1,3 +1,5 @@
+use std::io::{self, stdin, Write};
+
 use prettytable::Table;
 use thiserror::Error;
 
@@ -41,5 +43,19 @@ impl Console {
             row_buf.push_str(&item_buf);
         }
         println!("{row_buf}")
+    }
+
+    pub fn get_str_input(&self, display: &str) -> String {
+        print!("{display}");
+        match io::stdout().flush() {
+            Ok(_) => {}
+            Err(err) => println!("There was some error displaying to console: {err}"),
+        }
+        let mut buf = String::new();
+        match stdin().read_line(&mut buf) {
+            Ok(_) => {}
+            Err(_) => println!("There was a problem reading the input"),
+        };
+        buf
     }
 }
