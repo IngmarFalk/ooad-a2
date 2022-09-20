@@ -10,6 +10,8 @@ use super::{
 };
 
 pub trait LendingSystem {
+    fn get_member(&self, member: &Member) -> MResult<Member>;
+    fn get_member_mut(&mut self, member: &Member) -> MResult<&mut Member>;
     fn add_member(&mut self, member: Member) -> MResult<()>;
     fn remove_member(&mut self, member: Member) -> MResult<()>;
     fn exists_member(&self, member: &Member) -> bool;
@@ -35,8 +37,10 @@ impl System {
         self.members = members;
         self
     }
+}
 
-    pub fn get_member(&self, member: &Member) -> MResult<Member> {
+impl LendingSystem for System {
+    fn get_member(&self, member: &Member) -> MResult<Member> {
         match self.members.get(&member.uuid) {
             Some(m) => Ok(m.clone()),
             None => Err(MError::DoesntExist),
@@ -49,9 +53,7 @@ impl System {
             None => Err(MError::DoesntExist),
         }
     }
-}
 
-impl LendingSystem for System {
     fn add_member(&mut self, member: Member) -> MResult<()> {
         if self.exists_member(&member) {
             return Err(MError::AlreadyExists);

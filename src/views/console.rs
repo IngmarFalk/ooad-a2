@@ -1,7 +1,12 @@
-use std::io::{self, stdin, Write};
-
-use prettytable::Table;
+use ncurses::{self, endwin, getch, initscr};
+use prettytable::{row, Table};
+use std::{
+    collections::HashMap,
+    io::{self, stdin, Write},
+};
 use thiserror::Error;
+
+use crate::{models::domain::Data, types::BuffersMap};
 
 type Row = Vec<String>;
 
@@ -17,19 +22,58 @@ impl Console {
         Console {}
     }
 
-    pub fn write(&self, out: String) {
-        todo!()
+    pub fn clear(&self) {
+        if cfg!(windows) {
+            std::process::Command::new("cls").status().unwrap();
+        } else {
+            std::process::Command::new("clear").status().unwrap();
+        }
     }
 
-    pub fn writef(&self, out: String) {
-        // TODO figure out a format for regular messages
-        // TODO Maybe also clear the screen before every message
-        todo!()
+    pub fn write(&self, out: &str) {
+        print!("\n\t{out}: ")
+    }
+
+    pub fn writef(&self, out: &str) {
+        self.title();
+        self.write(out);
+    }
+
+    pub fn title(&self) {
+        self.clear();
+
+        println!("+  S T U F F   L E N D I N G   S Y S T E M   +");
+        io::stdout().flush().unwrap();
+        // match io::stdout().flush() {
+        //     Ok(_) => {}
+        //     Err(_) => println!("Error flushing print buffer to std::out."),
+        // }
     }
 
     pub fn confirm(&self, arg: String, val: String) -> bool {
-        /// TODO Something like this: Are you sure you want to change `arg` to `val` ? (y/n):
-        todo!()
+        self.title();
+        let str_raw = self.get_str_input(
+            format!(
+                "Are you sure you want to change ({}) to: {}. (y/n)",
+                arg, val
+            )
+            .as_str(),
+        );
+
+        let chr = match str_raw.len() {
+            1 => str_raw.chars().next().unwrap(),
+            _ => 'q',
+        };
+
+        self.clear();
+
+        match chr {
+            c => match c {
+                'y' => true,
+                'n' => false,
+                _ => self.confirm(arg, val),
+            },
+        }
     }
 
     pub fn table(&self, table: Table) {
@@ -46,7 +90,7 @@ impl Console {
     }
 
     pub fn get_str_input(&self, display: &str) -> String {
-        print!("{display}");
+        self.write(display);
         match io::stdout().flush() {
             Ok(_) => {}
             Err(err) => println!("There was some error displaying to console: {err}"),
@@ -56,6 +100,28 @@ impl Console {
             Ok(_) => {}
             Err(_) => println!("There was a problem reading the input"),
         };
-        buf
+        buf.strip_suffix("\n").unwrap().to_owned()
+    }
+
+    pub fn get_consecutive_str_input(&self, input_buffers: BuffersMap) -> BuffersMap {
+        let mut out: BuffersMap = Vec::new();
+        self.title();
+        for mut tpl in input_buffers {
+            tpl.1 = self.get_str_input(tpl.0.as_str());
+            out.push((tpl.0, tpl.1.to_owned()));
+        }
+
+        out
+    }
+
+    pub fn convert_to_editable_buffers_map(&self, obj: impl Data) -> crate::types::BuffersMap {
+        let buffers: BuffersMap = obj
+            .head_allowed_mutable()
+            .iter()
+            .map(|c| (c.to_string(), String::new()))
+            .collect::<Vec<(String, String)>>()
+            .into_iter()
+            .collect();
+        buffers
     }
 }

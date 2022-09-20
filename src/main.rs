@@ -1,6 +1,8 @@
 // #![warn(missing_docs)]
 // #![warn(clippy::missing_docs_in_private_items)]
 
+use std::collections::HashMap;
+
 use controllers::app::{App, MainMenu};
 use models::domain::{
     item::{Category, Item},
@@ -55,8 +57,27 @@ fn main() {
         Category::Game,
         20f64,
     );
-    let table = item.to_table();
-    con.table(table);
+    // let buffers = con.to_user_editable_buffers_map(item);
+    // let new_buffers = con.get_consecutive_str_input(buffers);
+
+    // for buffer in new_buffers {
+    //     println!("{:?}", buffer);
+    // }
+
+    con.confirm("Name".to_owned(), "Jeff".to_owned());
+
+    // let table = item.to_table();
+    // con.table(table);
+    // let mut h_map = HashMap::new();
+    // let name: String = String::new();
+    // let description: String = String::new();
+    // let category: String = String::new();
+    // let cost_per_day: String = String::new();
+    // h_map.insert("Name", name);
+    // h_map.insert("Description", description);
+    // h_map.insert("Category", category);
+    // h_map.insert("Cost Per Day", cost_per_day);
+    // con.get_consecutive_str_input(h_map);
     // con.table(members);
     // let model = System::new();
     // let view = CliMainView::new();

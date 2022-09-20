@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::models::{
     system::{MError, MResult},
     uuid::Uuid,
@@ -93,24 +95,6 @@ impl Member {
     }
 }
 
-// ! This probably does not belong here since it specifies 'ui/ux' elements.
-// impl std::fmt::Display for Member {
-//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//         let mut items_str = String::from("Items:");
-//         for item in self.items.iter() {
-//             let formatted = format!("\n\t{}", item);
-//             items_str.push_str(&formatted);
-//         }
-//         if self.items.len() == 0 {
-//             items_str.push_str(" []")
-//         }
-//         f.write_fmt(format_args!(
-//             "{}\n{}\n{}\n{}\n{}",
-//             self.name, self.email, self.phone_nr, self.credits, items_str
-//         ))
-//     }
-// }
-
 impl MemberValidation for Member {
     fn validate_id(&self) -> bool {
         todo!()
@@ -141,12 +125,24 @@ impl Data for Member {
         row!["Name", "Email", "Phone Number", "Uuid", "Credits", "Items"]
     }
 
+    fn head_allowed_mutable(&self) -> Row {
+        row!["name", "email", "phone_nr"]
+    }
+
     fn to_table(&self) -> prettytable::Table {
         let mut table = Table::new();
         table.add_row(self.head());
         table.add_row(self.to_row());
         table
     }
+
+    // fn to_user_editable_buffers_map(&self) -> crate::types::BuffersMap {
+    //     HashMap::from([
+    //         ("name", self.name),
+    //         ("email", self.email),
+    //         ("phone number", self.phone_nr),
+    //     ])
+    // }
 }
 
 impl PartialEq for Member {

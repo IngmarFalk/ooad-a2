@@ -59,7 +59,11 @@ impl Data for Contract {
     }
 
     fn head(&self) -> Row {
-        row!["Start Day", "End Day", "Contract Length", "Credits"]
+        row!["start_day", "end_day", "length", "credits"]
+    }
+
+    fn head_allowed_mutable(&self) -> Row {
+        row!["end_day", "length", "credits"]
     }
 
     fn to_table(&self) -> prettytable::Table {

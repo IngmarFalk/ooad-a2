@@ -1,9 +1,12 @@
-use std::fmt::Display;
+use std::{collections::HashMap, fmt::Display, hash::Hash, str::FromStr};
 
 use chrono::Local;
-use prettytable::{row, Row, Table};
+use prettytable::{row, Cell, Row, Table};
 
-use crate::{models::uuid::Uuid, types::ContractsList};
+use crate::{
+    models::uuid::Uuid,
+    types::{BuffersMap, ContractsList},
+};
 
 use super::{contract::Contract, Data};
 
@@ -151,6 +154,10 @@ impl Data for Item {
             "Contract",
             "Cost Per Day"
         ]
+    }
+
+    fn head_allowed_mutable(&self) -> Row {
+        row!["Name", "Description", "Category", "Cost Per Day"]
     }
 
     fn to_table(&self) -> prettytable::Table {
