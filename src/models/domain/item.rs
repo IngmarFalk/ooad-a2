@@ -5,10 +5,10 @@ use prettytable::{row, Cell, Row, Table};
 
 use crate::{
     models::uuid::Uuid,
-    types::{BuffersMap, ContractsList},
+    types::{ContractsList, StringMap},
 };
 
-use super::{contract::Contract, Data};
+use super::{contract::Contract, Data, FromMap, ToMap};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Category {
@@ -40,20 +40,14 @@ impl Default for Category {
     }
 }
 
-impl From<String> for Category {
-    fn from(inp: String) -> Self {
-        let tool = String::from("tool");
-        let vehicle = String::from("vehicle");
-        let game = String::from("game");
-        let toy = String::from("toy");
-        let sport = String::from("sport");
-
-        match inp.to_lowercase() {
-            tool => Category::Tool,
-            vehicle => Category::Tool,
-            game => Category::Game,
-            toy => Category::Toy,
-            sport => Category::Sport,
+impl From<&str> for Category {
+    fn from(inp: &str) -> Self {
+        match inp.to_lowercase().as_str() {
+            "tool" => Category::Tool,
+            "vehicle" => Category::Vehicle,
+            "game" => Category::Game,
+            "toy" => Category::Toy,
+            "sport" => Category::Sport,
             _ => Category::Other,
         }
     }
@@ -79,7 +73,7 @@ impl Item {
             description,
             active_contract: None,
             cost_per_day,
-            uuid: Uuid::new(),
+            uuid: Uuid::item(),
             history: vec![],
             day_of_creation: chrono::offset::Local::now(),
         }
@@ -131,6 +125,34 @@ impl std::fmt::Display for Item {
     }
 }
 
+impl FromMap for Item {
+    fn from_partial_map(data: StringMap) -> Self {
+        todo!()
+    }
+
+    fn from_complete_map(data: StringMap) -> Self {
+        todo!()
+    }
+
+    fn copy_with(&self, data: StringMap) -> Self {
+        todo!()
+    }
+}
+
+impl ToMap for Item {
+    fn to_map(&self) -> StringMap {
+        todo!()
+    }
+
+    fn to_allowed_mutable_map(&self) -> StringMap {
+        todo!()
+    }
+
+    fn to_buffers_map(&self) -> StringMap {
+        todo!()
+    }
+}
+
 impl Data for Item {
     fn to_row(&self) -> Row {
         let contract_str = match &self.active_contract {
@@ -146,23 +168,23 @@ impl Data for Item {
         ]
     }
 
-    fn head(&self) -> Row {
-        row![
+    fn head(&self) -> Vec<&str> {
+        vec![
             "Name",
             "Description",
             "Category",
             "Contract",
-            "Cost Per Day"
+            "Cost Per Day",
         ]
     }
 
-    fn head_allowed_mutable(&self) -> Row {
-        row!["Name", "Description", "Category", "Cost Per Day"]
+    fn head_allowed_mutable(&self) -> Vec<&str> {
+        vec!["Name", "Description", "Category", "Cost Per Day"]
     }
 
     fn to_table(&self) -> prettytable::Table {
         let mut table = Table::new();
-        table.add_row(self.head());
+        table.add_row(Row::from(self.head()));
         table.add_row(self.to_row());
         table
     }

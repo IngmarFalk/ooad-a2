@@ -64,7 +64,8 @@ fn main() {
     //     println!("{:?}", buffer);
     // }
 
-    con.confirm("Name".to_owned(), "Jeff".to_owned());
+    // con.confirm("Name".to_owned(), "Jeff".to_owned());
+    println!("{}", Category::from("Tool"));
 
     // let table = item.to_table();
     // con.table(table);

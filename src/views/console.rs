@@ -1,12 +1,14 @@
-use ncurses::{self, endwin, getch, initscr};
-use prettytable::{row, Table};
+use prettytable::Table;
 use std::{
     collections::HashMap,
     io::{self, stdin, Write},
 };
 use thiserror::Error;
 
-use crate::{models::domain::Data, types::BuffersMap};
+use crate::{
+    models::domain::{Data, FromMap, ToMap},
+    types::{BufferVec, StringMap, View},
+};
 
 type Row = Vec<String>;
 
@@ -44,10 +46,6 @@ impl Console {
 
         println!("+  S T U F F   L E N D I N G   S Y S T E M   +");
         io::stdout().flush().unwrap();
-        // match io::stdout().flush() {
-        //     Ok(_) => {}
-        //     Err(_) => println!("Error flushing print buffer to std::out."),
-        // }
     }
 
     pub fn confirm(&self, arg: String, val: String) -> bool {
@@ -103,8 +101,8 @@ impl Console {
         buf.strip_suffix("\n").unwrap().to_owned()
     }
 
-    pub fn get_consecutive_str_input(&self, input_buffers: BuffersMap) -> BuffersMap {
-        let mut out: BuffersMap = Vec::new();
+    pub fn get_consecutive_str_input(&self, input_buffers: StringMap) -> BufferVec {
+        let mut out: BufferVec = Vec::new();
         self.title();
         for mut tpl in input_buffers {
             tpl.1 = self.get_str_input(tpl.0.as_str());
@@ -114,8 +112,8 @@ impl Console {
         out
     }
 
-    pub fn convert_to_editable_buffers_map(&self, obj: impl Data) -> crate::types::BuffersMap {
-        let buffers: BuffersMap = obj
+    pub fn convert_to_editable_buffers_map(&self, obj: impl Data) -> crate::types::StringMap {
+        let buffers: StringMap = obj
             .head_allowed_mutable()
             .iter()
             .map(|c| (c.to_string(), String::new()))
@@ -123,5 +121,18 @@ impl Console {
             .into_iter()
             .collect();
         buffers
+    }
+
+    pub fn edit_model_info<T>(&self, obj: T) -> T
+    where
+        T: Data + FromMap + ToMap + View,
+    {
+        let new_model_info = self.get_consecutive_str_input(obj.to_allowed_mutable_map());
+        let data: StringMap = HashMap::from(
+            new_model_info
+                .into_iter()
+                .collect::<HashMap<String, String>>(),
+        );
+        obj.copy_with(data)
     }
 }

@@ -19,6 +19,11 @@ pub trait LendingSystem {
     fn delete_item(&mut self, member: &Member, item: Item) -> MResult<()>;
 }
 
+/// TODO : Create a cache HashMap in system where whenever we add an item
+/// TODO : or contract we store a chain of keys as a track to the exact
+/// TODO : item or contract. That way we can look up a contract id
+/// TODO : in this map via a single operation.
+
 #[derive(Debug)]
 pub struct System {
     members: HashMap<Uuid, Member>,

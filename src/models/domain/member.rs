@@ -8,7 +8,7 @@ use chrono::{self, Local};
 use prettytable::{row, Row, Table};
 use thiserror::Error;
 
-use super::{item::Item, Data};
+use super::{item::Item, Data, FromMap, ToMap};
 
 pub trait MemberValidation {
     fn validate_id(&self) -> bool;
@@ -30,7 +30,7 @@ pub struct Member {
 impl Member {
     pub fn new(name: String, email: String, phone_nr: String) -> Member {
         Member {
-            uuid: Uuid::new(),
+            uuid: Uuid::member(),
             day_of_creation: chrono::offset::Local::now(),
             credits: 0f64,
             items: vec![],
@@ -109,6 +109,34 @@ impl MemberValidation for Member {
     }
 }
 
+impl FromMap for Member {
+    fn from_partial_map(data: crate::types::StringMap) -> Self {
+        todo!()
+    }
+
+    fn from_complete_map(data: crate::types::StringMap) -> Self {
+        todo!()
+    }
+
+    fn copy_with(&self, data: crate::types::StringMap) -> Self {
+        todo!()
+    }
+}
+
+impl ToMap for Member {
+    fn to_map(&self) -> crate::types::StringMap {
+        todo!()
+    }
+
+    fn to_allowed_mutable_map(&self) -> crate::types::StringMap {
+        todo!()
+    }
+
+    fn to_buffers_map(&self) -> crate::types::StringMap {
+        todo!()
+    }
+}
+
 impl Data for Member {
     fn to_row(&self) -> Row {
         row![
@@ -121,28 +149,20 @@ impl Data for Member {
         ]
     }
 
-    fn head(&self) -> Row {
-        row!["Name", "Email", "Phone Number", "Uuid", "Credits", "Items"]
+    fn head(&self) -> Vec<&str> {
+        vec!["Name", "Email", "Phone Number", "Uuid", "Credits", "Items"]
     }
 
-    fn head_allowed_mutable(&self) -> Row {
-        row!["name", "email", "phone_nr"]
+    fn head_allowed_mutable(&self) -> Vec<&str> {
+        vec!["name", "email", "phone_nr"]
     }
 
     fn to_table(&self) -> prettytable::Table {
         let mut table = Table::new();
-        table.add_row(self.head());
+        table.add_row(Row::from(self.head()));
         table.add_row(self.to_row());
         table
     }
-
-    // fn to_user_editable_buffers_map(&self) -> crate::types::BuffersMap {
-    //     HashMap::from([
-    //         ("name", self.name),
-    //         ("email", self.email),
-    //         ("phone number", self.phone_nr),
-    //     ])
-    // }
 }
 
 impl PartialEq for Member {
