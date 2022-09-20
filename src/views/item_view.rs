@@ -2,7 +2,7 @@ use prettytable::Table;
 
 use crate::models::domain::{
     item::{Category, Item},
-    ToRow,
+    Data,
 };
 
 use super::console::Console;

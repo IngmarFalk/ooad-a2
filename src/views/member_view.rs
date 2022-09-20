@@ -1,7 +1,5 @@
-use std::io::{self, stdin, Write};
-
 use crate::{
-    models::domain::{member::Member, ToRow},
+    models::domain::{member::Member, Data},
     types::MembersList,
 };
 

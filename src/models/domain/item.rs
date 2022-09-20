@@ -1,11 +1,11 @@
 use std::fmt::Display;
 
 use chrono::Local;
-use prettytable::{row, Row};
+use prettytable::{row, Row, Table};
 
 use crate::{models::uuid::Uuid, types::ContractsList};
 
-use super::{contract::Contract, ToRow};
+use super::{contract::Contract, Data};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Category {
@@ -128,7 +128,7 @@ impl std::fmt::Display for Item {
     }
 }
 
-impl ToRow for Item {
+impl Data for Item {
     fn to_row(&self) -> Row {
         let contract_str = match &self.active_contract {
             Some(c) => c.uuid.to_string(),
@@ -141,6 +141,23 @@ impl ToRow for Item {
             contract_str,
             self.cost_per_day.to_string(),
         ]
+    }
+
+    fn head(&self) -> Row {
+        row![
+            "Name",
+            "Description",
+            "Category",
+            "Contract",
+            "Cost Per Day"
+        ]
+    }
+
+    fn to_table(&self) -> prettytable::Table {
+        let mut table = Table::new();
+        table.add_row(self.head());
+        table.add_row(self.to_row());
+        table
     }
 }
 

@@ -3,10 +3,10 @@ use crate::models::{
     uuid::Uuid,
 };
 use chrono::{self, Local};
-use prettytable::{row, Row};
+use prettytable::{row, Row, Table};
 use thiserror::Error;
 
-use super::{item::Item, ToRow};
+use super::{item::Item, Data};
 
 pub trait MemberValidation {
     fn validate_id(&self) -> bool;
@@ -125,7 +125,7 @@ impl MemberValidation for Member {
     }
 }
 
-impl ToRow for Member {
+impl Data for Member {
     fn to_row(&self) -> Row {
         row![
             self.name.clone(),
@@ -135,6 +135,17 @@ impl ToRow for Member {
             self.credits.clone().to_string(),
             self.items.len().to_string(),
         ]
+    }
+
+    fn head(&self) -> Row {
+        row!["Name", "Email", "Phone Number", "Uuid", "Credits", "Items"]
+    }
+
+    fn to_table(&self) -> prettytable::Table {
+        let mut table = Table::new();
+        table.add_row(self.head());
+        table.add_row(self.to_row());
+        table
     }
 }
 

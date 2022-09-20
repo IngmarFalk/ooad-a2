@@ -2,13 +2,10 @@
 // #![warn(clippy::missing_docs_in_private_items)]
 
 use controllers::app::{App, MainMenu};
-use models::{
-    domain::{
-        item::{Category, Item},
-        member::Member,
-        ToRow,
-    },
-    system::System,
+use models::domain::{
+    item::{Category, Item},
+    member::Member,
+    Data,
 };
 use prettytable::{table, Table};
 use views::{
@@ -58,8 +55,7 @@ fn main() {
         Category::Game,
         20f64,
     );
-    let mut table = Table::new();
-    table.add_row(item.to_row());
+    let table = item.to_table();
     con.table(table);
     // con.table(members);
     // let model = System::new();

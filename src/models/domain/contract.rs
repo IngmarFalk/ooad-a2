@@ -1,9 +1,9 @@
 use chrono::Local;
-use prettytable::{row, Row};
+use prettytable::{row, Row, Table};
 
 use crate::models::uuid::Uuid;
 
-use super::ToRow;
+use super::Data;
 
 pub trait ContractValidation {
     fn validate_credits() -> bool;
@@ -48,7 +48,7 @@ impl std::fmt::Display for Contract {
     }
 }
 
-impl ToRow for Contract {
+impl Data for Contract {
     fn to_row(&self) -> Row {
         row![
             self.s_day.date().naive_local().to_string(),
@@ -56,5 +56,16 @@ impl ToRow for Contract {
             self.contract_len.to_string(),
             self.credits.to_string(),
         ]
+    }
+
+    fn head(&self) -> Row {
+        row!["Start Day", "End Day", "Contract Length", "Credits"]
+    }
+
+    fn to_table(&self) -> prettytable::Table {
+        let mut table = Table::new();
+        table.add_row(self.head());
+        table.add_row(self.to_row());
+        table
     }
 }
