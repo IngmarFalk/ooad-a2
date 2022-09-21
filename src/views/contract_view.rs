@@ -13,7 +13,7 @@ pub struct ContractView {
 
 impl ContractDisplay for ContractView {
     fn display_contract_simple(&self, contract: Contract) {
-        todo!()
+        let info = contract.unpack();
     }
 
     fn display_contract_verbose(&self, contract: Contract) {

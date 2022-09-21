@@ -1,19 +1,8 @@
 // #![warn(missing_docs)]
 // #![warn(clippy::missing_docs_in_private_items)]
+#![crate_type = "proc-macro"]
 
-use std::collections::HashMap;
-
-use controllers::app::{App, MainMenu};
-use models::domain::{
-    item::{Category, Item},
-    member::Member,
-    Data,
-};
-use prettytable::{table, Table};
-use views::{
-    console::Console,
-    main_view::{CliMainView, MainView},
-};
+use models::domain::member::Member;
 
 pub mod controllers;
 pub mod models;
@@ -50,14 +39,14 @@ fn main() {
     // members.add_row(turing2.to_row());
     // members.add_row(turing3.to_row());
 
-    let con = Console::new();
-    let item = Item::new(
-        "Monopoly".to_owned(),
-        "A Family Game".to_owned(),
-        Category::Game,
-        allan,
-        20f64,
-    );
+    // let con = Console::new();
+    // let item = Item::new(
+    //     "Monopoly".to_owned(),
+    //     "A Family Game".to_owned(),
+    //     Category::Game,
+    //     allan,
+    //     20f64,
+    // );
     // let buffers = con.to_user_editable_buffers_map(item);
     // let new_buffers = con.get_consecutive_str_input(buffers);
 
@@ -66,7 +55,7 @@ fn main() {
     // }
 
     // con.confirm("Name".to_owned(), "Jeff".to_owned());
-    println!("{}", Category::from("Tool"));
+    // println!("{}", Category::from("Tool"));
 
     // let table = item.to_table();
     // con.table(table);
@@ -83,6 +72,6 @@ fn main() {
     // con.table(members);
     // let model = System::new();
     // let view = CliMainView::new();
-    let app = MainMenu::new();
+    // let app = MainApp::new();
     // app.run(model, view);
 }

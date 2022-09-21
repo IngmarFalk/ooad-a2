@@ -1,8 +1,13 @@
-use derive_getters::Getters;
+use std::fmt;
 
-use crate::models::{
-    system::{MError, MResult},
-    uuid::Uuid,
+use derive_getters::{Dissolve, Getters};
+
+use crate::{
+    models::{
+        system::{MError, MResult},
+        uuid::Uuid,
+    },
+    types::StringMap,
 };
 use chrono::{self, Local};
 use prettytable::{row, Row, Table};
@@ -16,7 +21,10 @@ pub trait MemberValidation {
     fn validate_email(&self) -> bool;
 }
 
-#[derive(Clone, Debug, Getters)]
+/// If you see this warning from vscode: It is a bug within rust-analyzer, the
+/// linter used for rust. Important: ! This is not a Bug in this code !
+#[derive(Clone, Debug, Getters, Dissolve)]
+#[dissolve(rename = "unpack")]
 pub struct Member {
     name: String,
     email: String,
@@ -94,15 +102,15 @@ impl MemberValidation for Member {
 }
 
 impl FromMap for Member {
-    fn from_partial_map(data: crate::types::StringMap) -> Self {
+    fn from_partial_map(data: StringMap) -> Self {
         todo!()
     }
 
-    fn from_complete_map(data: crate::types::StringMap) -> Self {
+    fn from_complete_map(data: StringMap) -> Self {
         todo!()
     }
 
-    fn copy_with(&self, data: crate::types::StringMap) -> Self {
+    fn copy_with(&self, data: StringMap) -> Self {
         todo!()
     }
 }
@@ -133,12 +141,19 @@ impl Data for Member {
         ]
     }
 
-    fn head(&self) -> Vec<&str> {
-        vec!["Name", "Email", "Phone Number", "Uuid", "Credits", "Items"]
+    fn head(&self) -> Vec<String> {
+        vec![
+            "Name".to_owned(),
+            "Email".to_owned(),
+            "Phone Number".to_owned(),
+            "Uuid".to_owned(),
+            "Credits".to_owned(),
+            "Items".to_owned(),
+        ]
     }
 
-    fn head_allowed_mutable(&self) -> Vec<&str> {
-        vec!["name", "email", "phone_nr"]
+    fn head_allowed_mutable(&self) -> Vec<String> {
+        vec!["name".to_owned(), "email".to_owned(), "phone_nr".to_owned()]
     }
 
     fn to_table(&self) -> prettytable::Table {
@@ -146,6 +161,20 @@ impl Data for Member {
         table.add_row(Row::from(self.head()));
         table.add_row(self.to_row());
         table
+    }
+}
+
+impl fmt::Display for Member {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!(
+            "{};{};{};{};{};{:?}",
+            self.name(),
+            self.email(),
+            self.phone_nr(),
+            self.uuid(),
+            self.credits(),
+            self.items()
+        ))
     }
 }
 

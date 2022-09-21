@@ -2,6 +2,7 @@ use prettytable::{Row, Table};
 
 use crate::types::StringMap;
 
+pub mod builder_test;
 pub mod contract;
 pub mod item;
 pub mod member;
@@ -9,8 +10,8 @@ pub mod member;
 pub trait Data: FromMap + ToMap {
     fn to_row(&self) -> Row;
     fn to_table(&self) -> Table;
-    fn head(&self) -> Vec<&str>;
-    fn head_allowed_mutable(&self) -> Vec<&str>;
+    fn head(&self) -> Vec<String>;
+    fn head_allowed_mutable(&self) -> Vec<String>;
 }
 
 pub trait FromMap {

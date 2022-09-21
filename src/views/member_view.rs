@@ -1,5 +1,3 @@
-use std::default;
-
 use crate::{
     models::domain::{member::Member, Data},
     types::MembersList,

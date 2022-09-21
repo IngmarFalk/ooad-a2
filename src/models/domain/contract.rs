@@ -1,8 +1,10 @@
+use std::collections::HashMap;
+
 use chrono::Local;
-use derive_getters::Getters;
+use derive_getters::{Dissolve, Getters};
 use prettytable::{row, Row, Table};
 
-use crate::models::uuid::Uuid;
+use crate::{models::uuid::Uuid, types::StringMap};
 
 use super::{item::Item, member::Member, Data, FromMap, ToMap};
 
@@ -11,19 +13,22 @@ pub trait ContractValidation {
     fn validate_availability() -> bool;
 }
 
-#[derive(Debug, Clone, PartialEq, Default, Getters)]
+#[derive(Debug, Clone, PartialEq, Default, Getters, Dissolve)]
+#[dissolve(rename = "unpack")]
 pub struct Contract {
-    pub uuid: Uuid,
+    owner: Member,
+    lendee: Member,
     start_day: chrono::DateTime<Local>,
     end_day: chrono::DateTime<Local>,
-    lendee: Member,
-    contract_len: u32,
+    uuid: Uuid,
     item: Item,
+    contract_len: u32,
     credits: f64,
 }
 
 impl Contract {
     pub fn new(
+        owner: Member,
         lendee: Member,
         start_day: chrono::DateTime<Local>,
         end_day: chrono::DateTime<Local>,
@@ -32,10 +37,11 @@ impl Contract {
         credits: f64,
     ) -> Self {
         Self {
+            owner,
+            lendee,
             uuid: Uuid::contract(),
             start_day,
             end_day,
-            lendee,
             item,
             contract_len,
             credits,
@@ -53,22 +59,35 @@ impl std::fmt::Display for Contract {
 }
 
 impl FromMap for Contract {
-    fn from_partial_map(data: crate::types::StringMap) -> Self {
+    fn from_partial_map(data: StringMap) -> Self {
         todo!()
     }
 
-    fn from_complete_map(data: crate::types::StringMap) -> Self {
+    fn from_complete_map(data: StringMap) -> Self {
         todo!()
     }
 
-    fn copy_with(&self, data: crate::types::StringMap) -> Self {
+    fn copy_with(&self, data: StringMap) -> Self {
         todo!()
     }
 }
 
 impl ToMap for Contract {
-    fn to_map(&self) -> crate::types::StringMap {
-        todo!()
+    fn to_map(&self) -> StringMap {
+        let attrs = vec![
+            self.owner.to_string(),
+            self.lendee.to_string(),
+            self.uuid.to_string(),
+            self.start_day.to_string(),
+            self.end_day.to_string(),
+            self.item.to_string(),
+            self.contract_len.to_string(),
+            self.credits.to_string(),
+        ];
+        self.head()
+            .into_iter()
+            .zip(attrs.into_iter())
+            .collect::<HashMap<String, String>>()
     }
 
     fn to_allowed_mutable_map(&self) -> crate::types::StringMap {
@@ -90,19 +109,25 @@ impl Data for Contract {
         ]
     }
 
-    fn head(&self) -> Vec<&str> {
+    fn head(&self) -> Vec<String> {
         vec![
-            "owner",
-            "lendee",
-            "start_day",
-            "end_day",
-            "length",
-            "credits",
+            "owner".to_owned(),
+            "lendee".to_owned(),
+            "uuid".to_owned(),
+            "start_day".to_owned(),
+            "end_day".to_owned(),
+            "item".to_owned(),
+            "contract_len".to_owned(),
+            "credits".to_owned(),
         ]
     }
 
-    fn head_allowed_mutable(&self) -> Vec<&str> {
-        vec!["end_day", "length", "credits"]
+    fn head_allowed_mutable(&self) -> Vec<String> {
+        vec![
+            "end_day".to_owned(),
+            "length".to_owned(),
+            "credits".to_owned(),
+        ]
     }
 
     fn to_table(&self) -> prettytable::Table {

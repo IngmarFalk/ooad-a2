@@ -1,8 +1,7 @@
-use std::fmt::Display;
-
 use chrono::Local;
-use derive_getters::Getters;
+use derive_getters::{Dissolve, Getters};
 use prettytable::{row, Row, Table};
+use std::fmt::Display;
 
 use crate::{
     models::uuid::Uuid,
@@ -54,7 +53,8 @@ impl From<&str> for Category {
     }
 }
 
-#[derive(Debug, Clone, Default, Getters)]
+#[derive(Debug, Clone, Default, Getters, Dissolve)]
+#[dissolve(rename = "unpack")]
 pub struct Item {
     uuid: Uuid,
     category: Category,
@@ -173,7 +173,7 @@ impl ToMap for Item {
 impl Data for Item {
     fn to_row(&self) -> Row {
         let contract_str = match &self.get_active_contract() {
-            Some(c) => c.uuid.to_string(),
+            Some(c) => c.uuid().to_string(),
             None => "No Contract".to_owned(),
         };
         row![
@@ -185,18 +185,23 @@ impl Data for Item {
         ]
     }
 
-    fn head(&self) -> Vec<&str> {
+    fn head(&self) -> Vec<String> {
         vec![
-            "Name",
-            "Description",
-            "Category",
-            "Contract",
-            "Cost Per Day",
+            "Name".to_owned(),
+            "Description".to_owned(),
+            "Category".to_owned(),
+            "Contract".to_owned(),
+            "Cost Per Day".to_owned(),
         ]
     }
 
-    fn head_allowed_mutable(&self) -> Vec<&str> {
-        vec!["Name", "Description", "Category", "Cost Per Day"]
+    fn head_allowed_mutable(&self) -> Vec<String> {
+        vec![
+            "Name".to_owned(),
+            "Description".to_owned(),
+            "Category".to_owned(),
+            "Cost Per Day".to_owned(),
+        ]
     }
 
     fn to_table(&self) -> prettytable::Table {

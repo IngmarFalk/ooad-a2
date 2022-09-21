@@ -3,10 +3,7 @@ use std::collections::HashMap;
 use prettytable::Table;
 
 use crate::{
-    models::domain::{
-        item::{Category, Item},
-        Data, FromMap, ToMap,
-    },
+    models::domain::{item::Item, Data, FromMap, ToMap},
     types::StringMap,
 };
 

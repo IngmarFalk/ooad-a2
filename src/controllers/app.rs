@@ -1,5 +1,5 @@
 use crate::{
-    types::{Model, View},
+    types::{Controller, Model, View},
     views::main_view::MainView,
 };
 
@@ -11,16 +11,18 @@ pub trait App {
 }
 
 #[derive(Debug)]
-pub struct MainMenu;
+pub struct MainApp;
 
-impl MainMenu {
-    pub fn new() -> MainMenu {
-        MainMenu {}
+impl Controller for MainApp {}
+
+impl MainApp {
+    pub fn new() -> MainApp {
+        MainApp {}
     }
 }
 
-impl App for MainMenu {
-    fn run<M, V>(&self, model: M, view: V) {
-        println!("hello world");
-    }
-}
+// impl App for MainApp {
+//     fn run<M, V>(&self, model: M, view: V) {
+//         println!("hello world");
+//     }
+// }
