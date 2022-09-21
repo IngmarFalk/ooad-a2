@@ -55,6 +55,7 @@ fn main() {
         "Monopoly".to_owned(),
         "A Family Game".to_owned(),
         Category::Game,
+        allan,
         20f64,
     );
     // let buffers = con.to_user_editable_buffers_map(item);

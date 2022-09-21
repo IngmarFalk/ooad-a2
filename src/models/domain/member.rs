@@ -223,7 +223,7 @@ mod member_test {
         let email = "bob@gmail.com".to_owned();
         let phone_nr = "40123456789".to_owned();
         let credits = 200f64;
-        // let bob = Member::default().name(name).email(email).phone_nr(phone_nr);
+        let bob = Member::default().name(name).email(email).phone_nr(phone_nr);
     }
 
     #[test]

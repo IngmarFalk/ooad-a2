@@ -5,7 +5,7 @@ use prettytable::{row, Row, Table};
 
 use crate::models::uuid::Uuid;
 
-use super::{member::Member, Data, FromMap, ToMap};
+use super::{item::Item, member::Member, Data, FromMap, ToMap};
 
 pub trait ContractValidation {
     fn validate_credits() -> bool;
@@ -19,7 +19,7 @@ pub struct Contract {
     end_day: chrono::DateTime<Local>,
     lendee: Member,
     contract_len: u32,
-    // item: Item,
+    item: Item,
     credits: f64,
 }
 
@@ -28,14 +28,16 @@ impl Contract {
         lendee: Member,
         start_day: chrono::DateTime<Local>,
         end_day: chrono::DateTime<Local>,
+        item: Item,
         contract_len: u32,
         credits: f64,
     ) -> Self {
         Self {
-            lendee,
             uuid: Uuid::contract(),
             start_day,
             end_day,
+            lendee,
+            item,
             contract_len,
             credits,
         }

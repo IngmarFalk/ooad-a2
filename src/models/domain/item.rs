@@ -8,7 +8,7 @@ use crate::{
     types::{ContractsList, StringMap},
 };
 
-use super::{contract::Contract, Data, FromMap, ToMap};
+use super::{contract::Contract, member::Member, Data, FromMap, ToMap};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Category {
@@ -56,22 +56,28 @@ impl From<&str> for Category {
 #[derive(Debug, Clone, Default)]
 pub struct Item {
     pub uuid: Uuid,
+    pub owner: Member,
     pub category: Category,
     pub name: String,
     pub description: String,
-    pub active_contract: Option<Contract>,
     pub history: ContractsList,
     day_of_creation: chrono::DateTime<Local>,
     cost_per_day: f64,
 }
 
 impl Item {
-    pub fn new(name: String, description: String, category: Category, cost_per_day: f64) -> Item {
+    pub fn new(
+        name: String,
+        description: String,
+        category: Category,
+        owner: Member,
+        cost_per_day: f64,
+    ) -> Item {
         Item {
             name,
             category,
             description,
-            active_contract: None,
+            owner,
             cost_per_day,
             uuid: Uuid::item(),
             history: vec![],
@@ -99,14 +105,24 @@ impl Item {
         self
     }
 
-    pub fn active_contract(mut self, contract: Contract) -> Item {
-        self.active_contract = Some(contract.clone());
-        self.add_contract(contract);
-        self
-    }
-
     pub fn add_contract(&mut self, contract: Contract) {
         self.history.push(contract);
+    }
+
+    fn get_active_contract(&self) -> Option<Contract> {
+        for contract in self.history.iter() {
+            /// TODO : If current date lies within contract, return contract.
+            continue;
+        }
+        todo!()
+    }
+
+    fn has_singular_active_contract(&self) -> bool {
+        for contract in self.history.iter() {
+            /// TODO : Check if there is only a single or no active contract.
+            continue;
+        }
+        todo!()
     }
 }
 
@@ -114,11 +130,11 @@ impl std::fmt::Display for Item {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // f.write_fmt(format_args!("Name:\t{}\nCategory:\t{}\nDescription:\t{}Contract:\t{:?}\nDay of creation:\t{}\nCost per Day:\t{}", self.name, self.category, self.description, self.contract, self.day_of_creation, self.cost_per_day))
         f.write_fmt(format_args!(
-            "Item [\n\t  Name:\t\t{}\n\t  Description:\t{}\n\t  Category:\t{},\n\t  Contract:\t{:?}\n\t  Date:\t\t{}\n\t  Cost per Day:\t${}\n\t]",
+            "Item [\n\t  Name:\t\t{}\n\t  Description:\t{}\n\t  Category:\t{},\n\t Date:\t\t{}\n\t  Cost per Day:\t${}\n\t]",
             self.name,
             self.description,
             self.category,
-            self.active_contract,
+            // self.active_contract,
             self.day_of_creation.date().naive_local(),
             self.cost_per_day,
         ))
@@ -155,7 +171,7 @@ impl ToMap for Item {
 
 impl Data for Item {
     fn to_row(&self) -> Row {
-        let contract_str = match &self.active_contract {
+        let contract_str = match &self.get_active_contract() {
             Some(c) => c.uuid.to_string(),
             None => "No Contract".to_owned(),
         };
