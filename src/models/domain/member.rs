@@ -16,7 +16,7 @@ pub trait MemberValidation {
     fn validate_email(&self) -> bool;
 }
 
-#[derive(Default, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct Member {
     pub name: String,
     pub email: String,
@@ -89,7 +89,6 @@ impl Member {
         if credits < 0.0 {
             return Err(NegativeCreditInput);
         }
-        // TODO : Find out if members can have negative credit
         self.credits -= credits;
         Ok(())
     }
@@ -165,6 +164,20 @@ impl Data for Member {
     }
 }
 
+impl Default for Member {
+    fn default() -> Self {
+        Self {
+            name: String::new(),
+            email: String::new(),
+            phone_nr: String::new(),
+            credits: 0f64,
+            day_of_creation: chrono::offset::Local::now(),
+            uuid: Uuid::member(),
+            items: vec![],
+        }
+    }
+}
+
 impl PartialEq for Member {
     fn eq(&self, other: &Self) -> bool {
         self.email == other.email || self.phone_nr == other.phone_nr || self.uuid == other.uuid
@@ -183,7 +196,6 @@ pub struct NegativeCreditInput;
 
 #[cfg(test)]
 mod member_test {
-    use crate::models::domain::item::Item;
 
     use super::Member;
 
@@ -211,7 +223,7 @@ mod member_test {
         let email = "bob@gmail.com".to_owned();
         let phone_nr = "40123456789".to_owned();
         let credits = 200f64;
-        let bob = Member::default().name(name).email(email).phone_nr(phone_nr);
+        // let bob = Member::default().name(name).email(email).phone_nr(phone_nr);
     }
 
     #[test]

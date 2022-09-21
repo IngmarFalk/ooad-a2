@@ -21,7 +21,6 @@ impl Default for UuidType {
 pub struct Uuid {
     pub len: usize,
     uuid_type: UuidType,
-    delim: char,
     value: String,
 }
 
@@ -82,6 +81,14 @@ impl Uuid {
     fn set_len(&mut self, val: usize) {
         self.len = val;
     }
+
+    pub fn gen(len: usize) -> String {
+        thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(len)
+            .map(char::from)
+            .collect()
+    }
 }
 
 impl Add for Uuid {
@@ -110,10 +117,9 @@ impl fmt::Display for Uuid {
 impl Default for Uuid {
     fn default() -> Self {
         Uuid {
-            value: "......".to_owned(),
             len: 6,
-            delim: '-',
-            ..Default::default()
+            uuid_type: UuidType::Member,
+            value: Uuid::gen(6),
         }
     }
 }

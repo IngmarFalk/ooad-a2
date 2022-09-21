@@ -1,7 +1,7 @@
-use std::{collections::HashMap, fmt::Display, hash::Hash, str::FromStr};
+use std::{fmt::Display, str::FromStr};
 
 use chrono::Local;
-use prettytable::{row, Cell, Row, Table};
+use prettytable::{row, Row, Table};
 
 use crate::{
     models::uuid::Uuid,
