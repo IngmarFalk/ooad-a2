@@ -1,6 +1,7 @@
 use std::{fmt::Display, str::FromStr};
 
 use chrono::Local;
+use derive_getters::Getters;
 use prettytable::{row, Row, Table};
 
 use crate::{
@@ -53,14 +54,14 @@ impl From<&str> for Category {
     }
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Getters)]
 pub struct Item {
-    pub uuid: Uuid,
-    pub owner: Member,
-    pub category: Category,
-    pub name: String,
-    pub description: String,
-    pub history: ContractsList,
+    uuid: Uuid,
+    owner: Member,
+    category: Category,
+    name: String,
+    description: String,
+    history: ContractsList,
     day_of_creation: chrono::DateTime<Local>,
     cost_per_day: f64,
 }
@@ -85,22 +86,22 @@ impl Item {
         }
     }
 
-    pub fn name(mut self, name: String) -> Item {
+    pub fn with_name(mut self, name: String) -> Item {
         self.name = name;
         self
     }
 
-    pub fn description(mut self, description: String) -> Item {
+    pub fn with_description(mut self, description: String) -> Item {
         self.description = description;
         self
     }
 
-    pub fn cost_per_day(mut self, cost_per_day: f64) -> Item {
+    pub fn with_cost_per_day(mut self, cost_per_day: f64) -> Item {
         self.cost_per_day = cost_per_day;
         self
     }
 
-    pub fn category(mut self, category: Category) -> Item {
+    pub fn with_category(mut self, category: Category) -> Item {
         self.category = category;
         self
     }

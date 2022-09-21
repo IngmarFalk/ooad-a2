@@ -1,3 +1,5 @@
+use std::default;
+
 use crate::{
     models::domain::{member::Member, Data},
     types::MembersList,
@@ -29,17 +31,21 @@ impl CliMemberView {
 impl MemberView for CliMemberView {
     fn display_member_verbose(&self, member: Member) {
         let mut items_str = String::new();
-        if member.items.len() == 0 {
+        if member.items().len() == 0 {
             items_str.push_str(" []")
         }
-        for item in member.items.iter() {
+        for item in member.items().iter() {
             // let formatted = format!("\n\t{}", item);
             let formatted = format!("\n\t{},", item);
             items_str.push_str(&formatted);
         }
         let out = format!(
             "Name:\t\t{}\nEmail:\t\t{}\nPhone number:\t{}\nCredits:\t{}\nItems [{}\n]",
-            member.name, member.email, member.phone_nr, member.credits, items_str
+            member.name(),
+            member.email(),
+            member.phone_nr(),
+            member.credits(),
+            items_str
         );
         println!("{out}");
     }
@@ -47,10 +53,10 @@ impl MemberView for CliMemberView {
     fn display_member_simple(&self, member: Member) {
         let out = format!(
             "Name:\t\t{}\nEmail:\t\t{}\nCredits:\t{}\nItems:\t\t{}\n",
-            member.name,
-            member.email,
-            member.credits,
-            member.items.len(),
+            member.name(),
+            member.email(),
+            member.credits(),
+            member.items().len(),
         );
         println!("{out}");
     }
@@ -67,11 +73,11 @@ impl MemberView for CliMemberView {
     }
 
     fn get_member_info(&self) -> Member {
-        Member::default()
-            .name(self.console.get_str_input("Name: "))
-            .email(self.console.get_str_input("Email: "))
-            .phone_nr(self.console.get_str_input("Phone number: "))
-            .clone()
+        Member::new(
+            self.console.get_str_input("Name: "),
+            self.console.get_str_input("Email: "),
+            self.console.get_str_input("Phone number: "),
+        )
     }
 
     fn edit_member_info(&self, member: &mut Member) -> Member {

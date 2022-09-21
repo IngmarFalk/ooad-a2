@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use chrono::Local;
+use derive_getters::Getters;
 use prettytable::{row, Row, Table};
 
 use crate::models::uuid::Uuid;
@@ -12,7 +13,7 @@ pub trait ContractValidation {
     fn validate_availability() -> bool;
 }
 
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Default, Getters)]
 pub struct Contract {
     pub uuid: Uuid,
     start_day: chrono::DateTime<Local>,

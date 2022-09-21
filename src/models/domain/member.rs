@@ -1,3 +1,4 @@
+use derive_getters::Getters;
 use std::collections::HashMap;
 
 use crate::models::{
@@ -16,15 +17,15 @@ pub trait MemberValidation {
     fn validate_email(&self) -> bool;
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Getters)]
 pub struct Member {
-    pub name: String,
-    pub email: String,
-    pub phone_nr: String,
-    pub credits: f64,
-    pub day_of_creation: chrono::DateTime<Local>,
-    pub uuid: Uuid,
-    pub items: Vec<Item>,
+    name: String,
+    email: String,
+    phone_nr: String,
+    credits: f64,
+    day_of_creation: chrono::DateTime<Local>,
+    uuid: Uuid,
+    items: Vec<Item>,
 }
 
 impl Member {
@@ -40,23 +41,8 @@ impl Member {
         }
     }
 
-    pub fn name(&mut self, name: String) -> &mut Member {
-        self.name = name;
-        self
-    }
-
-    pub fn email(&mut self, email: String) -> &mut Member {
-        self.email = email;
-        self
-    }
-
-    pub fn phone_nr(&mut self, phone_nr: String) -> &mut Member {
-        self.phone_nr = phone_nr;
-        self
-    }
-
     pub fn add_item(&mut self, item: Item) -> MResult<()> {
-        let exists = self.items.iter().any(|e| e.uuid == item.uuid);
+        let exists = self.items.iter().any(|e| e.uuid() == item.uuid());
         if exists {
             return Err(MError::AlreadyExists);
         }
@@ -216,14 +202,6 @@ mod member_test {
         assert_eq!(bob.phone_nr, "40123456789".to_owned());
         assert_eq!(bob.credits, 0f64);
         assert_eq!(bob.items, vec![])
-    }
-
-    fn test_builder_creation() {
-        let name = "Bob".to_owned();
-        let email = "bob@gmail.com".to_owned();
-        let phone_nr = "40123456789".to_owned();
-        let credits = 200f64;
-        let bob = Member::default().name(name).email(email).phone_nr(phone_nr);
     }
 
     #[test]

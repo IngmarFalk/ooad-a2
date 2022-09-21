@@ -46,14 +46,14 @@ impl System {
 
 impl LendingSystem for System {
     fn get_member(&self, member: &Member) -> MResult<Member> {
-        match self.members.get(&member.uuid) {
+        match self.members.get(&member.uuid()) {
             Some(m) => Ok(m.clone()),
             None => Err(MError::DoesntExist),
         }
     }
 
     fn get_member_mut(&mut self, member: &Member) -> MResult<&mut Member> {
-        match self.members.get_mut(&member.uuid) {
+        match self.members.get_mut(&member.uuid()) {
             Some(m) => Ok(m),
             None => Err(MError::DoesntExist),
         }
@@ -63,7 +63,7 @@ impl LendingSystem for System {
         if self.exists_member(&member) {
             return Err(MError::AlreadyExists);
         }
-        self.members.insert(member.uuid.clone(), member);
+        self.members.insert(member.uuid().clone(), member);
         Ok(())
     }
 
@@ -71,7 +71,7 @@ impl LendingSystem for System {
         if !self.exists_member(&member) {
             return Err(MError::DoesntExist);
         }
-        self.members.remove(&member.uuid);
+        self.members.remove(&member.uuid());
         Ok(())
     }
 
@@ -230,10 +230,10 @@ mod system_tests {
         );
 
         let item = Item::default()
-            .name("Monopoly".to_owned())
-            .description("A beautiful Family Game.".to_owned())
-            .cost_per_day(20f64)
-            .category(Category::Game);
+            .with_name("Monopoly".to_owned())
+            .with_description("A beautiful Family Game.".to_owned())
+            .with_cost_per_day(20f64)
+            .with_category(Category::Game);
 
         let mut system = System::new();
         system
@@ -253,10 +253,10 @@ mod system_tests {
         );
 
         let item = Item::default()
-            .name("Monopoly".to_owned())
-            .description("A beautiful Family Game.".to_owned())
-            .cost_per_day(20f64)
-            .category(Category::Game);
+            .with_name("Monopoly".to_owned())
+            .with_description("A beautiful Family Game.".to_owned())
+            .with_cost_per_day(20f64)
+            .with_category(Category::Game);
 
         let mut system = System::new();
         system
@@ -271,7 +271,7 @@ mod system_tests {
 
         let r2 = match system.get_member(&turing) {
             Ok(member) => {
-                println!("{:?}", member.items);
+                println!("{:?}", member.items());
                 member.has_item(&item)
             }
             Err(_) => false,
@@ -288,10 +288,10 @@ mod system_tests {
         );
 
         let item = Item::default()
-            .name("Monopoly".to_owned())
-            .description("A beautiful Family Game.".to_owned())
-            .cost_per_day(20f64)
-            .category(Category::Game);
+            .with_name("Monopoly".to_owned())
+            .with_description("A beautiful Family Game.".to_owned())
+            .with_cost_per_day(20f64)
+            .with_category(Category::Game);
 
         let mut system = System::new();
         system
@@ -306,7 +306,7 @@ mod system_tests {
 
         let r3 = match system.get_member(&turing) {
             Ok(member) => {
-                println!("{:?}", member.items);
+                println!("{:?}", member.items());
                 member.has_item(&item)
             }
             Err(_) => false,
