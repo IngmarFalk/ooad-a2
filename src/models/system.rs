@@ -15,8 +15,8 @@ pub trait LendingSystem {
     fn add_member(&mut self, member: Member) -> MResult<()>;
     fn remove_member(&mut self, member: Member) -> MResult<()>;
     fn exists_member(&self, member: &Member) -> bool;
-    fn create_item(&mut self, member: &Member, item: Item) -> MResult<()>;
-    fn delete_item(&mut self, member: &Member, item: Item) -> MResult<()>;
+    fn add_item(&mut self, item: Item) -> MResult<()>;
+    fn remove_item(&mut self, item: Item) -> MResult<()>;
 }
 
 /// TODO : Create a cache HashMap in system where whenever we add an item
@@ -27,6 +27,7 @@ pub trait LendingSystem {
 #[derive(Debug)]
 pub struct System {
     members: HashMap<Uuid, Member>,
+    items: HashMap<Uuid, Item>,
 }
 
 impl Model for System {}
@@ -35,11 +36,17 @@ impl System {
     pub fn new() -> System {
         System {
             members: HashMap::new(),
+            items: HashMap::new(),
         }
     }
 
     pub fn members(&mut self, members: HashMap<Uuid, Member>) -> &mut Self {
         self.members = members;
+        self
+    }
+
+    pub fn items(&mut self, items: HashMap<Uuid, Item>) -> &mut Self {
+        self.items = items;
         self
     }
 }
@@ -82,20 +89,34 @@ impl LendingSystem for System {
         })
     }
 
-    fn create_item(&mut self, member: &Member, item: Item) -> MResult<()> {
-        match self.get_member_mut(&member) {
-            Ok(m) => match m.add_item(item) {
+    fn add_item(&mut self, item: Item) -> MResult<()> {
+        let res = match self.get_member_mut(&item.owner()) {
+            Ok(m) => match m.add_item(item.clone()) {
                 Ok(_) => Ok(()),
                 Err(err) => Err(err),
             },
             Err(err) => return Err(err),
+        };
+        match res {
+            Ok(_) => match self.items.insert(item.uuid().clone(), item) {
+                Some(_) => todo!(),
+                None => todo!(),
+            },
+            Err(err) => Err(err),
         }
     }
 
-    fn delete_item(&mut self, member: &Member, item: Item) -> MResult<()> {
-        match self.get_member_mut(&member) {
-            Ok(m) => m.remove_item(item),
+    fn remove_item(&mut self, item: Item) -> MResult<()> {
+        let res = match self.get_member_mut(&item.owner()) {
+            Ok(m) => m.remove_item(item.clone()),
             Err(err) => return Err(err),
+        };
+        match res {
+            Ok(_) => match self.items.remove(&item.uuid().clone()) {
+                Some(_) => todo!(),
+                None => todo!(),
+            },
+            Err(_) => todo!(),
         }
     }
 }
@@ -240,7 +261,7 @@ mod system_tests {
             .add_member(turing.clone())
             .expect("failed to add member");
 
-        let r1 = system.create_item(&turing, item);
+        let r1 = system.add_item(item);
         assert_eq!(r1, Ok(()))
     }
 
@@ -266,7 +287,7 @@ mod system_tests {
         let r0 = turing.has_item(&item);
         assert_eq!(r0, false);
 
-        let r1 = system.create_item(&turing, item.clone());
+        let r1 = system.add_item(item.clone());
         assert_eq!(r1, Ok(()));
 
         let r2 = match system.get_member(&turing) {
@@ -298,10 +319,10 @@ mod system_tests {
             .add_member(turing.clone())
             .expect("failed to add member");
 
-        let r1 = system.create_item(&turing, item.clone());
+        let r1 = system.add_item(item.clone());
         assert_eq!(r1, Ok(()));
 
-        let r2 = system.delete_item(&turing, item.clone());
+        let r2 = system.remove_item(item.clone());
         assert_eq!(r2, Ok(()));
 
         let r3 = match system.get_member(&turing) {

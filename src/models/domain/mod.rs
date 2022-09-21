@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use prettytable::{Row, Table};
 
 use crate::types::StringMap;

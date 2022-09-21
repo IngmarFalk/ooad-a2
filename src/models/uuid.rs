@@ -2,8 +2,6 @@ use std::{fmt, ops::Add};
 
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
 
-use super::domain::{contract, item::Item, member::Member};
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum UuidType {
     Member,

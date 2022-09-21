@@ -1,5 +1,4 @@
 use derive_getters::Getters;
-use std::collections::HashMap;
 
 use crate::models::{
     system::{MError, MResult},

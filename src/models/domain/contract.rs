@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use chrono::Local;
 use derive_getters::Getters;
 use prettytable::{row, Row, Table};

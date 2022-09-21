@@ -1,4 +1,4 @@
-use std::{fmt::Display, str::FromStr};
+use std::fmt::Display;
 
 use chrono::Local;
 use derive_getters::Getters;
@@ -57,11 +57,11 @@ impl From<&str> for Category {
 #[derive(Debug, Clone, Default, Getters)]
 pub struct Item {
     uuid: Uuid,
-    owner: Member,
     category: Category,
     name: String,
     description: String,
     history: ContractsList,
+    owner: Member,
     day_of_creation: chrono::DateTime<Local>,
     cost_per_day: f64,
 }
