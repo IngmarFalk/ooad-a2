@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, str::FromStr};
 
 use derive_getters::{Dissolve, Getters};
 
@@ -49,7 +49,7 @@ impl Member {
     }
 
     pub fn add_item(&mut self, item: Item) -> MResult<()> {
-        let exists = self.items.iter().any(|e| e.uuid() == item.uuid());
+        let exists = self.items.iter().any(|e| e.get_uuid() == item.get_uuid());
         if exists {
             return Err(MError::AlreadyExists);
         }
@@ -161,6 +161,14 @@ impl Data for Member {
         table.add_row(Row::from(self.head()));
         table.add_row(self.to_row());
         table
+    }
+}
+
+impl FromStr for Member {
+    type Err = MError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        todo!()
     }
 }
 

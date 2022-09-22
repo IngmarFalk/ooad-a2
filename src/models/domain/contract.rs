@@ -1,10 +1,13 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
 use chrono::Local;
 use derive_getters::{Dissolve, Getters};
 use prettytable::{row, Row, Table};
 
-use crate::{models::uuid::Uuid, types::StringMap};
+use crate::{
+    models::{system::MError, uuid::Uuid},
+    types::StringMap,
+};
 
 use super::{item::Item, member::Member, Data, FromMap, ToMap};
 
@@ -49,10 +52,18 @@ impl Contract {
     }
 }
 
+impl FromStr for Contract {
+    type Err = MError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        todo!()
+    }
+}
+
 impl std::fmt::Display for Contract {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_fmt(format_args!(
-            "Start Day:\t{}\nEnd Day:\t{}\nLength:\t{}\nCredits:\t{}",
+            "(start_day,{});(end_day,{});(contract_len,{});(credits,{})",
             self.start_day, self.end_day, self.contract_len, self.credits
         ))
     }
@@ -69,6 +80,12 @@ impl FromMap for Contract {
 
     fn copy_with(&self, data: StringMap) -> Self {
         todo!()
+    }
+}
+
+impl Into<String> for Contract {
+    fn into(self) -> String {
+        self.to_string()
     }
 }
 

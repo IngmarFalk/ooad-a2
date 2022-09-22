@@ -1,12 +1,14 @@
+use crate::models::cvec::CVec;
+use crate::models::domain::StringMap;
+use crate::models::system::MError;
 use chrono::Local;
 use derive_getters::{Dissolve, Getters};
 use prettytable::{row, Row, Table};
-use std::fmt::Display;
+use shared::{Builder, CFromStr, CToStr};
+use std::str::FromStr;
+use std::{collections::HashMap, fmt::Display};
 
-use crate::{
-    models::uuid::Uuid,
-    types::{ContractsList, StringMap},
-};
+use crate::{models::uuid::Uuid, types::ContractsList};
 
 use super::{contract::Contract, member::Member, Data, FromMap, ToMap};
 
@@ -18,6 +20,21 @@ pub enum Category {
     Toy,
     Sport,
     Other,
+}
+
+impl FromStr for Category {
+    type Err = MError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "tool" => Ok(Category::Tool),
+            "vehicle" => Ok(Category::Vehicle),
+            "game" => Ok(Category::Game),
+            "toy" => Ok(Category::Toy),
+            "sport" => Ok(Category::Sport),
+            _ => Ok(Category::Other),
+        }
+    }
 }
 
 impl Display for Category {
@@ -53,16 +70,24 @@ impl From<&str> for Category {
     }
 }
 
-#[derive(Debug, Clone, Default, Getters, Dissolve)]
+#[derive(Debug, Clone, Default, Getters, Dissolve, Builder, CFromStr, CToStr)]
 #[dissolve(rename = "unpack")]
 pub struct Item {
+    #[getter(rename = "get_uuid")]
     uuid: Uuid,
+    #[getter(rename = "get_category")]
     category: Category,
+    #[getter(rename = "get_name")]
     name: String,
+    #[getter(rename = "get_description")]
     description: String,
-    history: ContractsList,
+    #[getter(rename = "get_history")]
+    history: CVec<Contract>,
+    #[getter(rename = "get_owner")]
     owner: Member,
+    #[getter(rename = "get_day_of_creation")]
     day_of_creation: chrono::DateTime<Local>,
+    #[getter(rename = "get_cost_per_day")]
     cost_per_day: f64,
 }
 
@@ -81,7 +106,7 @@ impl Item {
             owner,
             cost_per_day,
             uuid: Uuid::item(),
-            history: vec![],
+            history: CVec::new(),
             day_of_creation: chrono::offset::Local::now(),
         }
     }
@@ -127,48 +152,55 @@ impl Item {
     }
 }
 
-impl std::fmt::Display for Item {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // f.write_fmt(format_args!("Name:\t{}\nCategory:\t{}\nDescription:\t{}Contract:\t{:?}\nDay of creation:\t{}\nCost per Day:\t{}", self.name, self.category, self.description, self.contract, self.day_of_creation, self.cost_per_day))
-        f.write_fmt(format_args!(
-            "Item [\n\t  Name:\t\t{}\n\t  Description:\t{}\n\t  Category:\t{},\n\t Date:\t\t{}\n\t  Cost per Day:\t${}\n\t]",
-            self.name,
-            self.description,
-            self.category,
-            // self.active_contract,
-            self.day_of_creation.date().naive_local(),
-            self.cost_per_day,
-        ))
-    }
-}
+// impl FromStr for Item {
+//     type Err = MError;
 
-impl FromMap for Item {
-    fn from_partial_map(data: StringMap) -> Self {
-        todo!()
-    }
+//     fn from_str(s: &str) -> Result<Self, Self::Err> {
+//         todo!()
+//     }
+// }
 
-    fn from_complete_map(data: StringMap) -> Self {
-        todo!()
-    }
+// impl std::fmt::Display for Item {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         // f.write_fmt(format_args!("Name:\t{}\nCategory:\t{}\nDescription:\t{}Contract:\t{:?}\nDay of creation:\t{}\nCost per Day:\t{}", self.name, self.category, self.description, self.contract, self.day_of_creation, self.cost_per_day))
+//         f.write_fmt(format_args!(
+//             "{};{};{};{};{}",
+//             self.name,
+//             self.description,
+//             self.category,
+//             self.day_of_creation.date().naive_local(),
+//             self.cost_per_day,
+//         ))
+//     }
+// }
 
-    fn copy_with(&self, data: StringMap) -> Self {
-        todo!()
-    }
-}
+// impl FromMap for Item {
+//     fn from_partial_map(data: StringMap) -> Self {
+//         todo!()
+//     }
 
-impl ToMap for Item {
-    fn to_map(&self) -> StringMap {
-        todo!()
-    }
+//     fn from_complete_map(data: StringMap) -> Self {
+//         todo!()
+//     }
 
-    fn to_allowed_mutable_map(&self) -> StringMap {
-        todo!()
-    }
+//     fn copy_with(&self, data: StringMap) -> Self {
+//         todo!()
+//     }
+// }
 
-    fn to_buffers_map(&self) -> StringMap {
-        todo!()
-    }
-}
+// impl ToMap for Item {
+//     fn to_map(&self) -> StringMap {
+//         todo!()
+//     }
+
+//     fn to_allowed_mutable_map(&self) -> StringMap {
+//         todo!()
+//     }
+
+//     fn to_buffers_map(&self) -> StringMap {
+//         todo!()
+//     }
+// }
 
 impl Data for Item {
     fn to_row(&self) -> Row {

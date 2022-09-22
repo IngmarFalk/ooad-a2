@@ -90,7 +90,7 @@ impl LendingSystem for System {
     }
 
     fn add_item(&mut self, item: Item) -> MResult<()> {
-        let res = match self.get_member_mut(&item.owner()) {
+        let res = match self.get_member_mut(&item.get_owner()) {
             Ok(m) => match m.add_item(item.clone()) {
                 Ok(_) => Ok(()),
                 Err(err) => Err(err),
@@ -98,7 +98,7 @@ impl LendingSystem for System {
             Err(err) => return Err(err),
         };
         match res {
-            Ok(_) => match self.items.insert(item.uuid().clone(), item) {
+            Ok(_) => match self.items.insert(item.get_uuid().clone(), item) {
                 Some(_) => todo!(),
                 None => todo!(),
             },
@@ -107,12 +107,12 @@ impl LendingSystem for System {
     }
 
     fn remove_item(&mut self, item: Item) -> MResult<()> {
-        let res = match self.get_member_mut(&item.owner()) {
+        let res = match self.get_member_mut(&item.get_owner()) {
             Ok(m) => m.remove_item(item.clone()),
             Err(err) => return Err(err),
         };
         match res {
-            Ok(_) => match self.items.remove(&item.uuid().clone()) {
+            Ok(_) => match self.items.remove(&item.get_uuid().clone()) {
                 Some(_) => todo!(),
                 None => todo!(),
             },

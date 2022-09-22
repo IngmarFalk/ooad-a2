@@ -1,13 +1,19 @@
+use std::{fmt, str::FromStr};
+
 use prettytable::{Row, Table};
 
 use crate::types::StringMap;
+
+use self::contract::Contract;
+
+use super::system::MError;
 
 pub mod builder_test;
 pub mod contract;
 pub mod item;
 pub mod member;
 
-pub trait Data: FromMap + ToMap {
+pub trait Data: FromMap + ToMap + FromStr + fmt::Display {
     fn to_row(&self) -> Row;
     fn to_table(&self) -> Table;
     fn head(&self) -> Vec<String>;

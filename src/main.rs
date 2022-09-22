@@ -2,7 +2,12 @@
 // #![warn(clippy::missing_docs_in_private_items)]
 #![crate_type = "proc-macro"]
 
-use crate::models::domain::ToMap;
+use std::collections::HashMap;
+
+use crate::models::domain::{
+    item::{Category, Item},
+    FromMap, ToMap,
+};
 use models::domain::{builder_test::BuilderTest, member::Member};
 
 pub mod controllers;
@@ -13,14 +18,56 @@ pub mod views;
 // use crate::{controllers::app::App, models::system::System, views::main_view::MainView};
 
 fn main() {
-    let b = BuilderTest::new();
+    let allan = Member::new(
+        "Allan".to_owned(),
+        "allan@enigma.com".to_owned(),
+        "123456".to_owned(),
+    );
+    // let mut binding = BuilderTest::new();
+    let b: BuilderTest = BuilderTest::new()
+        .attr1("Hello".to_owned())
+        .attr2(Item::new(
+            "Monopoly".to_owned(),
+            "A Family Game".to_owned(),
+            Category::Game,
+            allan.clone(),
+            20f64,
+        ))
+        .attr3(allan.clone())
+        .attr4(42)
+        .attr5("World".to_owned())
+        .build();
+
+    let s = String::new();
+    let data = s
+        .split(";")
+        .collect::<Vec<&str>>()
+        .iter()
+        .map(|item| {
+            let strs = item.split(",").collect::<Vec<&str>>();
+            let key = match strs.first() {
+                Some(k) => k.replace("(", ""),
+                None => String::new(),
+            };
+            let val = match strs.last() {
+                Some(v) => v.replace(")", ""),
+                None => String::new(),
+            };
+
+            let out: (String, String) = (key, val);
+
+            out
+        })
+        .collect::<HashMap<String, String>>();
+
     let m = b.to_map();
-    println!("{:#?}", m);
-    // let allan = Member::new(
-    //     "Allan".to_owned(),
-    //     "allan@enigma.com".to_owned(),
-    //     "123456".to_owned(),
-    // );
+    let bnew = BuilderTest::from_complete_map(m);
+    println!("{}", bnew);
+
+    // let data = HashMap::from([("attr1", "Hello")]);
+    // let attr1 = data.get("attr1").unwrap().parse::<String>().unwrap();
+    // println! {"{attr1}"};
+
     // let turing1 = Member::new(
     //     "Turing".to_owned(),
     //     "allan@enigma.com".to_owned(),

@@ -1,6 +1,10 @@
+use rand::{distributions::Alphanumeric, thread_rng, Rng};
+use shared::{CFromStr, CToStr};
+use std::collections::HashMap;
+use std::str::FromStr;
 use std::{fmt, ops::Add};
 
-use rand::{distributions::Alphanumeric, thread_rng, Rng};
+use super::domain::{Data, FromMap, ToMap};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum UuidType {
@@ -15,7 +19,7 @@ impl Default for UuidType {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, CFromStr, CToStr)]
 pub struct Uuid {
     pub len: usize,
     uuid_type: UuidType,
@@ -106,11 +110,11 @@ impl Add for Uuid {
     }
 }
 
-impl fmt::Display for Uuid {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.value)
-    }
-}
+// impl fmt::Display for Uuid {
+//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+//         write!(f, "{}", self.value)
+//     }
+// }
 
 impl Default for Uuid {
     fn default() -> Self {
