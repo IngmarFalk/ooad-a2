@@ -99,9 +99,10 @@ pub fn derive_builder(inp: TokenStream) -> TokenStream {
 
     let from_map_args = fields.iter().map(|f| {
         let name = &f.ident;
+        let ty = &f.ty;
         let key = format!("{}", name.clone().unwrap());
         quote! {
-            #name: data.get(#key).unwrap()
+            #name: data.get(#key).unwrap().parse::<#ty>().unwrap()
         }
     });
 
@@ -117,7 +118,7 @@ pub fn derive_builder(inp: TokenStream) -> TokenStream {
     });
 
     let from_map = quote! {
-    impl FromMap for #ident {
+    impl crate::models::domain::FromMap for #ident {
         fn from_partial_map(data: StringMap) -> Self {
             Self {
                 #(#from_partial_map_args)*
@@ -141,7 +142,7 @@ pub fn derive_builder(inp: TokenStream) -> TokenStream {
         let name = &f.ident;
         let key = format!("{}", name.clone().unwrap());
         quote! {
-                (#key, self.#name.to_string())
+                (#key.to_owned(), self.#name.to_string())
         }
     });
 
@@ -154,7 +155,7 @@ pub fn derive_builder(inp: TokenStream) -> TokenStream {
     });
 
     let to_map = quote! {
-    impl ToMap for #ident {
+    impl crate::models::domain::ToMap for #ident {
         fn to_map(&self) -> StringMap {
             ::std::collections::HashMap::from([
                 #(#to_map_args,)*
@@ -168,19 +169,36 @@ pub fn derive_builder(inp: TokenStream) -> TokenStream {
 
         fn to_buffers_map(&self) -> StringMap {
             ::std::collections::HashMap::from([
-                #(#to_buffers_map_args,)*
+                // #(#to_buffers_map_args,)*
             ])
         }
     }
     };
 
+    let to_string_fields = fields.iter().map(|f| {
+        let name = &f.ident;
+        // let key = format!("{}", name.clone().unwrap());
+        quote! {
+            self.#name.to_string()
+        }
+    });
+
     let res = quote! {
+
+        impl ToString for #ident {
+            fn to_string(&self) -> String {
+                let attrs = vec![
+                    #(#to_string_fields,)*
+                ];
+                attrs.join(",")
+            }
+        }
 
         impl #ident {
             #(#builders)*
         }
 
-        #from_map
+        // #from_map
 
         #to_map
     };

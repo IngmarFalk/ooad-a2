@@ -2,7 +2,8 @@
 // #![warn(clippy::missing_docs_in_private_items)]
 #![crate_type = "proc-macro"]
 
-use models::domain::member::Member;
+use crate::models::domain::ToMap;
+use models::domain::{builder_test::BuilderTest, member::Member};
 
 pub mod controllers;
 pub mod models;
@@ -12,11 +13,14 @@ pub mod views;
 // use crate::{controllers::app::App, models::system::System, views::main_view::MainView};
 
 fn main() {
-    let allan = Member::new(
-        "Allan".to_owned(),
-        "allan@enigma.com".to_owned(),
-        "123456".to_owned(),
-    );
+    let b = BuilderTest::new();
+    let m = b.to_map();
+    println!("{:#?}", m);
+    // let allan = Member::new(
+    //     "Allan".to_owned(),
+    //     "allan@enigma.com".to_owned(),
+    //     "123456".to_owned(),
+    // );
     // let turing1 = Member::new(
     //     "Turing".to_owned(),
     //     "allan@enigma.com".to_owned(),
