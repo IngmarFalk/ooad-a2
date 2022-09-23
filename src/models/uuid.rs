@@ -1,10 +1,10 @@
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
-use shared::{CFromStr, CToStr};
+use shared::{CFromMap, CFromStr, CToMap, CToStr};
 use std::collections::HashMap;
+use std::ops::Add;
 use std::str::FromStr;
-use std::{fmt, ops::Add};
 
-use super::domain::{Data, FromMap, ToMap};
+use super::domain::FromMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum UuidType {
@@ -19,7 +19,7 @@ impl Default for UuidType {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, CFromStr, CToStr)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, CFromStr, CToStr, CFromMap, CToMap)]
 pub struct Uuid {
     pub len: usize,
     uuid_type: UuidType,

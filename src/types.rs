@@ -1,9 +1,6 @@
-use std::{collections::HashMap, str::FromStr};
+use std::collections::HashMap;
 
-use crate::{
-    models::domain::{contract::Contract, item::Item, member::Member},
-    views::console::Console,
-};
+use crate::models::domain::{contract::Contract, item::Item, member::Member};
 
 pub type MembersList = Vec<Member>;
 pub type ItemsList = Vec<Item>;

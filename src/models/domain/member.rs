@@ -110,7 +110,7 @@ impl FromMap for Member {
         todo!()
     }
 
-    fn copy_with(&self, data: StringMap) -> Self {
+    fn copy_with(&mut self, data: StringMap) -> Self {
         todo!()
     }
 }

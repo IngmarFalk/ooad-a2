@@ -1,5 +1,3 @@
-use std::slice::SliceIndex;
-
 #[derive(Debug, PartialEq, Eq, Default, Clone)]
 pub struct CVec<T>
 where
@@ -11,7 +9,7 @@ where
 
 impl<T> CVec<T>
 where
-    T: std::fmt::Display,
+    T: std::fmt::Display + PartialEq + Clone,
 {
     pub fn new() -> CVec<T> {
         CVec {
@@ -24,8 +22,23 @@ where
         self.values.push(val);
     }
 
+    pub fn remove(&self, val: T) -> Option<T> {
+        match self.index_of(val) {
+            Some(i) => Some(self.values.remove(i)),
+            None => None,
+        }
+    }
+
+    pub fn index_of(&self, val: T) -> Option<usize> {
+        self.iter().position(|&v| v == val)
+    }
+
     pub fn iter(&self) -> std::slice::Iter<T> {
         self.values.iter()
+    }
+
+    pub fn to_vec(&self) -> Vec<T> {
+        self.values.clone()
     }
 }
 
@@ -34,10 +47,8 @@ where
     T: std::fmt::Display,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let len = self.len;
-        let brackets = self.iter().map(|_| "{}").collect::<Vec<&str>>();
-        let buf = brackets.join(";");
-
-        f.write_fmt(format_args!(buf, ..self.values,))
+        self.values.iter().fold(Ok(()), |result, album| {
+            result.and_then(|_| writeln!(f, "{},", album))
+        })
     }
 }

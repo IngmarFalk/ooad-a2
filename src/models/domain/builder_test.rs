@@ -3,11 +3,11 @@ use super::member::Member;
 use super::FromMap;
 use crate::types::StringMap;
 use derive_getters::Getters;
-use shared::{Builder, CFromStr, CToStr};
+use shared::{Builder, CFromMap, CFromStr, CToMap, CToStr};
 use std::collections::HashMap;
 use std::str::FromStr;
 
-#[derive(Debug, Clone, Builder, CFromStr, CToStr, Default, Getters)]
+#[derive(Debug, Clone, Builder, CFromStr, CToStr, CToMap, Default, Getters)]
 pub struct BuilderTest {
     #[getter(rename = "get_attr1")]
     attr1: String,
@@ -33,23 +33,36 @@ impl BuilderTest {
     }
 }
 
-// impl ::std::fmt::Display for BuilderTest {
-//     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-//         f.write_fmt(format_args!(
-//             "{};{};{};{};{}",
-//             self.attr1, self.attr2, self.attr3, self.attr4, self.attr5,
-//         ))
-//     }
-// }
-// impl ToString for BuilderTest {
-//     fn to_string(&self) -> String {
-//         let attrs = vec![
-//             self.attr1.to_string(),
-//             self.attr1.to_string(),
-//             self.attr1.to_string(),
-//             self.attr1.to_string(),
-//             self.attr1.to_string(),
-//         ];
-//         attrs.join(",")
-//     }
-// }
+impl FromMap for BuilderTest {
+    fn from_partial_map(data: StringMap) -> Self {
+        todo!()
+    }
+
+    fn from_complete_map(data: StringMap) -> Self {
+        todo!()
+    }
+
+    fn copy_with(&mut self, data: StringMap) -> Self {
+        match data.get("attr1") {
+            Some(val) => self.attr1 = val.parse::<String>().ok().expect("Unable to parse to type"),
+            None => {}
+        }
+        match data.get("attr2") {
+            Some(val) => self.attr2 = val.parse::<Item>().ok().expect("Unable to parse to type"),
+            None => {}
+        }
+        match data.get("attr3") {
+            Some(val) => self.attr3 = val.parse::<Member>().ok().expect("Unable to parse to type"),
+            None => {}
+        }
+        match data.get("attr4") {
+            Some(val) => self.attr4 = val.parse::<u32>().ok().expect("Unable to parse to type"),
+            None => {}
+        }
+        match data.get("attr5") {
+            Some(val) => self.attr5 = val.parse::<String>().ok().expect("Unable to parse to type"),
+            None => {}
+        }
+        self.build()
+    }
+}

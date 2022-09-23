@@ -4,10 +4,6 @@ use prettytable::{Row, Table};
 
 use crate::types::StringMap;
 
-use self::contract::Contract;
-
-use super::system::MError;
-
 pub mod builder_test;
 pub mod contract;
 pub mod item;
@@ -23,7 +19,7 @@ pub trait Data: FromMap + ToMap + FromStr + fmt::Display {
 pub trait FromMap {
     fn from_partial_map(data: StringMap) -> Self;
     fn from_complete_map(data: StringMap) -> Self;
-    fn copy_with(&self, data: StringMap) -> Self;
+    fn copy_with(&mut self, data: StringMap) -> Self;
 }
 
 pub trait ToMap {

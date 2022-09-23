@@ -1,14 +1,13 @@
 use crate::models::cvec::CVec;
-use crate::models::domain::StringMap;
 use crate::models::system::MError;
 use chrono::Local;
 use derive_getters::{Dissolve, Getters};
 use prettytable::{row, Row, Table};
-use shared::{Builder, CFromStr, CToStr};
+use shared::{Builder, CFromMap, CFromStr, CToMap, CToStr};
 use std::str::FromStr;
 use std::{collections::HashMap, fmt::Display};
 
-use crate::{models::uuid::Uuid, types::ContractsList};
+use crate::models::uuid::Uuid;
 
 use super::{contract::Contract, member::Member, Data, FromMap, ToMap};
 
@@ -70,7 +69,7 @@ impl From<&str> for Category {
     }
 }
 
-#[derive(Debug, Clone, Default, Getters, Dissolve, Builder, CFromStr, CToStr)]
+#[derive(Debug, Clone, Default, Getters, Dissolve, Builder, CFromStr, CToStr, CFromMap, CToMap)]
 #[dissolve(rename = "unpack")]
 pub struct Item {
     #[getter(rename = "get_uuid")]
