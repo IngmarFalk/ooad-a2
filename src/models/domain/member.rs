@@ -1,4 +1,4 @@
-use super::{item::Item, Data};
+use super::item::Item;
 use crate::models::domain::FromMap;
 use crate::models::{
     cvec::CVec,
@@ -7,8 +7,8 @@ use crate::models::{
 };
 use chrono::{self, Local};
 use derive_getters::{Dissolve, Getters};
-use prettytable::{row, Row, Table};
-use shared::{CFromMap, CFromStr, CToMap, CToStr};
+use prettytable::Table;
+use shared::{CFromMap, CFromStr, CTable, CToMap, CToStr};
 use std::collections::HashMap;
 use std::str::FromStr;
 use thiserror::Error;
@@ -21,7 +21,7 @@ pub trait MemberValidation {
 
 /// If you see this warning from vscode: It is a bug within rust-analyzer, the
 /// linter used for rust. Important: ! This is not a Bug in this code !
-#[derive(Clone, Debug, Getters, Dissolve, CFromStr, CToStr, CFromMap, CToMap)]
+#[derive(Clone, Debug, Getters, Dissolve, CFromStr, CToStr, CFromMap, CToMap, CTable)]
 #[dissolve(rename = "unpack")]
 pub struct Member {
     #[getter(rename = "get_name")]
@@ -90,24 +90,6 @@ impl Member {
         self.credits -= credits;
         Ok(())
     }
-
-    pub fn new2(
-        data: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
-    ) -> Self {
-        Self {
-            name: data.get("name").unwrap().parse::<String>().unwrap(),
-            email: data.get("email").unwrap().parse::<String>().unwrap(),
-            phone_nr: data.get("phone_nr").unwrap().parse::<String>().unwrap(),
-            credits: data.get("credits").unwrap().parse::<f64>().unwrap(),
-            day_of_creation: data
-                .get("day_of_creation")
-                .unwrap()
-                .parse::<chrono::DateTime<Local>>()
-                .unwrap(),
-            uuid: data.get("uuid").unwrap().parse::<Uuid>().unwrap(),
-            items: data.get("items").unwrap().parse::<CVec<Item>>().unwrap(),
-        }
-    }
 }
 
 impl MemberValidation for Member {
@@ -124,40 +106,40 @@ impl MemberValidation for Member {
     }
 }
 
-impl Data for Member {
-    fn to_row(&self) -> Row {
-        row![
-            self.name.clone(),
-            self.email.clone(),
-            self.phone_nr.clone(),
-            self.uuid.to_string(),
-            self.credits.clone().to_string(),
-            self.items.to_vec().len().to_string(),
-        ]
-    }
+// impl Data for Member {
+//     fn to_row(&self) -> Row {
+//         row![
+//             self.name.clone(),
+//             self.email.clone(),
+//             self.phone_nr.clone(),
+//             self.uuid.to_string(),
+//             self.credits.clone().to_string(),
+//             self.items.to_vec().len().to_string(),
+//         ]
+//     }
 
-    fn head(&self) -> Vec<String> {
-        vec![
-            "Name".to_owned(),
-            "Email".to_owned(),
-            "Phone Number".to_owned(),
-            "Uuid".to_owned(),
-            "Credits".to_owned(),
-            "Items".to_owned(),
-        ]
-    }
+//     fn head(&self) -> Vec<String> {
+//         vec![
+//             "Name".to_owned(),
+//             "Email".to_owned(),
+//             "Phone Number".to_owned(),
+//             "Uuid".to_owned(),
+//             "Credits".to_owned(),
+//             "Items".to_owned(),
+//         ]
+//     }
 
-    fn head_allowed_mutable(&self) -> Vec<String> {
-        vec!["name".to_owned(), "email".to_owned(), "phone_nr".to_owned()]
-    }
+//     fn head_allowed_mutable(&self) -> Vec<String> {
+//         vec!["name".to_owned(), "email".to_owned(), "phone_nr".to_owned()]
+//     }
 
-    fn to_table(&self) -> prettytable::Table {
-        let mut table = Table::new();
-        table.add_row(Row::from(self.head()));
-        table.add_row(self.to_row());
-        table
-    }
-}
+//     fn to_table(&self) -> prettytable::Table {
+//         let mut table = Table::new();
+//         table.add_row(Row::from(self.head()));
+//         table.add_row(self.to_row());
+//         table
+//     }
+// }
 
 impl Default for Member {
     fn default() -> Self {

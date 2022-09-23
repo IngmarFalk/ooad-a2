@@ -251,10 +251,10 @@ mod system_tests {
         );
 
         let item = Item::default()
-            .with_name("Monopoly".to_owned())
-            .with_description("A beautiful Family Game.".to_owned())
-            .with_cost_per_day(20f64)
-            .with_category(Category::Game);
+            .name("Monopoly".to_owned())
+            .description("A beautiful Family Game.".to_owned())
+            .cost_per_day(20f64)
+            .category(Category::Game);
 
         let mut system = System::new();
         system
@@ -274,10 +274,10 @@ mod system_tests {
         );
 
         let item = Item::default()
-            .with_name("Monopoly".to_owned())
-            .with_description("A beautiful Family Game.".to_owned())
-            .with_cost_per_day(20f64)
-            .with_category(Category::Game);
+            .name("Monopoly".to_owned())
+            .description("A beautiful Family Game.".to_owned())
+            .cost_per_day(20f64)
+            .category(Category::Game);
 
         let mut system = System::new();
         system
@@ -309,10 +309,10 @@ mod system_tests {
         );
 
         let item = Item::default()
-            .with_name("Monopoly".to_owned())
-            .with_description("A beautiful Family Game.".to_owned())
-            .with_cost_per_day(20f64)
-            .with_category(Category::Game);
+            .name("Monopoly".to_owned())
+            .description("A beautiful Family Game.".to_owned())
+            .cost_per_day(20f64)
+            .category(Category::Game);
 
         let mut system = System::new();
         system

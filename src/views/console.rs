@@ -1,16 +1,13 @@
-use prettytable::Table;
+use crate::{
+    models::domain::{Data, FromMap, ToMap},
+    types::{BufferVec, Model, StringMap},
+};
+use prettytable::{Row, Table};
 use std::{
     collections::HashMap,
     io::{self, stdin, Write},
 };
 use thiserror::Error;
-
-use crate::{
-    models::domain::{Data, FromMap, ToMap},
-    types::{BufferVec, StringMap, View},
-};
-
-type Row = Vec<String>;
 
 #[derive(Debug, Error)]
 #[error("The Table to be displayed contained rows with different item counts.")]
@@ -79,12 +76,9 @@ impl Console {
     }
 
     pub fn row(&self, row: Row) {
-        let mut row_buf = String::from("|");
-        for item in row {
-            let item_buf = format!(" {item:<25} |");
-            row_buf.push_str(&item_buf);
-        }
-        println!("{row_buf}")
+        let mut _table = Table::new();
+        _table.add_row(row);
+        self.table(_table)
     }
 
     pub fn get_str_input(&self, display: &str) -> String {
@@ -101,33 +95,22 @@ impl Console {
         buf.strip_suffix("\n").unwrap().to_owned()
     }
 
-    pub fn get_consecutive_str_input(&self, input_buffers: StringMap) -> BufferVec {
-        let mut out: BufferVec = Vec::new();
+    pub fn get_consecutive_str_input(&self, input_buffers: Vec<String>) -> StringMap {
         self.title();
-        for mut tpl in input_buffers {
-            tpl.1 = self.get_str_input(tpl.0.as_str());
-            out.push((tpl.0, tpl.1.to_owned()));
+        let mut out = HashMap::new();
+        for buf in input_buffers {
+            let inp = self.get_str_input(buf.as_str());
+            out.insert(buf, inp);
         }
 
         out
     }
 
-    pub fn convert_to_editable_buffers_map(&self, obj: impl Data) -> crate::types::StringMap {
-        let buffers: StringMap = obj
-            .head_allowed_mutable()
-            .iter()
-            .map(|c| (c.to_string(), String::new()))
-            .collect::<Vec<(String, String)>>()
-            .into_iter()
-            .collect();
-        buffers
-    }
-
     pub fn edit_model_info<T>(&self, obj: T) -> T
     where
-        T: Data + FromMap + ToMap + View,
+        T: Data + FromMap + ToMap + Model,
     {
-        let new_model_info = self.get_consecutive_str_input(obj.to_allowed_mutable_map());
+        let new_model_info = self.get_consecutive_str_input(obj.head_allowed_mutable());
         let data: StringMap = HashMap::from(
             new_model_info
                 .into_iter()

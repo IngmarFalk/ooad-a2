@@ -334,3 +334,137 @@ pub fn derive_to_map(inp: TokenStream) -> TokenStream {
 
     res.into()
 }
+
+#[proc_macro_derive(CTable, attributes(mutable))]
+pub fn derive_to_table(inp: TokenStream) -> TokenStream {
+    let DeriveInput { ident, data, .. } = parse_macro_input!(inp as DeriveInput);
+    let fields = match data {
+        Struct(DataStruct {
+            fields: Named(FieldsNamed { ref named, .. }),
+            ..
+        }) => named,
+        _ => panic!("Not supported"),
+    };
+
+    let from_map_args = fields.iter().map(|f| {
+        let name = &f.ident;
+        let ty = &f.ty;
+
+        let attrs = &f.attrs;
+        let mut out = quote! {};
+
+        for attr in attrs.iter() {
+            let style = attr.style;
+            match style {
+                syn::AttrStyle::Outer => {
+                    if attr.path.is_ident("from_map") {
+                        let arg = attr.path.segments.first();
+                        let ident = &arg.unwrap().ident;
+                        if ident.to_string() == "ignore".to_owned() {
+                            out = quote! {}
+                        }
+                    } else {
+                        let key = format!("{}", name.clone().unwrap());
+                        out = quote! {
+                            #name: data.get(#key).unwrap().parse::<#ty>().unwrap()
+                        };
+                    }
+                }
+                syn::AttrStyle::Inner(_) => {}
+            }
+        }
+
+        if attrs.is_empty() {
+            let key = format!("{}", name.clone().unwrap());
+            out = quote! {
+                #name: data.get(#key).unwrap().parse::<#ty>().unwrap()
+            };
+        }
+
+        out
+    });
+
+    let head_attrs = fields.iter().map(|f| {
+        let name = &f.ident;
+        let key = format!("{}", name.clone().unwrap());
+
+        quote! {
+            #key.to_owned()
+        }
+    });
+
+    let row_attrs = fields.iter().map(|f| {
+        let name = &f.ident;
+
+        quote! {
+            self.#name.to_string()
+        }
+    });
+
+    let head_mutable_attrs = fields.iter().map(|f| {
+        let name = &f.ident;
+        let key = format!("{}", name.clone().unwrap());
+        let attrs = &f.attrs;
+
+        let mut out = quote! {};
+
+        for attr in attrs.iter() {
+            let style = attr.style;
+            match style {
+                syn::AttrStyle::Outer => {
+                    if attr.path.is_ident("mutable") {
+                        let arg = attr.path.segments.first();
+                        let ident = &arg.unwrap().ident;
+                        if ident.to_string() == "ignore".to_owned() {
+                            out = quote! {}
+                        }
+                    } else {
+                        out = quote! {
+                            #key.to_owned()
+                        };
+                    }
+                }
+                syn::AttrStyle::Inner(_) => {}
+            }
+        }
+
+        if attrs.is_empty() {
+            out = quote! {
+                #key.to_owned()
+            };
+        }
+
+        out
+    });
+
+    let res = quote! {
+    impl crate::models::domain::Data for #ident {
+        fn to_row(&self) -> prettytable::Row {
+            prettytable::row![
+                #(#row_attrs,)*
+            ]
+        }
+
+        fn head(&self) -> Vec<::std::string::String> {
+            vec![
+                #(#head_attrs,)*
+            ]
+        }
+
+        fn head_allowed_mutable(&self) -> Vec<::std::string::String> {
+            vec![
+                #(#head_mutable_attrs,)*
+            ]
+        }
+
+        fn to_table(&self) -> prettytable::Table {
+            let mut _table = prettytable::Table::new();
+            _table.add_row(prettytable::Row::from(self.head()));
+            _table.add_row(self.to_row());
+            _table
+        }
+    }
+    };
+
+    res.into()
+}

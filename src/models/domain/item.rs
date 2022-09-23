@@ -110,30 +110,6 @@ impl Item {
         }
     }
 
-    pub fn with_name(mut self, name: String) -> Item {
-        self.name = name;
-        self
-    }
-
-    pub fn with_description(mut self, description: String) -> Item {
-        self.description = description;
-        self
-    }
-
-    pub fn with_cost_per_day(mut self, cost_per_day: f64) -> Item {
-        self.cost_per_day = cost_per_day;
-        self
-    }
-
-    pub fn with_category(mut self, category: Category) -> Item {
-        self.category = category;
-        self
-    }
-
-    pub fn add_contract(&mut self, contract: Contract) {
-        self.history.push(contract);
-    }
-
     fn get_active_contract(&self) -> Option<Contract> {
         for contract in self.history.iter() {
             /// TODO : If current date lies within contract, return contract.

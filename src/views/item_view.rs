@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use prettytable::Table;
 
 use crate::{
-    models::domain::{item::Item, Data, FromMap, ToMap},
+    models::domain::{item::Item, Data, FromMap},
     types::StringMap,
 };
 
@@ -19,6 +19,14 @@ pub struct CliItemView {
     console: Console,
 }
 
+impl CliItemView {
+    pub fn new() -> CliItemView {
+        CliItemView {
+            console: Console::new(),
+        }
+    }
+}
+
 impl ItemView for CliItemView {
     fn display_item_info(&self, item: Item) {
         let mut table = Table::new();
@@ -29,7 +37,7 @@ impl ItemView for CliItemView {
     fn edit_item_info(&self, item: Item) -> Item {
         let new_item_info = self
             .console
-            .get_consecutive_str_input(item.to_allowed_mutable_map());
+            .get_consecutive_str_input(item.head_allowed_mutable());
         let data: StringMap = HashMap::from(
             new_item_info
                 .into_iter()
