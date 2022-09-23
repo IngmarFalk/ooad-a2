@@ -9,7 +9,7 @@ use std::{collections::HashMap, fmt::Display};
 
 use crate::models::uuid::Uuid;
 
-use super::{contract::Contract, member::Member, Data, FromMap, ToMap};
+use super::{contract::Contract, member::Member, Data, FromMap};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Category {
@@ -151,60 +151,10 @@ impl Item {
     }
 }
 
-// impl FromStr for Item {
-//     type Err = MError;
-
-//     fn from_str(s: &str) -> Result<Self, Self::Err> {
-//         todo!()
-//     }
-// }
-
-// impl std::fmt::Display for Item {
-//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//         // f.write_fmt(format_args!("Name:\t{}\nCategory:\t{}\nDescription:\t{}Contract:\t{:?}\nDay of creation:\t{}\nCost per Day:\t{}", self.name, self.category, self.description, self.contract, self.day_of_creation, self.cost_per_day))
-//         f.write_fmt(format_args!(
-//             "{};{};{};{};{}",
-//             self.name,
-//             self.description,
-//             self.category,
-//             self.day_of_creation.date().naive_local(),
-//             self.cost_per_day,
-//         ))
-//     }
-// }
-
-// impl FromMap for Item {
-//     fn from_partial_map(data: StringMap) -> Self {
-//         todo!()
-//     }
-
-//     fn from_complete_map(data: StringMap) -> Self {
-//         todo!()
-//     }
-
-//     fn copy_with(&self, data: StringMap) -> Self {
-//         todo!()
-//     }
-// }
-
-// impl ToMap for Item {
-//     fn to_map(&self) -> StringMap {
-//         todo!()
-//     }
-
-//     fn to_allowed_mutable_map(&self) -> StringMap {
-//         todo!()
-//     }
-
-//     fn to_buffers_map(&self) -> StringMap {
-//         todo!()
-//     }
-// }
-
 impl Data for Item {
     fn to_row(&self) -> Row {
         let contract_str = match &self.get_active_contract() {
-            Some(c) => c.uuid().to_string(),
+            Some(c) => c.get_uuid().to_string(),
             None => "No Contract".to_owned(),
         };
         row![

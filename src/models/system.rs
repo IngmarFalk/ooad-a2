@@ -53,14 +53,14 @@ impl System {
 
 impl LendingSystem for System {
     fn get_member(&self, member: &Member) -> MResult<Member> {
-        match self.members.get(&member.uuid()) {
+        match self.members.get(&member.get_uuid()) {
             Some(m) => Ok(m.clone()),
             None => Err(MError::DoesntExist),
         }
     }
 
     fn get_member_mut(&mut self, member: &Member) -> MResult<&mut Member> {
-        match self.members.get_mut(&member.uuid()) {
+        match self.members.get_mut(&member.get_uuid()) {
             Some(m) => Ok(m),
             None => Err(MError::DoesntExist),
         }
@@ -70,7 +70,7 @@ impl LendingSystem for System {
         if self.exists_member(&member) {
             return Err(MError::AlreadyExists);
         }
-        self.members.insert(member.uuid().clone(), member);
+        self.members.insert(member.get_uuid().clone(), member);
         Ok(())
     }
 
@@ -78,7 +78,7 @@ impl LendingSystem for System {
         if !self.exists_member(&member) {
             return Err(MError::DoesntExist);
         }
-        self.members.remove(&member.uuid());
+        self.members.remove(&member.get_uuid());
         Ok(())
     }
 
@@ -292,7 +292,7 @@ mod system_tests {
 
         let r2 = match system.get_member(&turing) {
             Ok(member) => {
-                println!("{:?}", member.items());
+                println!("{:?}", member.get_items());
                 member.has_item(&item)
             }
             Err(_) => false,
@@ -327,7 +327,7 @@ mod system_tests {
 
         let r3 = match system.get_member(&turing) {
             Ok(member) => {
-                println!("{:?}", member.items());
+                println!("{:?}", member.get_items());
                 member.has_item(&item)
             }
             Err(_) => false,

@@ -1,19 +1,17 @@
-use std::{fmt, str::FromStr};
-
-use derive_getters::{Dissolve, Getters};
-
-use crate::{
-    models::{
-        system::{MError, MResult},
-        uuid::Uuid,
-    },
-    types::StringMap,
+use super::{item::Item, Data};
+use crate::models::domain::FromMap;
+use crate::models::{
+    cvec::CVec,
+    system::{MError, MResult},
+    uuid::Uuid,
 };
 use chrono::{self, Local};
+use derive_getters::{Dissolve, Getters};
 use prettytable::{row, Row, Table};
+use shared::{CFromMap, CFromStr, CToMap, CToStr};
+use std::collections::HashMap;
+use std::str::FromStr;
 use thiserror::Error;
-
-use super::{item::Item, Data, FromMap, ToMap};
 
 pub trait MemberValidation {
     fn validate_id(&self) -> bool;
@@ -23,16 +21,23 @@ pub trait MemberValidation {
 
 /// If you see this warning from vscode: It is a bug within rust-analyzer, the
 /// linter used for rust. Important: ! This is not a Bug in this code !
-#[derive(Clone, Debug, Getters, Dissolve)]
+#[derive(Clone, Debug, Getters, Dissolve, CFromStr, CToStr, CFromMap, CToMap)]
 #[dissolve(rename = "unpack")]
 pub struct Member {
+    #[getter(rename = "get_name")]
     name: String,
+    #[getter(rename = "get_email")]
     email: String,
+    #[getter(rename = "get_phone_nr")]
     phone_nr: String,
+    #[getter(rename = "get_credits")]
     credits: f64,
+    #[getter(rename = "get_day_of_creation")]
     day_of_creation: chrono::DateTime<Local>,
+    #[getter(rename = "get_uuid")]
     uuid: Uuid,
-    items: Vec<Item>,
+    #[getter(rename = "get_items")]
+    items: CVec<Item>,
 }
 
 impl Member {
@@ -41,7 +46,7 @@ impl Member {
             uuid: Uuid::member(),
             day_of_creation: chrono::offset::Local::now(),
             credits: 0f64,
-            items: vec![],
+            items: CVec::new(),
             name,
             email,
             phone_nr,
@@ -62,12 +67,12 @@ impl Member {
         if !self.has_item(&item) {
             return Err(MError::DoesntExist);
         }
-        self.items.retain(|i| i != &item);
+        self.items.to_vec().retain(|i| i != &item);
         Ok(())
     }
 
     pub fn has_item(&self, item: &Item) -> bool {
-        self.items.contains(item)
+        self.items.to_vec().contains(item)
     }
 
     pub fn add_credits(&mut self, credits: f64) -> Result<(), NegativeCreditInput> {
@@ -85,6 +90,24 @@ impl Member {
         self.credits -= credits;
         Ok(())
     }
+
+    pub fn new2(
+        data: ::std::collections::HashMap<::std::string::String, ::std::string::String>,
+    ) -> Self {
+        Self {
+            name: data.get("name").unwrap().parse::<String>().unwrap(),
+            email: data.get("email").unwrap().parse::<String>().unwrap(),
+            phone_nr: data.get("phone_nr").unwrap().parse::<String>().unwrap(),
+            credits: data.get("credits").unwrap().parse::<f64>().unwrap(),
+            day_of_creation: data
+                .get("day_of_creation")
+                .unwrap()
+                .parse::<chrono::DateTime<Local>>()
+                .unwrap(),
+            uuid: data.get("uuid").unwrap().parse::<Uuid>().unwrap(),
+            items: data.get("items").unwrap().parse::<CVec<Item>>().unwrap(),
+        }
+    }
 }
 
 impl MemberValidation for Member {
@@ -101,34 +124,6 @@ impl MemberValidation for Member {
     }
 }
 
-impl FromMap for Member {
-    fn from_partial_map(data: StringMap) -> Self {
-        todo!()
-    }
-
-    fn from_complete_map(data: StringMap) -> Self {
-        todo!()
-    }
-
-    fn copy_with(&mut self, data: StringMap) -> Self {
-        todo!()
-    }
-}
-
-impl ToMap for Member {
-    fn to_map(&self) -> crate::types::StringMap {
-        todo!()
-    }
-
-    fn to_allowed_mutable_map(&self) -> crate::types::StringMap {
-        todo!()
-    }
-
-    fn to_buffers_map(&self) -> crate::types::StringMap {
-        todo!()
-    }
-}
-
 impl Data for Member {
     fn to_row(&self) -> Row {
         row![
@@ -137,7 +132,7 @@ impl Data for Member {
             self.phone_nr.clone(),
             self.uuid.to_string(),
             self.credits.clone().to_string(),
-            self.items.len().to_string(),
+            self.items.to_vec().len().to_string(),
         ]
     }
 
@@ -164,28 +159,6 @@ impl Data for Member {
     }
 }
 
-impl FromStr for Member {
-    type Err = MError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        todo!()
-    }
-}
-
-impl fmt::Display for Member {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_fmt(format_args!(
-            "{};{};{};{};{};{:?}",
-            self.name(),
-            self.email(),
-            self.phone_nr(),
-            self.uuid(),
-            self.credits(),
-            self.items()
-        ))
-    }
-}
-
 impl Default for Member {
     fn default() -> Self {
         Self {
@@ -195,7 +168,7 @@ impl Default for Member {
             credits: 0f64,
             day_of_creation: chrono::offset::Local::now(),
             uuid: Uuid::member(),
-            items: vec![],
+            items: CVec::new(),
         }
     }
 }
@@ -237,7 +210,7 @@ mod member_test {
         assert_eq!(bob.email, "bob@gmail.com".to_owned());
         assert_eq!(bob.phone_nr, "40123456789".to_owned());
         assert_eq!(bob.credits, 0f64);
-        assert_eq!(bob.items, vec![])
+        assert_eq!(bob.items.to_vec(), vec![])
     }
 
     #[test]

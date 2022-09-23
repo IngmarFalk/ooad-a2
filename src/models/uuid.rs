@@ -5,12 +5,38 @@ use std::ops::Add;
 use std::str::FromStr;
 
 use super::domain::FromMap;
+use super::system::MError;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum UuidType {
     Member,
     Item,
     Contract,
+    Other,
+}
+
+impl std::fmt::Display for UuidType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match *self {
+            UuidType::Member => f.write_str("Member"),
+            UuidType::Item => f.write_str("Item"),
+            UuidType::Contract => f.write_str("Contract"),
+            UuidType::Other => f.write_str("Other"),
+        }
+    }
+}
+
+impl FromStr for UuidType {
+    type Err = MError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "member" => Ok(UuidType::Member),
+            "item" => Ok(UuidType::Item),
+            "contract" => Ok(UuidType::Contract),
+            _ => Ok(UuidType::Other),
+        }
+    }
 }
 
 impl Default for UuidType {
@@ -109,12 +135,6 @@ impl Add for Uuid {
         new_uuid
     }
 }
-
-// impl fmt::Display for Uuid {
-//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         write!(f, "{}", self.value)
-//     }
-// }
 
 impl Default for Uuid {
     fn default() -> Self {

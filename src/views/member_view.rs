@@ -29,20 +29,19 @@ impl CliMemberView {
 impl MemberView for CliMemberView {
     fn display_member_verbose(&self, member: Member) {
         let mut items_str = String::new();
-        if member.items().len() == 0 {
+        if member.get_items().len == 0 {
             items_str.push_str(" []")
         }
-        for item in member.items().iter() {
-            // let formatted = format!("\n\t{}", item);
+        for item in member.get_items().iter() {
             let formatted = format!("\n\t{},", item);
             items_str.push_str(&formatted);
         }
         let out = format!(
             "Name:\t\t{}\nEmail:\t\t{}\nPhone number:\t{}\nCredits:\t{}\nItems [{}\n]",
-            member.name(),
-            member.email(),
-            member.phone_nr(),
-            member.credits(),
+            member.get_name(),
+            member.get_email(),
+            member.get_phone_nr(),
+            member.get_credits(),
             items_str
         );
         println!("{out}");
@@ -51,10 +50,10 @@ impl MemberView for CliMemberView {
     fn display_member_simple(&self, member: Member) {
         let out = format!(
             "Name:\t\t{}\nEmail:\t\t{}\nCredits:\t{}\nItems:\t\t{}\n",
-            member.name(),
-            member.email(),
-            member.credits(),
-            member.items().len(),
+            member.get_name(),
+            member.get_email(),
+            member.get_credits(),
+            member.get_items().len,
         );
         println!("{out}");
     }
