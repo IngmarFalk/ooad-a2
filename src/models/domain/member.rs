@@ -7,8 +7,7 @@ use crate::models::{
 };
 use chrono::{self, Local};
 use derive_getters::{Dissolve, Getters};
-use prettytable::Table;
-use shared::{CFromMap, CFromStr, CTable, CToMap, CToStr};
+use shared::{CData, CFromMap, CFromStr, CPartialEq, CToMap, CToStr};
 use std::collections::HashMap;
 use std::str::FromStr;
 use thiserror::Error;
@@ -21,14 +20,19 @@ pub trait MemberValidation {
 
 /// If you see this warning from vscode: It is a bug within rust-analyzer, the
 /// linter used for rust. Important: ! This is not a Bug in this code !
-#[derive(Clone, Debug, Getters, Dissolve, CFromStr, CToStr, CFromMap, CToMap, CTable)]
+#[derive(
+    Clone, Debug, Getters, Dissolve, CFromStr, CToStr, CFromMap, CToMap, CData, CPartialEq,
+)]
 #[dissolve(rename = "unpack")]
 pub struct Member {
     #[getter(rename = "get_name")]
+    #[eq]
     name: String,
     #[getter(rename = "get_email")]
+    #[eq]
     email: String,
     #[getter(rename = "get_phone_nr")]
+    #[eq]
     phone_nr: String,
     #[getter(rename = "get_credits")]
     #[mutable_ignore]
@@ -110,41 +114,6 @@ impl MemberValidation for Member {
     }
 }
 
-// impl Data for Member {
-//     fn to_row(&self) -> Row {
-//         row![
-//             self.name.clone(),
-//             self.email.clone(),
-//             self.phone_nr.clone(),
-//             self.uuid.to_string(),
-//             self.credits.clone().to_string(),
-//             self.items.to_vec().len().to_string(),
-//         ]
-//     }
-
-//     fn head(&self) -> Vec<String> {
-//         vec![
-//             "Name".to_owned(),
-//             "Email".to_owned(),
-//             "Phone Number".to_owned(),
-//             "Uuid".to_owned(),
-//             "Credits".to_owned(),
-//             "Items".to_owned(),
-//         ]
-//     }
-
-//     fn head_allowed_mutable(&self) -> Vec<String> {
-//         vec!["name".to_owned(), "email".to_owned(), "phone_nr".to_owned()]
-//     }
-
-//     fn to_table(&self) -> prettytable::Table {
-//         let mut table = Table::new();
-//         table.add_row(Row::from(self.head()));
-//         table.add_row(self.to_row());
-//         table
-//     }
-// }
-
 impl Default for Member {
     fn default() -> Self {
         Self {
@@ -159,17 +128,7 @@ impl Default for Member {
     }
 }
 
-impl PartialEq for Member {
-    fn eq(&self, other: &Self) -> bool {
-        self.email == other.email || self.phone_nr == other.phone_nr || self.uuid == other.uuid
-    }
-
-    fn ne(&self, other: &Self) -> bool {
-        self.email != other.email && self.phone_nr != other.phone_nr && self.uuid == other.uuid
-    }
-}
-
-impl Eq for Member {}
+// impl Eq for Member {}
 
 #[derive(Debug, Error)]
 #[error("Tried adding/deducing a negative amount to credits")]

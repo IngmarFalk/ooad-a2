@@ -3,11 +3,11 @@ use super::member::Member;
 use super::FromMap;
 use crate::models::uuid::Uuid;
 use derive_getters::Getters;
-use shared::{Builder, CFromMap, CFromStr, CTable, CToMap, CToStr};
+use shared::{Builder, CData, CFromMap, CFromStr, CToMap, CToStr};
 use std::collections::HashMap;
 use std::str::FromStr;
 
-#[derive(Debug, Clone, Builder, CFromStr, CToStr, CToMap, CFromMap, Default, Getters, CTable)]
+#[derive(Debug, Clone, Builder, CFromStr, CToStr, CToMap, CFromMap, Default, Getters, CData)]
 pub struct BuilderTest {
     #[getter(rename = "get_attr1")]
     attr1: String,

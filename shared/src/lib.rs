@@ -1,12 +1,12 @@
 extern crate proc_macro;
 
-use std::fmt::Arguments;
+use std::iter::FilterMap;
 
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{
-    parse_macro_input, Data::Struct, DataStruct, DeriveInput, Fields::Named, FieldsNamed,
-    PathArguments, PathSegment,
+    parse_macro_input, punctuated::Punctuated, token::Comma, Data::Struct, DataStruct, DeriveInput,
+    Field, Fields::Named, FieldsNamed, PathArguments, PathSegment,
 };
 
 #[proc_macro_derive(Builder, attributes(from_map))]
@@ -104,12 +104,6 @@ pub fn derive_from_str(inp: TokenStream) -> TokenStream {
             type Err = crate::models::system::MError;
 
             fn from_str(s: &str) -> Result<Self, Self::Err> {
-
-                /// TODO : Add Type to to_string()
-                /// TODO : Then check type and do like: Type::from_str()
-                /// TODO : for the following string
-                ///
-                /// TODO : When open count is more than 1 or sth
 
                 let new_s = s[1..s.len() - 1].to_owned();
                 let mut buf = String::new();
@@ -340,7 +334,7 @@ pub fn derive_to_map(inp: TokenStream) -> TokenStream {
     res.into()
 }
 
-#[proc_macro_derive(CTable, attributes(mutable_ignore))]
+#[proc_macro_derive(CData, attributes(mutable_ignore))]
 pub fn derive_to_table(inp: TokenStream) -> TokenStream {
     let DeriveInput { ident, data, .. } = parse_macro_input!(inp as DeriveInput);
     let fields = match data {
@@ -434,6 +428,102 @@ pub fn derive_to_table(inp: TokenStream) -> TokenStream {
             out_table.add_row(prettytable::Row::from(self.head()));
             out_table.add_row(self.to_row());
             out_table
+        }
+    }
+    };
+
+    res.into()
+}
+
+#[proc_macro_derive(CPartialEq, attributes(eq))]
+pub fn derive_partial_eq(inp: TokenStream) -> TokenStream {
+    let DeriveInput { ident, data, .. } = parse_macro_input!(inp as DeriveInput);
+    let fields = match data {
+        Struct(DataStruct {
+            fields: Named(FieldsNamed { ref named, .. }),
+            ..
+        }) => named,
+        _ => panic!("Not supported"),
+    };
+
+    let ne_attrs = fields.iter().filter_map(|f| {
+        let name = &f.ident;
+        let attrs = &f.attrs;
+
+        for attr in attrs.iter() {
+            let style = attr.style;
+            match style {
+                syn::AttrStyle::Outer => {
+                    let segs = attr
+                        .path
+                        .segments
+                        .clone()
+                        .into_iter()
+                        .collect::<Vec<PathSegment>>();
+
+                    for seg in segs.iter() {
+                        let is_mutable = seg.ident.to_string() == "eq";
+                        if is_mutable {
+                            return Some(quote! {
+                                self.#name != other.#name
+                            });
+                        }
+                    }
+                }
+                syn::AttrStyle::Inner(_) => {}
+            }
+        }
+
+        if attrs.is_empty() {
+            return None;
+        }
+
+        return None;
+    });
+
+    let eq_attrs = fields.iter().filter_map(|f| {
+        let name = &f.ident;
+        let attrs = &f.attrs;
+
+        for attr in attrs.iter() {
+            let style = attr.style;
+            match style {
+                syn::AttrStyle::Outer => {
+                    let segs = attr
+                        .path
+                        .segments
+                        .clone()
+                        .into_iter()
+                        .collect::<Vec<PathSegment>>();
+
+                    for seg in segs.iter() {
+                        let is_mutable = seg.ident.to_string() == "eq";
+                        if is_mutable {
+                            return Some(quote! {
+                                self.#name == other.#name
+                            });
+                        }
+                    }
+                }
+                syn::AttrStyle::Inner(_) => {}
+            }
+        }
+
+        if attrs.is_empty() {
+            return None;
+        }
+
+        return None;
+    });
+
+    let res = quote! {
+    impl core::cmp::PartialEq for #ident {
+        fn eq(&self, other: &Self) -> bool {
+            vec![#(#eq_attrs,)*].iter().any(|cond| cond == true)
+        }
+
+        fn ne(&self, other: &Self) -> bool {
+            vec![#(#ne_attrs,)*].iter().all(|cond| cond == true)
         }
     }
     };
