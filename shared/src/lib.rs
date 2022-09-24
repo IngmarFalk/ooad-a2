@@ -1,15 +1,13 @@
 extern crate proc_macro;
 
-use std::iter::FilterMap;
-
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{
-    parse_macro_input, punctuated::Punctuated, token::Comma, Data::Struct, DataStruct, DeriveInput,
-    Field, Fields::Named, FieldsNamed, PathArguments, PathSegment,
+    parse_macro_input, Data::Struct, DataStruct, DeriveInput, Fields::Named, FieldsNamed,
+    PathSegment,
 };
 
-#[proc_macro_derive(Builder, attributes(from_map))]
+#[proc_macro_derive(Builder)]
 pub fn derive_builder(inp: TokenStream) -> TokenStream {
     let DeriveInput { ident, data, .. } = parse_macro_input!(inp as DeriveInput);
     let fields = match data {
@@ -191,14 +189,6 @@ pub fn derive_from_map(inp: TokenStream) -> TokenStream {
         _ => panic!("Not supported"),
     };
 
-    let _from_partial_map_args = fields.iter().map(|f| {
-        let name = &f.ident;
-        let key = format!("{}", name.clone().unwrap());
-        quote! {
-            #name: if data.contains_key(#key) { data.get(#key).unwrap() } else { Default::default() },
-        }
-    });
-
     let from_map_args = fields.iter().map(|f| {
         let name = &f.ident;
         let ty = &f.ty;
@@ -258,13 +248,6 @@ pub fn derive_from_map(inp: TokenStream) -> TokenStream {
 
     let res = quote! {
     impl crate::models::domain::FromMap for #ident {
-        fn from_partial_map(data: ::std::collections::HashMap<::std::string::String, ::std::string::String>) -> Self {
-            todo!()
-            // Self {
-            //     #(#from_partial_map_args)*
-            // }
-        }
-
         fn from_complete_map(data: ::std::collections::HashMap<::std::string::String, ::std::string::String>) -> Self {
             Self {
                 #(#from_map_args,)*
@@ -302,12 +285,45 @@ pub fn derive_to_map(inp: TokenStream) -> TokenStream {
         }
     });
 
-    let to_buffers_map_args = fields.iter().map(|f| {
+    let to_map_allowed_mutable_args = fields.iter().filter_map(|f| {
         let name = &f.ident;
         let key = format!("{}", name.clone().unwrap());
-        quote! {
-                (#key.to_owned(), ::std::string::String::new())
+        let attrs = &f.attrs;
+
+        let mut out = quote! {};
+
+        for attr in attrs.iter() {
+            let style = attr.style;
+            match style {
+                syn::AttrStyle::Outer => {
+                    let segs = attr
+                        .path
+                        .segments
+                        .clone()
+                        .into_iter()
+                        .collect::<Vec<PathSegment>>();
+
+                    for seg in segs.iter() {
+                        let ignoring = seg.ident.to_string() == "mutable_ignore";
+                        if ignoring {
+                            return None;
+                        }
+                    }
+                    out = quote! {
+                        (#key.to_owned(), self.#name.to_string())
+                    };
+                }
+                syn::AttrStyle::Inner(_) => {}
+            }
         }
+
+        if attrs.is_empty() {
+            return Some(quote! {
+                (#key.to_owned(), self.#name.to_string())
+            });
+        }
+
+        return Some(out);
     });
 
     let res = quote! {
@@ -318,14 +334,9 @@ pub fn derive_to_map(inp: TokenStream) -> TokenStream {
             ])
         }
 
-        fn to_allowed_mutable_map(&self) -> ::std::collections::HashMap<::std::string::String, ::std::string::String> {
+        fn to_map_allowed_mutable(&self) -> ::std::collections::HashMap<::std::string::String, ::std::string::String> {
             ::std::collections::HashMap::from([
-            ])
-        }
-
-        fn to_buffers_map(&self) -> ::std::collections::HashMap<::std::string::String, ::std::string::String> {
-            ::std::collections::HashMap::from([
-                #(#to_buffers_map_args,)*
+                #(#to_map_allowed_mutable_args,)*
             ])
         }
     }
@@ -381,8 +392,8 @@ pub fn derive_to_table(inp: TokenStream) -> TokenStream {
                         .collect::<Vec<PathSegment>>();
 
                     for seg in segs.iter() {
-                        let is_mutable = seg.ident.to_string() == "mutable_ignore";
-                        if is_mutable {
+                        let ignoring = seg.ident.to_string() == "mutable_ignore";
+                        if ignoring {
                             return None;
                         }
                     }
@@ -519,11 +530,11 @@ pub fn derive_partial_eq(inp: TokenStream) -> TokenStream {
     let res = quote! {
     impl core::cmp::PartialEq for #ident {
         fn eq(&self, other: &Self) -> bool {
-            vec![#(#eq_attrs,)*].iter().any(|cond| cond == true)
+            vec![#(#eq_attrs,)*].iter().any(|cond| cond == &true)
         }
 
         fn ne(&self, other: &Self) -> bool {
-            vec![#(#ne_attrs,)*].iter().all(|cond| cond == true)
+            vec![#(#ne_attrs,)*].iter().all(|cond| cond == &true)
         }
     }
     };

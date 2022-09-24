@@ -1,15 +1,14 @@
+use super::{contract::Contract, member::Member, FromMap};
+use crate::models::cdate::CDate;
 use crate::models::cvec::CVec;
 use crate::models::system::MError;
+use crate::models::uuid::Uuid;
+use crate::types::Model;
 use chrono::Local;
 use derive_getters::{Dissolve, Getters};
-use prettytable::{row, Row, Table};
-use shared::{Builder, CFromMap, CFromStr, CToMap, CToStr};
+use shared::{Builder, CData, CFromMap, CFromStr, CPartialEq, CToMap, CToStr};
 use std::str::FromStr;
 use std::{collections::HashMap, fmt::Display};
-
-use crate::models::uuid::Uuid;
-
-use super::{contract::Contract, member::Member, Data, FromMap};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Category {
@@ -69,26 +68,57 @@ impl From<&str> for Category {
     }
 }
 
-#[derive(Debug, Clone, Default, Getters, Dissolve, Builder, CFromStr, CToStr, CFromMap, CToMap)]
+#[derive(
+    Debug,
+    Clone,
+    Default,
+    Getters,
+    Dissolve,
+    Builder,
+    CFromStr,
+    CToStr,
+    CFromMap,
+    CToMap,
+    CData,
+    CPartialEq,
+)]
 #[dissolve(rename = "unpack")]
 pub struct Item {
+    #[eq]
+    #[mutable_ignore]
     #[getter(rename = "get_uuid")]
     uuid: Uuid,
+
     #[getter(rename = "get_category")]
     category: Category,
+
     #[getter(rename = "get_name")]
     name: String,
+
     #[getter(rename = "get_description")]
     description: String,
+
+    #[mutable_ignore]
     #[getter(rename = "get_history")]
     history: CVec<Contract>,
+
+    #[mutable_ignore]
     #[getter(rename = "get_owner")]
     owner: Member,
+
+    #[mutable_ignore]
     #[getter(rename = "get_day_of_creation")]
-    day_of_creation: chrono::DateTime<Local>,
+    day_of_creation: CDate,
+
     #[getter(rename = "get_cost_per_day")]
     cost_per_day: f64,
+
+    #[mutable_ignore]
+    #[getter(rename = "get_is_available")]
+    is_available: bool,
 }
+
+impl Model for Item {}
 
 impl Item {
     pub fn new(
@@ -104,79 +134,20 @@ impl Item {
             description,
             owner,
             cost_per_day,
-            uuid: Uuid::item(),
+            uuid: Uuid::new(),
             history: CVec::new(),
-            day_of_creation: chrono::offset::Local::now(),
+            day_of_creation: CDate::new(),
+            is_available: false,
         }
     }
 
     fn get_active_contract(&self) -> Option<Contract> {
+        let current_date = CDate::new();
         for contract in self.history.iter() {
-            /// TODO : If current date lies within contract, return contract.
-            continue;
+            if &current_date > contract.get_start_day() && &current_date < contract.get_end_day() {
+                return Some(contract.clone());
+            }
         }
-        todo!()
-    }
-
-    fn has_singular_active_contract(&self) -> bool {
-        for contract in self.history.iter() {
-            /// TODO : Check if there is only a single or no active contract.
-            continue;
-        }
-        todo!()
+        None
     }
 }
-
-impl Data for Item {
-    fn to_row(&self) -> Row {
-        let contract_str = match &self.get_active_contract() {
-            Some(c) => c.get_uuid().to_string(),
-            None => "No Contract".to_owned(),
-        };
-        row![
-            self.name.clone(),
-            self.description.clone(),
-            self.category.clone().to_string(),
-            contract_str,
-            self.cost_per_day.to_string(),
-        ]
-    }
-
-    fn head(&self) -> Vec<String> {
-        vec![
-            "Name".to_owned(),
-            "Description".to_owned(),
-            "Category".to_owned(),
-            "Contract".to_owned(),
-            "Cost Per Day".to_owned(),
-        ]
-    }
-
-    fn head_allowed_mutable(&self) -> Vec<String> {
-        vec![
-            "Name".to_owned(),
-            "Description".to_owned(),
-            "Category".to_owned(),
-            "Cost Per Day".to_owned(),
-        ]
-    }
-
-    fn to_table(&self) -> prettytable::Table {
-        let mut table = Table::new();
-        table.add_row(Row::from(self.head()));
-        table.add_row(self.to_row());
-        table
-    }
-}
-
-impl PartialEq for Item {
-    fn eq(&self, other: &Self) -> bool {
-        self.uuid == other.uuid
-    }
-
-    fn ne(&self, other: &Self) -> bool {
-        self.uuid != other.uuid
-    }
-}
-
-impl Eq for Item {}

@@ -90,34 +90,36 @@ impl LendingSystem for System {
     }
 
     fn add_item(&mut self, item: Item) -> MResult<()> {
-        let res = match self.get_member_mut(&item.get_owner()) {
-            Ok(m) => match m.add_item(item.clone()) {
-                Ok(_) => Ok(()),
-                Err(err) => Err(err),
-            },
-            Err(err) => return Err(err),
-        };
-        match res {
-            Ok(_) => match self.items.insert(item.get_uuid().clone(), item) {
-                Some(_) => todo!(),
-                None => todo!(),
-            },
-            Err(err) => Err(err),
+        // let res = match self.get_member_mut(&item.get_owner()) {
+        //     Ok(m) => match m.add_item(item.clone()) {
+        //         Ok(_) => Ok(()),
+        //         Err(err) => Err(err),
+        //     },
+        //     Err(err) => return Err(err),
+        // };
+        // match res {
+        //     Ok(_) =>
+        match self.items.insert(item.get_uuid().clone(), item) {
+            Some(_) => todo!(),
+            None => todo!(),
         }
+        //     Err(err) => Err(err),
+        // }
     }
 
     fn remove_item(&mut self, item: Item) -> MResult<()> {
-        let res = match self.get_member_mut(&item.get_owner()) {
-            Ok(m) => m.remove_item(item.clone()),
-            Err(err) => return Err(err),
-        };
-        match res {
-            Ok(_) => match self.items.remove(&item.get_uuid().clone()) {
-                Some(_) => todo!(),
-                None => todo!(),
-            },
-            Err(_) => todo!(),
+        // let res = match self.get_member_mut(&item.get_owner()) {
+        //     Ok(m) => m.remove_item(item.clone()),
+        //     Err(err) => return Err(err),
+        // };
+        // match res {
+        //     Ok(_) =>
+        match self.items.remove(&item.get_uuid().clone()) {
+            Some(_) => todo!(),
+            None => todo!(),
         }
+        //     Err(_) => todo!(),
+        // }
     }
 }
 
@@ -284,20 +286,20 @@ mod system_tests {
             .add_member(turing.clone())
             .expect("failed to add member");
 
-        let r0 = turing.has_item(&item);
-        assert_eq!(r0, false);
+        // let r0 = system.ge(&item);
+        // assert_eq!(r0, false);
 
         let r1 = system.add_item(item.clone());
         assert_eq!(r1, Ok(()));
 
-        let r2 = match system.get_member(&turing) {
-            Ok(member) => {
-                println!("{:?}", member.get_items());
-                member.has_item(&item)
-            }
-            Err(_) => false,
-        };
-        assert_eq!(r2, true);
+        // let r2 = match system.get_member(&turing) {
+        //     Ok(member) => {
+        //         println!("{:?}", member.get_items());
+        //         member.has_item(&item)
+        //     }
+        //     Err(_) => false,
+        // };
+        // assert_eq!(r2, true);
     }
 
     #[test]
@@ -325,13 +327,13 @@ mod system_tests {
         let r2 = system.remove_item(item.clone());
         assert_eq!(r2, Ok(()));
 
-        let r3 = match system.get_member(&turing) {
-            Ok(member) => {
-                println!("{:?}", member.get_items());
-                member.has_item(&item)
-            }
-            Err(_) => false,
-        };
-        assert_eq!(r3, false);
+        // let r3 = match system.get_member(&turing) {
+        //     Ok(member) => {
+        //         println!("{:?}", member.get_items());
+        //         member.has_item(&item)
+        //     }
+        //     Err(_) => false,
+        // };
+        // assert_eq!(r3, false);
     }
 }

@@ -7,10 +7,9 @@ use models::domain::{
     member::Member,
     Data,
 };
-use views::{
-    console::Console,
-    item_view::{CliItemView, ItemView},
-};
+use views::console::Console;
+
+use crate::models::domain::FromMap;
 
 pub mod controllers;
 pub mod models;
@@ -30,11 +29,14 @@ fn main() {
         .description("Family Game".to_owned())
         .category(Category::Game)
         .owner(allan.clone())
-        .cost_per_day(20f64);
+        .cost_per_day(20f64)
+        .build();
 
     // let item_view = CliItemView::new();
     // item_view.display_item_info(item)
     let con = Console::new();
-    con.title();
-    con.table(allan.to_table());
+    // let jeff = con.edit_model_info(allan.clone());
+    let item2 = con.edit_model_info(item.clone());
+
+    // println!("{:#?}", jeff == allan);
 }

@@ -17,13 +17,11 @@ pub trait Data: FromMap + ToMap + FromStr + fmt::Display {
 }
 
 pub trait FromMap {
-    fn from_partial_map(data: StringMap) -> Self;
     fn from_complete_map(data: StringMap) -> Self;
     fn copy_with(&self, data: StringMap) -> Self;
 }
 
 pub trait ToMap {
     fn to_map(&self) -> StringMap;
-    fn to_allowed_mutable_map(&self) -> StringMap;
-    fn to_buffers_map(&self) -> StringMap;
+    fn to_map_allowed_mutable(&self) -> StringMap;
 }
