@@ -31,12 +31,16 @@ pub struct Member {
     #[getter(rename = "get_phone_nr")]
     phone_nr: String,
     #[getter(rename = "get_credits")]
+    #[mutable_ignore]
     credits: f64,
     #[getter(rename = "get_day_of_creation")]
+    #[mutable_ignore]
     day_of_creation: chrono::DateTime<Local>,
     #[getter(rename = "get_uuid")]
+    #[mutable_ignore]
     uuid: Uuid,
     #[getter(rename = "get_items")]
+    #[mutable_ignore]
     items: CVec<Item>,
 }
 

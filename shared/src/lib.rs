@@ -1,8 +1,13 @@
 extern crate proc_macro;
 
+use std::fmt::Arguments;
+
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, Data::Struct, DataStruct, DeriveInput, Fields::Named, FieldsNamed};
+use syn::{
+    parse_macro_input, Data::Struct, DataStruct, DeriveInput, Fields::Named, FieldsNamed,
+    PathArguments, PathSegment,
+};
 
 #[proc_macro_derive(Builder, attributes(from_map))]
 pub fn derive_builder(inp: TokenStream) -> TokenStream {
@@ -335,7 +340,7 @@ pub fn derive_to_map(inp: TokenStream) -> TokenStream {
     res.into()
 }
 
-#[proc_macro_derive(CTable, attributes(mutable))]
+#[proc_macro_derive(CTable, attributes(mutable_ignore))]
 pub fn derive_to_table(inp: TokenStream) -> TokenStream {
     let DeriveInput { ident, data, .. } = parse_macro_input!(inp as DeriveInput);
     let fields = match data {
@@ -345,44 +350,6 @@ pub fn derive_to_table(inp: TokenStream) -> TokenStream {
         }) => named,
         _ => panic!("Not supported"),
     };
-
-    let from_map_args = fields.iter().map(|f| {
-        let name = &f.ident;
-        let ty = &f.ty;
-
-        let attrs = &f.attrs;
-        let mut out = quote! {};
-
-        for attr in attrs.iter() {
-            let style = attr.style;
-            match style {
-                syn::AttrStyle::Outer => {
-                    if attr.path.is_ident("from_map") {
-                        let arg = attr.path.segments.first();
-                        let ident = &arg.unwrap().ident;
-                        if ident.to_string() == "ignore".to_owned() {
-                            out = quote! {}
-                        }
-                    } else {
-                        let key = format!("{}", name.clone().unwrap());
-                        out = quote! {
-                            #name: data.get(#key).unwrap().parse::<#ty>().unwrap()
-                        };
-                    }
-                }
-                syn::AttrStyle::Inner(_) => {}
-            }
-        }
-
-        if attrs.is_empty() {
-            let key = format!("{}", name.clone().unwrap());
-            out = quote! {
-                #name: data.get(#key).unwrap().parse::<#ty>().unwrap()
-            };
-        }
-
-        out
-    });
 
     let head_attrs = fields.iter().map(|f| {
         let name = &f.ident;
@@ -401,7 +368,7 @@ pub fn derive_to_table(inp: TokenStream) -> TokenStream {
         }
     });
 
-    let head_mutable_attrs = fields.iter().map(|f| {
+    let head_mutable_attrs = fields.iter().filter_map(|f| {
         let name = &f.ident;
         let key = format!("{}", name.clone().unwrap());
         let attrs = &f.attrs;
@@ -412,29 +379,34 @@ pub fn derive_to_table(inp: TokenStream) -> TokenStream {
             let style = attr.style;
             match style {
                 syn::AttrStyle::Outer => {
-                    if attr.path.is_ident("mutable") {
-                        let arg = attr.path.segments.first();
-                        let ident = &arg.unwrap().ident;
-                        if ident.to_string() == "ignore".to_owned() {
-                            out = quote! {}
+                    let segs = attr
+                        .path
+                        .segments
+                        .clone()
+                        .into_iter()
+                        .collect::<Vec<PathSegment>>();
+
+                    for seg in segs.iter() {
+                        let is_mutable = seg.ident.to_string() == "mutable_ignore";
+                        if is_mutable {
+                            return None;
                         }
-                    } else {
-                        out = quote! {
-                            #key.to_owned()
-                        };
                     }
+                    out = quote! {
+                        #key.to_owned()
+                    };
                 }
                 syn::AttrStyle::Inner(_) => {}
             }
         }
 
         if attrs.is_empty() {
-            out = quote! {
+            return Some(quote! {
                 #key.to_owned()
-            };
+            });
         }
 
-        out
+        return Some(out);
     });
 
     let res = quote! {
@@ -458,10 +430,10 @@ pub fn derive_to_table(inp: TokenStream) -> TokenStream {
         }
 
         fn to_table(&self) -> prettytable::Table {
-            let mut _table = prettytable::Table::new();
-            _table.add_row(prettytable::Row::from(self.head()));
-            _table.add_row(self.to_row());
-            _table
+            let mut out_table = prettytable::Table::new();
+            out_table.add_row(prettytable::Row::from(self.head()));
+            out_table.add_row(self.to_row());
+            out_table
         }
     }
     };
