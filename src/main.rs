@@ -5,11 +5,8 @@
 use models::domain::{
     item::{Category, Item},
     member::Member,
-    Data,
 };
-use views::console::Console;
-
-use crate::models::domain::FromMap;
+use views::main_view::{CliMainView, MainView};
 
 pub mod controllers;
 pub mod models;
@@ -32,11 +29,9 @@ fn main() {
         .cost_per_day(20f64)
         .build();
 
-    // let item_view = CliItemView::new();
-    // item_view.display_item_info(item)
-    let con = Console::new();
-    // let jeff = con.edit_model_info(allan.clone());
-    let item2 = con.edit_model_info(item.clone());
-
-    // println!("{:#?}", jeff == allan);
+    // let con = Console::new();
+    // let member_view = CliMemberView::new();
+    // member_view.display_member_verbose(allan, vec![item]);
+    let main_view = CliMainView::new();
+    main_view.main_menu();
 }

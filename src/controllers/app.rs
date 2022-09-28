@@ -20,9 +20,3 @@ impl MainApp {
         MainApp {}
     }
 }
-
-// impl App for MainApp {
-//     fn run<M, V>(&self, model: M, view: V) {
-//         println!("hello world");
-//     }
-// }

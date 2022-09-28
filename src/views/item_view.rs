@@ -7,7 +7,7 @@ use crate::{
     types::StringMap,
 };
 
-use super::console::Console;
+use super::console::{Console, Ui};
 
 pub trait ItemView {
     fn display_item_info(&self, item: Item);
@@ -31,7 +31,7 @@ impl ItemView for CliItemView {
     fn display_item_info(&self, item: Item) {
         let mut table = Table::new();
         table.add_row(item.to_row());
-        self.console.table(table);
+        self.console.display_table(table);
     }
 
     fn edit_item_info(&self, item: Item) -> Item {

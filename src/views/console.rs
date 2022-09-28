@@ -6,16 +6,23 @@ use prettytable::{Row, Table};
 use std::{
     collections::HashMap,
     io::{self, stdin, Write},
-    iter::Map,
 };
 
-trait Ui {
+use super::Options;
+
+// use super::Options;
+
+pub trait Ui {
+    fn show_menu<T>(&self, menu_options: Vec<String>) -> T
+    where
+        T: Options + std::fmt::Display + std::str::FromStr;
     fn confirm(&self, original: String, new: String) -> bool;
     fn display_table(&self, table: Table);
     fn display_row(&self, row: Row);
     fn get_str_input(&self, display: &str) -> String;
-    fn get_consecutive_str_input(&self, display_strings: Vec<String>) -> Map<String, String>;
-    fn edit_model_info<T>(&self, model: T) -> T
+    fn get_int_input(&self, display: &str) -> usize;
+    fn get_consecutive_str_input(&self, display_strings: Vec<String>) -> StringMap;
+    fn edit_model_info<T>(&self, model: T) -> Option<T>
     where
         T: Data + FromMap + ToMap + Model;
 }
@@ -37,7 +44,7 @@ impl Console {
     }
 
     pub fn write(&self, out: &str) {
-        print!("\n\t{out}: ")
+        print!("\n{out}: ")
     }
 
     pub fn writef(&self, out: &str) {
@@ -52,7 +59,38 @@ impl Console {
         io::stdout().flush().unwrap();
     }
 
-    pub fn confirm(&self, arg: String, val: String) -> bool {
+    pub fn get_model_info<T>(&self, obj: T) -> T
+    where
+        T: Data + FromMap + ToMap + Model,
+    {
+        self.title();
+        let new_model_info = self.get_consecutive_str_input(obj.head_allowed_mutable());
+        let data: StringMap = HashMap::from(
+            new_model_info
+                .into_iter()
+                .collect::<HashMap<String, String>>(),
+        );
+        obj.copy_with(data)
+    }
+}
+
+impl Ui for Console {
+    fn show_menu<T>(&self, menu_options: Vec<String>) -> T
+    where
+        T: Options + std::str::FromStr + std::fmt::Display,
+    {
+        self.title();
+        let out = menu_options
+            .iter()
+            .enumerate()
+            .map(|(cnt, opt)| "\t".to_owned() + cnt.to_string().as_str() + "\t:\t" + opt)
+            .collect::<Vec<String>>()
+            .join("\n");
+        let choice = T::from_choice(self.get_int_input(out.as_str()));
+        choice
+    }
+
+    fn confirm(&self, arg: String, val: String) -> bool {
         self.title();
         let str_raw = self.get_str_input(
             format!(
@@ -72,23 +110,25 @@ impl Console {
         match chr {
             c => match c {
                 'y' => true,
+                'Y' => true,
                 'n' => false,
+                'N' => false,
                 _ => self.confirm(arg, val),
             },
         }
     }
 
-    pub fn table(&self, table: Table) {
+    fn display_table(&self, table: Table) {
         table.printstd()
     }
 
-    pub fn row(&self, row: Row) {
+    fn display_row(&self, row: Row) {
         let mut _table = Table::new();
         _table.add_row(row);
-        self.table(_table)
+        self.display_table(_table)
     }
 
-    pub fn get_str_input(&self, display: &str) -> String {
+    fn get_str_input(&self, display: &str) -> String {
         self.write(display);
         match io::stdout().flush() {
             Ok(_) => {}
@@ -102,7 +142,25 @@ impl Console {
         buf.strip_suffix("\n").unwrap().to_owned()
     }
 
-    pub fn get_consecutive_str_input(&self, input_buffers: Vec<String>) -> StringMap {
+    fn get_int_input(&self, display: &str) -> usize {
+        self.write(display);
+        match io::stdout().flush() {
+            Ok(_) => {}
+            Err(err) => println!("There was some error displaying to console: {err}"),
+        }
+        let mut buf = String::new();
+        match stdin().read_line(&mut buf) {
+            Ok(_) => {}
+            Err(_) => println!("There was a problem reading the input"),
+        };
+        let raw = buf.strip_suffix("\n").unwrap().to_owned();
+        match raw.parse::<usize>() {
+            Ok(out) => out,
+            Err(_) => self.get_int_input(display),
+        }
+    }
+
+    fn get_consecutive_str_input(&self, input_buffers: Vec<String>) -> StringMap {
         let mut out = HashMap::new();
         for buf in input_buffers {
             let inp = self.get_str_input(buf.as_str());
@@ -112,12 +170,11 @@ impl Console {
         out
     }
 
-    pub fn edit_model_info<T>(&self, obj: T) -> Option<T>
+    fn edit_model_info<T>(&self, obj: T) -> Option<T>
     where
         T: Data + FromMap + ToMap + Model,
     {
         self.title();
-        self.table(obj.to_table());
         let new_model_info = self.get_consecutive_str_input(obj.head_allowed_mutable());
         let data: StringMap = HashMap::from(
             new_model_info

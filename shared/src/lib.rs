@@ -3,8 +3,8 @@ extern crate proc_macro;
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{
-    parse_macro_input, Data::Struct, DataStruct, DeriveInput, Fields::Named, FieldsNamed,
-    PathSegment,
+    parse_macro_input, Attribute, Data::Struct, DataStruct, DeriveInput, Fields::Named,
+    FieldsNamed, PathSegment,
 };
 
 #[proc_macro_derive(Builder)]
@@ -537,6 +537,136 @@ pub fn derive_partial_eq(inp: TokenStream) -> TokenStream {
             vec![#(#ne_attrs,)*].iter().all(|cond| cond == &true)
         }
     }
+    };
+
+    res.into()
+}
+
+#[proc_macro_derive(COptions, attributes(other))]
+pub fn derive_options(inp: TokenStream) -> TokenStream {
+    let DeriveInput { ident, data, .. } = parse_macro_input!(inp as DeriveInput);
+    let name = ident.clone();
+    let variants = if let syn::Data::Enum(e) = data {
+        e.variants
+    } else {
+        unimplemented!()
+    };
+
+    let temp_variants = variants.clone();
+    let from_usize_choice = temp_variants.iter().enumerate().map(|v| {
+        let v_ident = v.1.ident.clone();
+        let v_nr = v.0;
+        let v_attrs = v.1.attrs.clone();
+        for attr in v_attrs.iter() {
+            if attr
+                .path
+                .segments
+                .iter()
+                .map(|seg: &PathSegment| seg.ident.to_string())
+                .collect::<Vec<String>>()
+                .contains(&"other".to_owned())
+            {
+                return quote! {
+                    _ => #name::#v_ident
+                };
+            }
+        }
+        quote! {
+            #v_nr => #name::#v_ident
+        }
+    });
+
+    let strs = temp_variants.iter().map(|v| {
+        let v_ident = v.ident.clone();
+        let v_key = format!("{}", v_ident);
+        let v_attrs = v.attrs.clone();
+        for attr in v_attrs.iter() {
+            if attr
+                .path
+                .segments
+                .iter()
+                .map(|seg: &PathSegment| seg.ident.to_string())
+                .collect::<Vec<String>>()
+                .contains(&"other".to_owned())
+            {
+                return quote! {};
+            }
+        }
+        quote! {
+            out.push(#v_key.to_owned());
+        }
+    });
+
+    let from_str = temp_variants.iter().map(|v| {
+        let v_ident = v.ident.clone();
+        let v_key = format!("{}", v_ident);
+        let v_attrs = v.attrs.clone();
+        for attr in v_attrs.iter() {
+            if attr
+                .path
+                .segments
+                .iter()
+                .map(|seg: &PathSegment| seg.ident.to_string())
+                .collect::<Vec<String>>()
+                .contains(&"other".to_owned())
+            {
+                return quote! {
+                    _ => Ok(#name::#v_ident)
+                };
+            }
+        }
+        quote! {
+            #v_key => Ok(#name::#v_ident)
+        }
+    });
+
+    let to_str = temp_variants.iter().map(|v| {
+        let v_ident = v.ident.clone();
+        let v_key = format!("{}", v_ident);
+        quote! {
+            #name::#v_ident => f.write_str(#v_key)
+        }
+    });
+
+    let res = quote! {
+        impl crate::views::Options for #ident {
+            fn as_tuple(&self) -> (String, Self) {
+                (
+                    self.to_string(),
+                    MainMenuOption::from_str(self.to_string().as_str()).expect("Not going to fail"),
+                )
+            }
+
+            fn options() -> Vec<String> {
+                let mut out = Vec::new();
+                #(#strs)*
+                out
+            }
+
+            fn from_choice(choice: usize) -> #ident {
+                match choice {
+                    #(#from_usize_choice,)*
+                }
+            }
+        }
+
+        impl core::str::FromStr for #ident {
+            type Err = std::string::ParseError;
+
+            fn from_str(s: &str) -> Result<Self, Self::Err> {
+                match s {
+                    #(#from_str,)*
+                }
+            }
+        }
+
+        impl std::fmt::Display for #ident {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                match *self {
+                    #(#to_str,)*
+                }
+            }
+        }
     };
 
     res.into()

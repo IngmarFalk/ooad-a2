@@ -4,7 +4,6 @@ use crate::models::cvec::CVec;
 use crate::models::system::MError;
 use crate::models::uuid::Uuid;
 use crate::types::Model;
-use chrono::Local;
 use derive_getters::{Dissolve, Getters};
 use shared::{Builder, CData, CFromMap, CFromStr, CPartialEq, CToMap, CToStr};
 use std::str::FromStr;
@@ -139,6 +138,16 @@ impl Item {
             day_of_creation: CDate::new(),
             is_available: false,
         }
+    }
+
+    fn has_one_or_no_active_contract(&self) -> bool {
+        let current_date = CDate::new();
+        let active_contracts = self
+            .history
+            .iter()
+            .filter(|c| &current_date > c.get_start_day() && &current_date < c.get_end_day())
+            .collect::<Vec<&Contract>>();
+        active_contracts.len() <= 1
     }
 
     fn get_active_contract(&self) -> Option<Contract> {
