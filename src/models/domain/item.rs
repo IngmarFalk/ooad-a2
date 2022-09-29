@@ -5,7 +5,7 @@ use crate::models::system::MError;
 use crate::models::uuid::Uuid;
 use crate::types::Model;
 use derive_getters::{Dissolve, Getters};
-use shared::{Builder, CData, CFromMap, CFromStr, CPartialEq, CToMap, CToStr};
+use shared::{Builder, CData, CFromMap, CFromStr, CPartialEq, CToMap, CToStr, Model};
 use std::str::FromStr;
 use std::{collections::HashMap, fmt::Display};
 
@@ -80,6 +80,7 @@ impl From<&str> for Category {
     CToMap,
     CData,
     CPartialEq,
+    Model,
 )]
 #[dissolve(rename = "unpack")]
 pub struct Item {
@@ -117,8 +118,6 @@ pub struct Item {
     is_available: bool,
 }
 
-impl Model for Item {}
-
 impl Item {
     pub fn new(
         name: String,
@@ -140,23 +139,23 @@ impl Item {
         }
     }
 
-    fn has_one_or_no_active_contract(&self) -> bool {
-        let current_date = CDate::new();
-        let active_contracts = self
-            .history
-            .iter()
-            .filter(|c| &current_date > c.get_start_day() && &current_date < c.get_end_day())
-            .collect::<Vec<&Contract>>();
-        active_contracts.len() <= 1
-    }
+    // fn has_one_or_no_active_contract(&self) -> bool {
+    //     let current_date = CDate::new();
+    //     let active_contracts = self
+    //         .history
+    //         .iter()
+    //         .filter(|c| &current_date > c.get_start_day() && &current_date < c.get_end_day())
+    //         .collect::<Vec<&Contract>>();
+    //     active_contracts.len() <= 1
+    // }
 
-    fn get_active_contract(&self) -> Option<Contract> {
-        let current_date = CDate::new();
-        for contract in self.history.iter() {
-            if &current_date > contract.get_start_day() && &current_date < contract.get_end_day() {
-                return Some(contract.clone());
-            }
-        }
-        None
-    }
+    // fn get_active_contract(&self) -> Option<Contract> {
+    //     let current_date = CDate::new();
+    //     for contract in self.history.iter() {
+    //         if &current_date > contract.get_start_day() && &current_date < contract.get_end_day() {
+    //             return Some(contract.clone());
+    //         }
+    //     }
+    //     None
+    // }
 }

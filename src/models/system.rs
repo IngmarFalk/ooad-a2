@@ -10,13 +10,16 @@ use super::{
 };
 
 pub trait LendingSystem {
+    fn get_members(&self) -> Vec<&Member>;
     fn get_member(&self, member: &Member) -> MResult<Member>;
     fn get_member_mut(&mut self, member: &Member) -> MResult<&mut Member>;
     fn add_member(&mut self, member: Member) -> MResult<()>;
     fn remove_member(&mut self, member: Member) -> MResult<()>;
     fn exists_member(&self, member: &Member) -> bool;
+    fn get_items(&self) -> Vec<&Item>;
     fn add_item(&mut self, item: Item) -> MResult<()>;
     fn remove_item(&mut self, item: Item) -> MResult<()>;
+    fn count_items(&self, member: Member) -> usize;
 }
 
 /// TODO : Create a cache HashMap in system where whenever we add an item
@@ -24,7 +27,7 @@ pub trait LendingSystem {
 /// TODO : item or contract. That way we can look up a contract id
 /// TODO : in this map via a single operation.
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct System {
     members: HashMap<Uuid, Member>,
     items: HashMap<Uuid, Item>,
@@ -52,6 +55,13 @@ impl System {
 }
 
 impl LendingSystem for System {
+    fn get_members(&self) -> Vec<&Member> {
+        self.members
+            .iter()
+            .map(|entry| entry.1)
+            .collect::<Vec<&Member>>()
+    }
+
     fn get_member(&self, member: &Member) -> MResult<Member> {
         match self.members.get(&member.get_uuid()) {
             Some(m) => Ok(m.clone()),
@@ -89,6 +99,13 @@ impl LendingSystem for System {
         })
     }
 
+    fn get_items(&self) -> Vec<&Item> {
+        self.items
+            .iter()
+            .map(|entry| entry.1)
+            .collect::<Vec<&Item>>()
+    }
+
     fn add_item(&mut self, item: Item) -> MResult<()> {
         // let res = match self.get_member_mut(&item.get_owner()) {
         //     Ok(m) => match m.add_item(item.clone()) {
@@ -120,6 +137,16 @@ impl LendingSystem for System {
         }
         //     Err(_) => todo!(),
         // }
+    }
+
+    fn count_items(&self, member: Member) -> usize {
+        self.get_items().iter().fold(0, |cnt, item| {
+            if item.get_owner() == &member {
+                cnt + 1
+            } else {
+                cnt
+            }
+        })
     }
 }
 

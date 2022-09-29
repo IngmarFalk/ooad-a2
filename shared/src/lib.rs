@@ -3,8 +3,8 @@ extern crate proc_macro;
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{
-    parse_macro_input, Attribute, Data::Struct, DataStruct, DeriveInput, Fields::Named,
-    FieldsNamed, PathSegment,
+    parse_macro_input, Data::Struct, DataStruct, DeriveInput, Fields::Named, FieldsNamed,
+    PathSegment,
 };
 
 #[proc_macro_derive(Builder)]
@@ -422,13 +422,13 @@ pub fn derive_to_table(inp: TokenStream) -> TokenStream {
             ]
         }
 
-        fn head(&self) -> Vec<::std::string::String> {
+        fn head() -> Vec<::std::string::String> {
             vec![
                 #(#head_attrs,)*
             ]
         }
 
-        fn head_allowed_mutable(&self) -> Vec<::std::string::String> {
+        fn head_allowed_mutable() -> Vec<::std::string::String> {
             vec![
                 #(#head_mutable_attrs,)*
             ]
@@ -436,7 +436,7 @@ pub fn derive_to_table(inp: TokenStream) -> TokenStream {
 
         fn to_table(&self) -> prettytable::Table {
             let mut out_table = prettytable::Table::new();
-            out_table.add_row(prettytable::Row::from(self.head()));
+            out_table.add_row(prettytable::Row::from(#ident::head()));
             out_table.add_row(self.to_row());
             out_table
         }
@@ -633,7 +633,7 @@ pub fn derive_options(inp: TokenStream) -> TokenStream {
             fn as_tuple(&self) -> (String, Self) {
                 (
                     self.to_string(),
-                    MainMenuOption::from_str(self.to_string().as_str()).expect("Not going to fail"),
+                    #ident::from_str(self.to_string().as_str()).expect("Not going to fail"),
                 )
             }
 
@@ -670,4 +670,42 @@ pub fn derive_options(inp: TokenStream) -> TokenStream {
     };
 
     res.into()
+}
+
+#[proc_macro_derive(Model)]
+pub fn derive_model(inp: TokenStream) -> TokenStream {
+    let DeriveInput { ident, .. } = parse_macro_input!(inp as DeriveInput);
+
+    quote! {
+    impl crate::types::Model for #ident {}
+    }
+    .into()
+}
+
+#[proc_macro_derive(View)]
+pub fn derive_view(inp: TokenStream) -> TokenStream {
+    let DeriveInput { ident, .. } = parse_macro_input!(inp as DeriveInput);
+
+    quote! {
+        impl crate::types::View for #ident {}
+    }
+    .into()
+}
+
+#[proc_macro_attribute]
+pub fn controller(view: TokenStream, strct: TokenStream) -> TokenStream {
+    let strct_copy = strct.clone();
+    let DeriveInput { ident, .. } = parse_macro_input!(strct_copy as DeriveInput);
+    let s2 = proc_macro2::TokenStream::from(strct);
+    let v2 = proc_macro2::TokenStream::from(view);
+
+    quote! {
+        #s2
+        impl<M, V> crate::types::Controller for #ident<M, V>
+        where
+            M: crate::types::Model + crate::models::system::LendingSystem,
+            V: crate::types::View + #v2,
+        {}
+    }
+    .into()
 }

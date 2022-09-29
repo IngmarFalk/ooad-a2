@@ -1,11 +1,14 @@
-use prettytable::{Cell, Row, Table};
-
 use super::console::{Console, Ui};
-use crate::models::domain::item::Item;
 use crate::models::domain::member::Member;
 use crate::models::domain::Data;
+use crate::views::Options;
+use crate::{models::domain::item::Item, types::View};
+use prettytable::{Cell, Row, Table};
+use shared::COptions;
+use std::str::FromStr;
 
-pub enum MemberViewOptions {
+#[derive(Debug, COptions)]
+pub enum MemberMenuOption {
     DisplayMemberSimple,
     DisplayMemberVerbose,
     ListAllMembersSimple,
@@ -13,21 +16,26 @@ pub enum MemberViewOptions {
     CreateMember,
     DeleteMember,
     EditMember,
+    #[other]
+    Other,
 }
 
 pub trait MemberView {
-    // fn show_menu(&self) -> MemberViewOptions;
+    fn member_menu(&self) -> MemberMenuOption;
     fn display_member_verbose(&self, member: Member, items: Vec<Item>);
     fn display_member_simple(&self, member: Member, number_of_items: usize);
     fn display_all_simple(&self, members: Vec<(Member, usize)>);
     fn display_all_verbose(&self, members: Vec<(Member, Vec<Item>)>);
     fn get_member_info(&self) -> Member;
     fn edit_member_info(&self, member: Member) -> Option<Member>;
+    fn select_member<'a>(&'a self, members: Vec<&'a Member>) -> Option<&Member>;
 }
 
 pub struct CliMemberView {
     console: Console,
 }
+
+impl View for CliMemberView {}
 
 impl CliMemberView {
     pub fn new() -> CliMemberView {
@@ -38,6 +46,15 @@ impl CliMemberView {
 }
 
 impl MemberView for CliMemberView {
+    fn member_menu(&self) -> MemberMenuOption {
+        self.console.title();
+        let choice: MemberMenuOption = self.console.show_menu(MemberMenuOption::options());
+        match choice {
+            MemberMenuOption::Other => self.member_menu(),
+            _ => choice,
+        }
+    }
+
     fn display_member_verbose(&self, member: Member, items: Vec<Item>) {
         let mut items_str = String::new();
         if items.len() == 0 {
@@ -77,7 +94,7 @@ impl MemberView for CliMemberView {
 
     fn display_all_simple(&self, data: Vec<(Member, usize)>) {
         let mut table = Table::new();
-        let mut head = Row::from(Member::default().head());
+        let mut head = Row::from(Member::head());
         let number_of_items = Cell::new("Number of Items");
         head.add_cell(number_of_items);
         table.add_row(head);
@@ -103,5 +120,9 @@ impl MemberView for CliMemberView {
 
     fn edit_member_info(&self, member: Member) -> Option<Member> {
         self.console.edit_model_info(member)
+    }
+
+    fn select_member<'a>(&'a self, members: Vec<&'a Member>) -> Option<&Member> {
+        self.console.select_model(members)
     }
 }

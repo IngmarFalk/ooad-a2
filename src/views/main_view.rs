@@ -1,8 +1,7 @@
 use super::console::Console;
 use super::Options;
-use crate::types::View;
 use crate::views::console::Ui;
-use shared::COptions;
+use shared::{COptions, View};
 use std::str::FromStr;
 
 #[derive(Debug, COptions)]
@@ -16,14 +15,13 @@ pub enum MainMenuOption {
 }
 
 pub trait MainView {
-    fn main_menu(&self) -> Option<MainMenuOption>;
+    fn main_menu(&self) -> MainMenuOption;
 }
 
+#[derive(View)]
 pub struct CliMainView {
     console: Console,
 }
-
-impl View for CliMainView {}
 
 impl CliMainView {
     pub fn new() -> CliMainView {
@@ -34,12 +32,12 @@ impl CliMainView {
 }
 
 impl MainView for CliMainView {
-    fn main_menu(&self) -> Option<MainMenuOption> {
+    fn main_menu(&self) -> MainMenuOption {
         self.console.title();
         let choice: MainMenuOption = self.console.show_menu(MainMenuOption::options());
         match choice {
             MainMenuOption::Other => self.main_menu(),
-            _ => Some(choice),
+            _ => choice,
         }
     }
 }

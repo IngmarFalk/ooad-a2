@@ -5,6 +5,7 @@ pub mod contract_view;
 pub mod item_view;
 pub mod main_view;
 pub mod member_view;
+pub mod simulator_view;
 
 pub trait Options {
     fn as_tuple(&self) -> (String, Self);

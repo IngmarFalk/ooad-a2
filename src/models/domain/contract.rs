@@ -2,7 +2,7 @@ use super::{item::Item, member::Member, FromMap};
 use crate::models::cdate::CDate;
 use crate::models::uuid::Uuid;
 use derive_getters::{Dissolve, Getters};
-use shared::{CData, CFromMap, CFromStr, CPartialEq, CToMap, CToStr};
+use shared::{CData, CFromMap, CFromStr, CPartialEq, CToMap, CToStr, Model};
 use std::collections::HashMap;
 use std::str::FromStr;
 
@@ -12,7 +12,18 @@ pub trait ContractValidation {
 }
 
 #[derive(
-    Debug, Clone, Default, Getters, Dissolve, CFromStr, CFromMap, CToStr, CToMap, CData, CPartialEq,
+    Debug,
+    Clone,
+    Default,
+    Getters,
+    Dissolve,
+    CFromStr,
+    CFromMap,
+    CToStr,
+    CToMap,
+    CData,
+    CPartialEq,
+    Model,
 )]
 #[dissolve(rename = "unpack")]
 pub struct Contract {

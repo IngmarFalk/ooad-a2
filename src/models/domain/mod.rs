@@ -12,8 +12,8 @@ pub mod member;
 pub trait Data: FromMap + ToMap + FromStr + fmt::Display {
     fn to_row(&self) -> Row;
     fn to_table(&self) -> Table;
-    fn head(&self) -> Vec<String>;
-    fn head_allowed_mutable(&self) -> Vec<String>;
+    fn head() -> Vec<String>;
+    fn head_allowed_mutable() -> Vec<String>;
 }
 
 pub trait FromMap {

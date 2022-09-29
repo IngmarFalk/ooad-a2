@@ -1,3 +1,4 @@
+use super::Options;
 use crate::{
     models::domain::{Data, FromMap, ToMap},
     types::{Model, StringMap},
@@ -8,10 +9,6 @@ use std::{
     io::{self, stdin, Write},
 };
 
-use super::Options;
-
-// use super::Options;
-
 pub trait Ui {
     fn show_menu<T>(&self, menu_options: Vec<String>) -> T
     where
@@ -21,7 +18,11 @@ pub trait Ui {
     fn display_row(&self, row: Row);
     fn get_str_input(&self, display: &str) -> String;
     fn get_int_input(&self, display: &str) -> usize;
+    fn get_char_input(&self, display: &str) -> char;
     fn get_consecutive_str_input(&self, display_strings: Vec<String>) -> StringMap;
+    fn select_model<'a, T>(&'a self, vec_model: Vec<&'a T>) -> Option<&T>
+    where
+        T: Data + FromMap + ToMap + Model;
     fn edit_model_info<T>(&self, model: T) -> Option<T>
     where
         T: Data + FromMap + ToMap + Model;
@@ -64,7 +65,7 @@ impl Console {
         T: Data + FromMap + ToMap + Model,
     {
         self.title();
-        let new_model_info = self.get_consecutive_str_input(obj.head_allowed_mutable());
+        let new_model_info = self.get_consecutive_str_input(T::head_allowed_mutable());
         let data: StringMap = HashMap::from(
             new_model_info
                 .into_iter()
@@ -137,26 +138,28 @@ impl Ui for Console {
         let mut buf = String::new();
         match stdin().read_line(&mut buf) {
             Ok(_) => {}
-            Err(_) => println!("There was a problem reading the input"),
+            Err(_) => {
+                let out = format!("{}\nThere was a problem reading the input.", display);
+                return self.get_str_input(out.as_str());
+            }
         };
+
         buf.strip_suffix("\n").unwrap().to_owned()
     }
 
     fn get_int_input(&self, display: &str) -> usize {
-        self.write(display);
-        match io::stdout().flush() {
-            Ok(_) => {}
-            Err(err) => println!("There was some error displaying to console: {err}"),
-        }
-        let mut buf = String::new();
-        match stdin().read_line(&mut buf) {
-            Ok(_) => {}
-            Err(_) => println!("There was a problem reading the input"),
-        };
-        let raw = buf.strip_suffix("\n").unwrap().to_owned();
+        let raw = self.get_str_input(display);
         match raw.parse::<usize>() {
             Ok(out) => out,
             Err(_) => self.get_int_input(display),
+        }
+    }
+
+    fn get_char_input(&self, display: &str) -> char {
+        let buf = self.get_str_input(display);
+        match buf.parse::<char>() {
+            Ok(chr) => return chr,
+            Err(_) => self.get_char_input(display),
         }
     }
 
@@ -170,19 +173,53 @@ impl Ui for Console {
         out
     }
 
+    fn select_model<'a, T>(&'a self, vec_model: Vec<&'a T>) -> Option<&T>
+    where
+        T: Data + FromMap + ToMap + Model,
+    {
+        let pages: Vec<&[&T]> = vec_model.chunks(10).collect::<Vec<_>>();
+        self.title();
+
+        for (idx, page) in pages.iter().enumerate() {
+            let _page = page.clone();
+            for (jdx, item) in _page.iter().enumerate() {
+                let _item = item.clone();
+                let out = format!("{}\t:\t{}", jdx, item);
+                self.write(out.as_str());
+            }
+            let msg = format!("Press n (next) / p (previous) / q (quit) / number (select)\t: ");
+            // self.write(msg.as_str());
+            let inp = self.get_char_input(&msg);
+            if let Ok(res) = inp.to_string().parse::<usize>() {
+                return match res < 10 {
+                    true => Some(vec_model[idx * 10 + res]),
+                    false => self.select_model(vec_model.clone()),
+                };
+            } else {
+                return match inp {
+                    'n' => None,
+                    'p' => None,
+                    'q' => None,
+                    _ => self.select_model(vec_model),
+                };
+            };
+        }
+        None
+    }
+
     fn edit_model_info<T>(&self, obj: T) -> Option<T>
     where
         T: Data + FromMap + ToMap + Model,
     {
         self.title();
-        let new_model_info = self.get_consecutive_str_input(obj.head_allowed_mutable());
+        let new_model_info = self.get_consecutive_str_input(T::head_allowed_mutable());
         let data: StringMap = HashMap::from(
             new_model_info
                 .into_iter()
                 .collect::<HashMap<String, String>>(),
         );
         let obj_map = obj.to_map_allowed_mutable();
-        let temp: Vec<String> = obj.head_allowed_mutable().clone();
+        let temp: Vec<String> = T::head_allowed_mutable().clone();
         let values_tuples = temp
             .iter()
             .map(|s| (obj_map.get(s).unwrap(), data.get(s).unwrap()));

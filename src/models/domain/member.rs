@@ -1,9 +1,8 @@
 use crate::models::cdate::CDate;
 use crate::models::domain::FromMap;
 use crate::models::uuid::Uuid;
-use crate::types::Model;
 use derive_getters::{Dissolve, Getters};
-use shared::{CData, CFromMap, CFromStr, CPartialEq, CToMap, CToStr};
+use shared::{CData, CFromMap, CFromStr, CPartialEq, CToMap, CToStr, Model};
 use std::collections::HashMap;
 use std::str::FromStr;
 use thiserror::Error;
@@ -14,10 +13,8 @@ pub trait MemberValidation {
     fn validate_email(&self) -> bool;
 }
 
-/// If you see this warning from vscode: It is a bug within rust-analyzer, the
-/// linter used for rust. Important: ! This is not a Bug in this code !
 #[derive(
-    Clone, Debug, Getters, Dissolve, CFromStr, CToStr, CFromMap, CToMap, CData, CPartialEq,
+    Clone, Debug, Getters, Dissolve, CFromStr, CToStr, CFromMap, CToMap, CData, CPartialEq, Model,
 )]
 #[dissolve(rename = "unpack")]
 pub struct Member {
@@ -39,12 +36,7 @@ pub struct Member {
     #[getter(rename = "get_uuid")]
     #[mutable_ignore]
     uuid: Uuid,
-    // #[getter(rename = "get_items")]
-    // #[mutable_ignore]
-    // items: CVec<Item>,
 }
-
-impl Model for Member {}
 
 impl Member {
     pub fn new(name: String, email: String, phone_nr: String) -> Member {
