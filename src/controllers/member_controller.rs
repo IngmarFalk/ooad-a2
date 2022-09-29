@@ -1,6 +1,9 @@
 use super::app::App;
 use crate::{
-    models::system::LendingSystem,
+    models::{
+        domain::{item::Item, member::Member},
+        system::LendingSystem,
+    },
     types::{Model, View},
     views::member_view::{MemberMenuOption, MemberView},
 };
@@ -28,12 +31,11 @@ where
         match member {
             Some(m) => {
                 let number_of_items = self.model.count_items(&m);
-                self.view.display_member_simple(m.clone(), number_of_items);
+                self.view.display_member_simple(&m, number_of_items);
                 self.view.wait("")
             }
             None => {}
         }
-        self.run()
     }
 
     fn display_member_verbose(&mut self) {
@@ -42,12 +44,11 @@ where
         match member {
             Some(m) => {
                 let items = self.model.get_items_for_member(&m);
-                self.view.display_member_verbose(m.clone(), items);
+                self.view.display_member_verbose(&m, items);
                 self.view.wait("")
             }
             None => self.view.wait("Something went wrong."),
         }
-        self.run()
     }
 
     fn create_member(&mut self) {
@@ -60,8 +61,48 @@ where
                 self.view.wait("Unable to create member, please try again.");
             }
         }
-        self.run();
     }
+
+    fn display_all_members_simple(&self) {
+        let members = self.model.get_members();
+        let mut item_counts: Vec<usize> = Vec::new();
+        for member in members.iter() {
+            let cnt = self.model.count_items(member);
+            item_counts.push(cnt);
+        }
+        let tples = members
+            .into_iter()
+            .zip(item_counts)
+            .collect::<Vec<(&Member, usize)>>();
+        self.view.display_all_simple(tples);
+    }
+
+    fn display_all_members_verbose(&self) {
+        let members = self.model.get_members();
+        let mut items: Vec<Vec<&Item>> = Vec::new();
+        for member in members.iter() {
+            let member_items = self.model.get_items_for_member(member);
+            items.push(member_items);
+        }
+        let tples = members
+            .into_iter()
+            .zip(items)
+            .collect::<Vec<(&Member, Vec<&Item>)>>();
+        self.view.display_all_verbose(tples)
+    }
+
+    fn delete_member(&self) {
+        let members = self.model.get_members();
+        let member_to_delete = self.view.select_member(members);
+        match member_to_delete {
+            Some(m) => {
+                self.model.remove_member(m);
+            }
+            None => todo!(),
+        }
+    }
+
+    fn edit_member(&self) {}
 }
 
 impl<M, V> App for MemberController<M, V>
@@ -74,13 +115,14 @@ where
         match choice {
             MemberMenuOption::DisplayMemberSimple => self.display_member_simple(),
             MemberMenuOption::DisplayMemberVerbose => self.display_member_verbose(),
-            MemberMenuOption::ListAllMembersSimple => todo!(),
-            MemberMenuOption::ListAllMembersVerbose => todo!(),
+            MemberMenuOption::ListAllMembersSimple => self.display_all_members_simple(),
+            MemberMenuOption::ListAllMembersVerbose => self.display_all_members_verbose(),
             MemberMenuOption::CreateMember => self.create_member(),
-            MemberMenuOption::DeleteMember => todo!(),
-            MemberMenuOption::EditMember => todo!(),
-            MemberMenuOption::Other => todo!(),
+            MemberMenuOption::DeleteMember => self.delete_member(),
+            MemberMenuOption::EditMember => self.edit_member(),
+            MemberMenuOption::Other => self.run(),
             MemberMenuOption::Quit => std::process::exit(0),
         }
+        self.run()
     }
 }

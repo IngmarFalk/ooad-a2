@@ -3,12 +3,10 @@ use super::Show;
 use crate::models::domain::member::Member;
 use crate::models::domain::Data;
 use crate::models::system::LendingSystem;
-use crate::types::Model;
 use crate::views::Options;
 use crate::{models::domain::item::Item, types::View};
 use prettytable::{Cell, Row, Table};
 use shared::COptions;
-use std::collections::HashMap;
 use std::str::FromStr;
 
 #[derive(Debug, COptions)]
@@ -27,10 +25,10 @@ pub enum MemberMenuOption {
 
 pub trait MemberView {
     fn member_menu(&self) -> MemberMenuOption;
-    fn display_member_verbose(&self, member: Member, items: Vec<&Item>);
-    fn display_member_simple(&self, member: Member, number_of_items: usize);
-    fn display_all_simple(&self, members: Vec<(Member, usize)>);
-    fn display_all_verbose(&self, members: Vec<(Member, Vec<&Item>)>);
+    fn display_member_verbose(&self, member: &Member, items: Vec<&Item>);
+    fn display_member_simple(&self, member: &Member, number_of_items: usize);
+    fn display_all_simple(&self, members: Vec<(&Member, usize)>);
+    fn display_all_verbose(&self, members: Vec<(&Member, Vec<&Item>)>);
     fn get_member_info(&self) -> Member;
     fn edit_member_info(&self, member: Member) -> Option<Member>;
     fn select_member<'a>(&'a self, members: Vec<&'a Member>) -> Option<&Member>;
@@ -61,7 +59,7 @@ impl MemberView for CliMemberView {
         }
     }
 
-    fn display_member_verbose(&self, member: Member, items: Vec<&Item>) {
+    fn display_member_verbose(&self, member: &Member, items: Vec<&Item>) {
         let mut items_str = String::new();
         if items.len() == 0 {
             items_str.push_str("[]")
@@ -87,7 +85,7 @@ impl MemberView for CliMemberView {
         self.console.writef(out.as_str());
     }
 
-    fn display_member_simple(&self, member: Member, number_of_items: usize) {
+    fn display_member_simple(&self, member: &Member, number_of_items: usize) {
         self.console.clear();
         let out = format!(
             "Name:\t\t{}\nEmail:\t\t{}\nCredits:\t{}\nItems:\t\t{}\n",
@@ -99,7 +97,7 @@ impl MemberView for CliMemberView {
         self.console.writef(out.as_str());
     }
 
-    fn display_all_simple(&self, data: Vec<(Member, usize)>) {
+    fn display_all_simple(&self, data: Vec<(&Member, usize)>) {
         self.console.clear();
         let mut table = Table::new();
         let mut head = Row::from(Member::head());
@@ -115,7 +113,7 @@ impl MemberView for CliMemberView {
         self.console.display_table(table);
     }
 
-    fn display_all_verbose(&self, data: Vec<(Member, Vec<&Item>)>) {
+    fn display_all_verbose(&self, data: Vec<(&Member, Vec<&Item>)>) {
         for entry in data {
             self.display_member_verbose(entry.0, entry.1);
         }
@@ -133,6 +131,8 @@ impl MemberView for CliMemberView {
     fn select_member<'a>(&'a self, members: Vec<&'a Member>) -> Option<&Member> {
         self.console.select_model::<Member>(members)
     }
+
+    fn search_for_member
 
     fn wait(&self, display: &str) {
         self.console.wait(display);

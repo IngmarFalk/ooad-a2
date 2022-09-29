@@ -14,7 +14,7 @@ pub trait LendingSystem {
     fn get_member(&self, member: &Member) -> MResult<Member>;
     fn get_member_mut(&mut self, member: &Member) -> MResult<&mut Member>;
     fn add_member(&mut self, member: Member) -> MResult<()>;
-    fn remove_member(&mut self, member: Member) -> MResult<()>;
+    fn remove_member(&mut self, member: &Member) -> MResult<()>;
     fn exists_member(&self, member: &Member) -> bool;
     fn get_items(&self) -> Vec<&Item>;
     fn get_items_for_member(&self, member: &Member) -> Vec<&Item>;
@@ -85,11 +85,11 @@ impl LendingSystem for System {
         Ok(())
     }
 
-    fn remove_member(&mut self, member: Member) -> MResult<()> {
-        if !self.exists_member(&member) {
+    fn remove_member(&mut self, member: &Member) -> MResult<()> {
+        if !self.exists_member(member) {
             return Err(MError::DoesntExist);
         }
-        self.members.remove(&member.get_uuid());
+        self.members.remove(member.get_uuid());
         Ok(())
     }
 
@@ -276,7 +276,7 @@ mod system_tests {
         let r1 = system.exists_member(&turing);
         assert_eq!(r1, true);
 
-        match system.remove_member(turing.clone()) {
+        match system.remove_member(&turing) {
             Ok(_) => {}
             Err(_) => assert!(false),
         }
