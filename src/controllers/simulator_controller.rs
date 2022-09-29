@@ -1,11 +1,12 @@
+use super::app::App;
 use crate::{
     models::system::LendingSystem,
     types::{Model, View},
     views::simulator_view::SimulatorView,
 };
+use shared::controller;
 
-use super::app::App;
-
+#[controller(SimulatorView)]
 pub struct SimulatorController<M, V>
 where
     M: Model + LendingSystem,
@@ -15,22 +16,12 @@ where
     view: V,
 }
 
-impl<M, V> SimulatorController<M, V>
-where
-    M: Model + LendingSystem,
-    V: View + SimulatorView,
-{
-    pub fn new(model: M, view: V) -> Self {
-        Self { model, view }
-    }
-}
-
 impl<M, V> App for SimulatorController<M, V>
 where
     M: Model + LendingSystem,
     V: View + SimulatorView,
 {
-    fn run(&self) {
+    fn run(&mut self) {
         todo!()
     }
 }

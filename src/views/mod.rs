@@ -1,3 +1,4 @@
+use crate::models::system::LendingSystem;
 use thiserror::Error;
 
 pub mod console;
@@ -20,4 +21,9 @@ impl std::fmt::Display for InvalidInput {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str("Invalid Input")
     }
+}
+
+pub trait Show {
+    fn show_simple(&self, model: &str, system: impl LendingSystem);
+    fn show_verbose(&self, model: &str, system: impl LendingSystem);
 }

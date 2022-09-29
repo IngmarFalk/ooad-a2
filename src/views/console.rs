@@ -1,9 +1,9 @@
-use super::Options;
+use super::{Options, Show};
 use crate::{
     models::domain::{Data, FromMap, ToMap},
     types::{Model, StringMap},
 };
-use prettytable::{Row, Table};
+use prettytable::{Cell, Row, Table};
 use std::{
     collections::HashMap,
     io::{self, stdin, Write},
@@ -20,12 +20,13 @@ pub trait Ui {
     fn get_int_input(&self, display: &str) -> usize;
     fn get_char_input(&self, display: &str) -> char;
     fn get_consecutive_str_input(&self, display_strings: Vec<String>) -> StringMap;
-    fn select_model<'a, T>(&'a self, vec_model: Vec<&'a T>) -> Option<&T>
+    fn select_model<'a, M>(&'a self, vec_model: Vec<&'a M>) -> Option<&M>
     where
-        T: Data + FromMap + ToMap + Model;
+        M: Data + FromMap + ToMap + Model;
     fn edit_model_info<T>(&self, model: T) -> Option<T>
     where
         T: Data + FromMap + ToMap + Model;
+    fn wait(&self, display: &str);
 }
 
 #[derive(Debug)]
@@ -45,12 +46,13 @@ impl Console {
     }
 
     pub fn write(&self, out: &str) {
-        print!("\n{out}: ")
+        print!("\n{out}");
+        io::stdout().flush().unwrap();
     }
 
     pub fn writef(&self, out: &str) {
-        self.title();
-        self.write(out);
+        print!("\n{out}: ");
+        io::stdout().flush().unwrap();
     }
 
     pub fn title(&self) {
@@ -87,7 +89,8 @@ impl Ui for Console {
             .map(|(cnt, opt)| "\t".to_owned() + cnt.to_string().as_str() + "\t:\t" + opt)
             .collect::<Vec<String>>()
             .join("\n");
-        let choice = T::from_choice(self.get_int_input(out.as_str()));
+        let inp = self.get_int_input((out + "\n").as_str());
+        let choice = T::from_choice(inp);
         choice
     }
 
@@ -120,7 +123,7 @@ impl Ui for Console {
     }
 
     fn display_table(&self, table: Table) {
-        table.printstd()
+        table.printstd();
     }
 
     fn display_row(&self, row: Row) {
@@ -130,7 +133,7 @@ impl Ui for Console {
     }
 
     fn get_str_input(&self, display: &str) -> String {
-        self.write(display);
+        self.writef(display);
         match io::stdout().flush() {
             Ok(_) => {}
             Err(err) => println!("There was some error displaying to console: {err}"),
@@ -173,34 +176,54 @@ impl Ui for Console {
         out
     }
 
-    fn select_model<'a, T>(&'a self, vec_model: Vec<&'a T>) -> Option<&T>
+    fn select_model<'a, M>(&'a self, vec_model: Vec<&'a M>) -> Option<&M>
     where
-        T: Data + FromMap + ToMap + Model,
+        M: Data + FromMap + ToMap + Model + Data,
     {
-        let pages: Vec<&[&T]> = vec_model.chunks(10).collect::<Vec<_>>();
+        if vec_model.is_empty() {
+            self.title();
+            self.wait("\nNothing found to select");
+            return None;
+        }
+        let pages: Vec<&[&M]> = vec_model.chunks(10).collect::<Vec<_>>();
         self.title();
 
         for (idx, page) in pages.iter().enumerate() {
+            let head = M::head();
             let _page = page.clone();
-            for (jdx, item) in _page.iter().enumerate() {
-                let _item = item.clone();
-                let out = format!("{}\t:\t{}", jdx, item);
-                self.write(out.as_str());
+            let mut table = Table::new();
+            let mut table_head = Row::new(vec![]);
+            table_head.add_cell(Cell::new("Selection"));
+            for key in head.iter() {
+                table_head.add_cell(Cell::new(key.as_str()));
             }
-            let msg = format!("Press n (next) / p (previous) / q (quit) / number (select)\t: ");
-            // self.write(msg.as_str());
+            table.add_row(table_head);
+            for (jdx, item) in _page.iter().enumerate() {
+                let mut row = Row::new(vec![]);
+                row.add_cell(Cell::new(jdx.to_string().as_str()));
+                for key in head.iter() {
+                    let data = item.to_map();
+                    let cell_data = data.get(key).unwrap();
+                    row.add_cell(Cell::new(cell_data.as_str()));
+                }
+                table.add_row(row);
+            }
+            self.display_table(table);
+
+            let msg = format!("Press n (next) / p (previous) / q (quit) / number (select)");
             let inp = self.get_char_input(&msg);
+
             if let Ok(res) = inp.to_string().parse::<usize>() {
                 return match res < 10 {
                     true => Some(vec_model[idx * 10 + res]),
-                    false => self.select_model(vec_model.clone()),
+                    false => self.select_model::<M>(vec_model.clone()),
                 };
             } else {
                 return match inp {
                     'n' => None,
                     'p' => None,
                     'q' => None,
-                    _ => self.select_model(vec_model),
+                    _ => self.select_model::<M>(vec_model),
                 };
             };
         }
@@ -235,5 +258,13 @@ impl Ui for Console {
             return Some(obj.copy_with(data));
         }
         None
+    }
+
+    fn wait(&self, display: &str) {
+        let out = format!("{}\n\nPress Enter to continue", display);
+        match self.get_str_input(out.as_str()).as_str() {
+            "" => {}
+            _ => self.wait(display),
+        }
     }
 }

@@ -14,7 +14,7 @@ use crate::{
 };
 
 pub trait App {
-    fn run(&self);
+    fn run(&mut self);
 }
 
 #[derive(Debug)]
@@ -49,26 +49,26 @@ where
     M: Model + LendingSystem + Clone,
     V: View + MainView,
 {
-    fn run(&self) {
+    fn run(&mut self) {
         let choice = self.view.main_menu();
-        let controller = match choice {
+        match choice {
             MainMenuOption::MembersPage => {
                 let member_view = CliMemberView::new();
-                let controller = MemberController::new(self.model.clone(), member_view);
+                let mut controller = MemberController::new(self.model.clone(), member_view);
                 controller.run()
             }
             MainMenuOption::ItemsPage => {
                 let item_view = CliItemView::new();
-                let controller = ItemController::new(self.model.clone(), item_view);
+                let mut controller = ItemController::new(self.model.clone(), item_view);
                 controller.run()
             }
             MainMenuOption::Simulator => {
                 let simulator_view = CliSimulatorView::new();
-                let controller = SimulatorController::new(self.model.clone(), simulator_view);
+                let mut controller = SimulatorController::new(self.model.clone(), simulator_view);
                 controller.run()
             }
-            MainMenuOption::Quit => todo!(),
-            MainMenuOption::Other => todo!(),
+            MainMenuOption::Quit => std::process::exit(0),
+            _ => {}
         };
     }
 }

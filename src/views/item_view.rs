@@ -16,6 +16,7 @@ pub enum ItemMenuOption {
     DisplayItemInfo,
     EditItemInfo,
     GetItemInfo,
+    Quit,
     #[other]
     Other,
 }

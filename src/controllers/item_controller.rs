@@ -18,28 +18,19 @@ where
     view: V,
 }
 
-impl<M, V> ItemController<M, V>
-where
-    M: Model + LendingSystem,
-    V: View + ItemView,
-{
-    pub fn new(model: M, view: V) -> Self {
-        Self { model, view }
-    }
-}
-
 impl<M, V> App for ItemController<M, V>
 where
     M: Model + LendingSystem,
     V: View + ItemView,
 {
-    fn run(&self) {
+    fn run(&mut self) {
         let choice = self.view.item_menu();
         match choice {
             ItemMenuOption::DisplayItemInfo => todo!(),
             ItemMenuOption::EditItemInfo => todo!(),
             ItemMenuOption::GetItemInfo => todo!(),
             ItemMenuOption::Other => todo!(),
+            ItemMenuOption::Quit => std::process::exit(0),
         }
     }
 }

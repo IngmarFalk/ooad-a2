@@ -706,6 +706,16 @@ pub fn controller(view: TokenStream, strct: TokenStream) -> TokenStream {
             M: crate::types::Model + crate::models::system::LendingSystem,
             V: crate::types::View + #v2,
         {}
+        impl<M, V> #ident<M, V>
+        where
+            M: crate::types::Model + crate::models::system::LendingSystem,
+            V: crate::types::View + #v2,
+        {
+            pub fn new(model: M, view: V) -> Self {
+                Self { model, view }
+            }
+        }
+
     }
     .into()
 }

@@ -17,9 +17,10 @@ pub trait LendingSystem {
     fn remove_member(&mut self, member: Member) -> MResult<()>;
     fn exists_member(&self, member: &Member) -> bool;
     fn get_items(&self) -> Vec<&Item>;
+    fn get_items_for_member(&self, member: &Member) -> Vec<&Item>;
     fn add_item(&mut self, item: Item) -> MResult<()>;
     fn remove_item(&mut self, item: Item) -> MResult<()>;
-    fn count_items(&self, member: Member) -> usize;
+    fn count_items(&self, member: &Member) -> usize;
 }
 
 /// TODO : Create a cache HashMap in system where whenever we add an item
@@ -139,14 +140,27 @@ impl LendingSystem for System {
         // }
     }
 
-    fn count_items(&self, member: Member) -> usize {
+    fn count_items(&self, member: &Member) -> usize {
         self.get_items().iter().fold(0, |cnt, item| {
-            if item.get_owner() == &member {
+            if item.get_owner() == member {
                 cnt + 1
             } else {
                 cnt
             }
         })
+    }
+
+    fn get_items_for_member(&self, member: &Member) -> Vec<&Item> {
+        self.get_items()
+            .into_iter()
+            .filter(|item| {
+                if item.get_owner() == member {
+                    true
+                } else {
+                    false
+                }
+            })
+            .collect::<Vec<&Item>>()
     }
 }
 
