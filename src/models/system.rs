@@ -15,18 +15,22 @@ pub trait LendingSystem {
     fn get_member_mut(&mut self, member: &Member) -> MResult<&mut Member>;
     fn add_member(&mut self, member: Member) -> MResult<()>;
     fn remove_member(&mut self, member: &Member) -> MResult<()>;
+    fn update_member(&mut self, old_info: &Member, new_info: &Member) -> MResult<()>;
     fn exists_member(&self, member: &Member) -> bool;
     fn get_items(&self) -> Vec<&Item>;
     fn get_items_for_member(&self, member: &Member) -> Vec<&Item>;
     fn add_item(&mut self, item: Item) -> MResult<()>;
     fn remove_item(&mut self, item: Item) -> MResult<()>;
-    fn count_items(&self, member: &Member) -> usize;
+    fn update_item(&mut self, old_info: &Item, new_info: &Item) -> MResult<()>;
+    fn count_items_for_member(&self, member: &Member) -> usize;
 }
 
-/// TODO : Create a cache HashMap in system where whenever we add an item
-/// TODO : or contract we store a chain of keys as a track to the exact
-/// TODO : item or contract. That way we can look up a contract id
-/// TODO : in this map via a single operation.
+pub trait LendingSystemState {
+    fn add_member(&mut self, member: Member) -> MResult<()>;
+    fn remove_member(&mut self, member: &Member) -> MResult<()>;
+    fn add_item(&mut self, item: Item) -> MResult<()>;
+    fn remove_item(&mut self, item: Item) -> MResult<()>;
+}
 
 #[derive(Debug, Clone)]
 pub struct System {
@@ -93,6 +97,14 @@ impl LendingSystem for System {
         Ok(())
     }
 
+    fn update_member(&mut self, old_info: &Member, new_info: &Member) -> MResult<()> {
+        if !self.exists_member(old_info) {
+            return Err(MError::DoesntExist);
+        }
+        *self.members.get_mut(&old_info.get_uuid()).unwrap() = new_info.clone();
+        Ok(())
+    }
+
     fn exists_member(&self, member: &Member) -> bool {
         self.members.iter().any(|entry| {
             let m = entry.1.clone();
@@ -107,49 +119,6 @@ impl LendingSystem for System {
             .collect::<Vec<&Item>>()
     }
 
-    fn add_item(&mut self, item: Item) -> MResult<()> {
-        // let res = match self.get_member_mut(&item.get_owner()) {
-        //     Ok(m) => match m.add_item(item.clone()) {
-        //         Ok(_) => Ok(()),
-        //         Err(err) => Err(err),
-        //     },
-        //     Err(err) => return Err(err),
-        // };
-        // match res {
-        //     Ok(_) =>
-        match self.items.insert(item.get_uuid().clone(), item) {
-            Some(_) => todo!(),
-            None => todo!(),
-        }
-        //     Err(err) => Err(err),
-        // }
-    }
-
-    fn remove_item(&mut self, item: Item) -> MResult<()> {
-        // let res = match self.get_member_mut(&item.get_owner()) {
-        //     Ok(m) => m.remove_item(item.clone()),
-        //     Err(err) => return Err(err),
-        // };
-        // match res {
-        //     Ok(_) =>
-        match self.items.remove(&item.get_uuid().clone()) {
-            Some(_) => todo!(),
-            None => todo!(),
-        }
-        //     Err(_) => todo!(),
-        // }
-    }
-
-    fn count_items(&self, member: &Member) -> usize {
-        self.get_items().iter().fold(0, |cnt, item| {
-            if item.get_owner() == member {
-                cnt + 1
-            } else {
-                cnt
-            }
-        })
-    }
-
     fn get_items_for_member(&self, member: &Member) -> Vec<&Item> {
         self.get_items()
             .into_iter()
@@ -161,6 +130,37 @@ impl LendingSystem for System {
                 }
             })
             .collect::<Vec<&Item>>()
+    }
+
+    fn add_item(&mut self, item: Item) -> MResult<()> {
+        match self.items.insert(item.get_uuid().clone(), item) {
+            Some(_) => todo!(),
+            None => todo!(),
+        }
+    }
+
+    fn remove_item(&mut self, item: Item) -> MResult<()> {
+        match self.items.remove(&item.get_uuid().clone()) {
+            Some(_) => todo!(),
+            None => todo!(),
+        }
+    }
+
+    fn update_item(&mut self, old_info: &Item, new_info: &Item) -> MResult<()> {
+        match self.items.get_mut(old_info.get_uuid()) {
+            Some(_) => Ok(*self.items.get_mut(old_info.get_uuid()).unwrap() = new_info.clone()),
+            None => Err(MError::DoesntExist),
+        }
+    }
+
+    fn count_items_for_member(&self, member: &Member) -> usize {
+        self.get_items().iter().fold(0, |cnt, item| {
+            if item.get_owner() == member {
+                cnt + 1
+            } else {
+                cnt
+            }
+        })
     }
 }
 

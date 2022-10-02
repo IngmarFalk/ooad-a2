@@ -15,7 +15,7 @@ use std::str::FromStr;
 pub enum ItemMenuOption {
     DisplayItemInfo,
     EditItemInfo,
-    GetItemInfo,
+    CreateItem,
     Quit,
     #[other]
     Other,
@@ -23,9 +23,10 @@ pub enum ItemMenuOption {
 
 pub trait ItemView {
     fn item_menu(&self) -> ItemMenuOption;
-    fn display_item_info(&self, item: Item);
+    fn display_item_info(&self, item: &Item);
     fn edit_item_info(&self, item: Item) -> Item;
     fn get_item_info(&self) -> Item;
+    fn select_item(&self, items: Vec<&Item>) -> Option<&Item>;
 }
 
 pub struct CliItemView {
@@ -52,7 +53,7 @@ impl ItemView for CliItemView {
         }
     }
 
-    fn display_item_info(&self, item: Item) {
+    fn display_item_info(&self, item: &Item) {
         let mut table = Table::new();
         table.add_row(item.to_row());
         self.console.display_table(table);
@@ -86,5 +87,9 @@ impl ItemView for CliItemView {
             .category(Category::from_str(category.as_str()).unwrap())
             .cost_per_day(cost_per_day.parse::<f64>().unwrap())
             .build()
+    }
+
+    fn select_item(&self, items: Vec<&Item>) -> Option<&Item> {
+        self.console.select_model(items)
     }
 }

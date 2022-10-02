@@ -9,7 +9,7 @@ use crate::{
 };
 use shared::controller;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[controller(MemberView)]
 pub struct MemberController<M, V>
 where
@@ -22,7 +22,7 @@ where
 
 impl<M, V> MemberController<M, V>
 where
-    M: Model + LendingSystem,
+    M: Model + LendingSystem + Clone,
     V: View + MemberView,
 {
     fn display_member_simple(&mut self) {
@@ -30,7 +30,7 @@ where
         let member = self.view.select_member(members_vec);
         match member {
             Some(m) => {
-                let number_of_items = self.model.count_items(&m);
+                let number_of_items = self.model.count_items_for_member(&m);
                 self.view.display_member_simple(&m, number_of_items);
                 self.view.wait("")
             }
@@ -67,7 +67,7 @@ where
         let members = self.model.get_members();
         let mut item_counts: Vec<usize> = Vec::new();
         for member in members.iter() {
-            let cnt = self.model.count_items(member);
+            let cnt = self.model.count_items_for_member(member);
             item_counts.push(cnt);
         }
         let tples = members
@@ -91,23 +91,36 @@ where
         self.view.display_all_verbose(tples)
     }
 
-    fn delete_member(&self) {
-        let members = self.model.get_members();
-        let member_to_delete = self.view.select_member(members);
+    fn delete_member(&mut self) {
+        let model = self.model.clone();
+        let ref member_to_delete: Option<&Member> = self.view.select_member(model.get_members());
+
         match member_to_delete {
-            Some(m) => {
-                self.model.remove_member(m);
-            }
-            None => todo!(),
-        }
+            Some(m) => match self.model.remove_member(m) {
+                Ok(_) => {}
+                Err(_) => self.run(),
+            },
+            None => self.run(),
+        };
     }
 
-    fn edit_member(&self) {}
+    fn edit_member(&mut self) {
+        let model = self.model.clone();
+        let ref member_to_edit: Option<&Member> = self.view.select_member(model.get_members());
+        let new_info = self.view.get_member_info();
+        match member_to_edit {
+            Some(mem) => match self.model.update_member(mem, &new_info) {
+                Ok(_) => {}
+                Err(_) => self.run(),
+            },
+            None => self.run(),
+        }
+    }
 }
 
 impl<M, V> App for MemberController<M, V>
 where
-    M: Model + LendingSystem,
+    M: Model + LendingSystem + Clone,
     V: View + MemberView,
 {
     fn run(&mut self) {

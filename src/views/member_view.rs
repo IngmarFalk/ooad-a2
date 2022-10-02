@@ -111,12 +111,28 @@ impl MemberView for CliMemberView {
             table.add_row(row);
         }
         self.console.display_table(table);
+        self.wait("")
     }
 
     fn display_all_verbose(&self, data: Vec<(&Member, Vec<&Item>)>) {
+        self.console.clear();
+        let mut table = Table::new();
+        let mut head = Row::from(Member::head());
+        let items = Cell::new("Items");
+        head.add_cell(items);
+        table.add_row(head);
         for entry in data {
-            self.display_member_verbose(entry.0, entry.1);
+            let mut buf = String::new();
+            for item in entry.1 {
+                buf.push_str(item.to_string().as_str());
+            }
+            let mut row = entry.0.to_row();
+            let cell = Cell::new(buf.as_str());
+            row.add_cell(cell);
+            table.add_row(row);
         }
+        self.console.display_table(table);
+        self.wait("")
     }
 
     fn get_member_info(&self) -> Member {
@@ -132,8 +148,6 @@ impl MemberView for CliMemberView {
         self.console.select_model::<Member>(members)
     }
 
-    fn search_for_member
-
     fn wait(&self, display: &str) {
         self.console.wait(display);
     }
@@ -144,7 +158,7 @@ impl Show for CliMemberView {
         let member = Member::from_str(model_data)
             .ok()
             .expect("Not going to fail");
-        let number_of_items = system.count_items(&member);
+        let number_of_items = system.count_items_for_member(&member);
         let out = format!(
             "Name:\t\t{}\nEmail:\t\t{}\nCredits:\t{}\nItems:\t\t{}\n",
             member.get_name(),

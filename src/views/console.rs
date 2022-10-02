@@ -186,6 +186,7 @@ impl Ui for Console {
             return None;
         }
         let pages: Vec<&[&M]> = vec_model.chunks(10).collect::<Vec<_>>();
+        self.clear();
         self.title();
 
         for (idx, page) in pages.iter().enumerate() {
@@ -210,7 +211,11 @@ impl Ui for Console {
             }
             self.display_table(table);
 
-            let msg = format!("Press n (next) / p (previous) / q (quit) / number (select)");
+            let mut page = 1;
+            let page_count = pages.len();
+            let page_display = format!("Page: {} / {}", page, page_count);
+            self.write(page_display.as_str());
+            let msg = format!("Press \n\tn\t(next)\n\tp\t(previous)\n\tq\t(quit)\n\te\t(go back to menu)\n\t0..9\t(select)\n\t");
             let inp = self.get_char_input(&msg);
 
             if let Ok(res) = inp.to_string().parse::<usize>() {
@@ -220,9 +225,20 @@ impl Ui for Console {
                 };
             } else {
                 return match inp {
-                    'n' => None,
-                    'p' => None,
-                    'q' => None,
+                    'n' => {
+                        if page < page_count {
+                            page += 1;
+                        }
+                        None
+                    }
+                    'p' => {
+                        if page > 0 {
+                            page -= 1;
+                        }
+                        None
+                    }
+                    'q' => std::process::exit(0),
+                    'e' => None,
                     _ => self.select_model::<M>(vec_model),
                 };
             };
