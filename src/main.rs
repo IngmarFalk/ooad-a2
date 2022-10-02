@@ -15,5 +15,5 @@ fn main() {
     let system = System::new();
     let main_view = CliMainView::new();
     let mut app = MainApp::new(system, main_view);
-    app.run()
+    app.run();
 }

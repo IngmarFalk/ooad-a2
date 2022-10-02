@@ -181,8 +181,6 @@ impl Ui for Console {
         M: Data + FromMap + ToMap + Model + Data,
     {
         if vec_model.is_empty() {
-            self.title();
-            self.wait("\nNothing found to select");
             return None;
         }
         let pages: Vec<&[&M]> = vec_model.chunks(10).collect::<Vec<_>>();

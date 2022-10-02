@@ -2,29 +2,39 @@ use super::{
     console::{Console, Ui},
     Options,
 };
-use crate::{models::domain::contract::Contract, types::View};
-use shared::COptions;
+use crate::models::domain::contract::Contract;
+use shared::{COptions, View};
 use std::str::FromStr;
 
 #[derive(Debug, COptions)]
 pub enum ContractOption {
     DisplayContractSimple,
     DisplayContractVerbose,
+    CreateContract,
+    EditContract,
+    Quit,
+    Back,
     #[other]
     Other,
 }
 
-pub trait ContractDisplay {
+pub trait ContractView {
+    fn select_contract<'a>(&'a self, contracts: Vec<&'a Contract>) -> Option<&Contract>;
     fn contract_menu(&self) -> ContractOption;
     fn display_contract_simple(&self, contract: Contract);
     fn display_contract_verbose(&self, contract: Contract);
 }
 
-pub struct ContractView {
+#[derive(View)]
+pub struct CliContractView {
     console: Console,
 }
 
-impl ContractDisplay for ContractView {
+impl ContractView for CliContractView {
+    fn select_contract<'a>(&'a self, contracts: Vec<&'a Contract>) -> Option<&Contract> {
+        self.console.select_model(contracts)
+    }
+
     fn contract_menu(&self) -> ContractOption {
         self.console.title();
         let choice: ContractOption = self.console.show_menu(ContractOption::options());
@@ -43,5 +53,3 @@ impl ContractDisplay for ContractView {
         todo!()
     }
 }
-
-impl View for ContractView {}

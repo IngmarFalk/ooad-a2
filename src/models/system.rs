@@ -1,13 +1,11 @@
-use anyhow::Result;
-use std::collections::HashMap;
-use thiserror::Error;
-
-use crate::types::Model;
-
 use super::{
     domain::{item::Item, member::Member},
     uuid::Uuid,
 };
+use crate::types::Model;
+use anyhow::Result;
+use std::collections::HashMap;
+use thiserror::Error;
 
 pub trait LendingSystem {
     fn get_members(&self) -> Vec<&Member>;
@@ -20,7 +18,7 @@ pub trait LendingSystem {
     fn get_items(&self) -> Vec<&Item>;
     fn get_items_for_member(&self, member: &Member) -> Vec<&Item>;
     fn add_item(&mut self, item: Item) -> MResult<()>;
-    fn remove_item(&mut self, item: Item) -> MResult<()>;
+    fn remove_item(&mut self, item: &Item) -> MResult<()>;
     fn update_item(&mut self, old_info: &Item, new_info: &Item) -> MResult<()>;
     fn count_items_for_member(&self, member: &Member) -> usize;
 }
@@ -139,7 +137,7 @@ impl LendingSystem for System {
         }
     }
 
-    fn remove_item(&mut self, item: Item) -> MResult<()> {
+    fn remove_item(&mut self, item: &Item) -> MResult<()> {
         match self.items.remove(&item.get_uuid().clone()) {
             Some(_) => todo!(),
             None => todo!(),
@@ -365,7 +363,7 @@ mod system_tests {
         let r1 = system.add_item(item.clone());
         assert_eq!(r1, Ok(()));
 
-        let r2 = system.remove_item(item.clone());
+        let r2 = system.remove_item(&item);
         assert_eq!(r2, Ok(()));
 
         // let r3 = match system.get_member(&turing) {

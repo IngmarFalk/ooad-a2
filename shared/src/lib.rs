@@ -688,6 +688,14 @@ pub fn derive_view(inp: TokenStream) -> TokenStream {
 
     quote! {
         impl crate::types::View for #ident {}
+
+        impl #ident {
+            pub fn new() -> #ident {
+                Self {
+                    console: crate::views::console::Console::new()
+                }
+            }
+        }
     }
     .into()
 }

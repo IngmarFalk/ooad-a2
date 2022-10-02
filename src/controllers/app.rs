@@ -13,8 +13,8 @@ use crate::{
     },
 };
 
-pub trait App {
-    fn run(&mut self);
+pub trait App<T> {
+    fn run(&mut self, sys: T) -> T;
 }
 
 #[derive(Debug)]
@@ -44,31 +44,32 @@ where
     }
 }
 
-impl<M, V> App for MainApp<M, V>
+impl<M, V> App<M> for MainApp<M, V>
 where
     M: Model + LendingSystem + Clone,
     V: View + MainView,
 {
-    fn run(&mut self) {
+    fn run(&mut self, sys: M) -> M {
         let choice = self.view.main_menu();
-        match choice {
+        let state = match choice {
             MainMenuOption::MembersPage => {
                 let member_view = CliMemberView::new();
                 let mut controller = MemberController::new(self.model.clone(), member_view);
-                controller.run()
+                controller.run(sys)
             }
             MainMenuOption::ItemsPage => {
                 let item_view = CliItemView::new();
                 let mut controller = ItemController::new(self.model.clone(), item_view);
-                controller.run()
+                controller.run(sys)
             }
             MainMenuOption::Simulator => {
                 let simulator_view = CliSimulatorView::new();
                 let mut controller = SimulatorController::new(self.model.clone(), simulator_view);
-                controller.run()
+                controller.run(sys)
             }
             MainMenuOption::Quit => std::process::exit(0),
-            _ => {}
+            _ => sys,
         };
+        self.run(state)
     }
 }

@@ -1,12 +1,10 @@
 use super::console::{Console, Ui};
-use super::Show;
+use crate::models::domain::item::Item;
 use crate::models::domain::member::Member;
 use crate::models::domain::Data;
-use crate::models::system::LendingSystem;
 use crate::views::Options;
-use crate::{models::domain::item::Item, types::View};
 use prettytable::{Cell, Row, Table};
-use shared::COptions;
+use shared::{COptions, View};
 use std::str::FromStr;
 
 #[derive(Debug, COptions)]
@@ -19,6 +17,7 @@ pub enum MemberMenuOption {
     DeleteMember,
     EditMember,
     Quit,
+    Back,
     #[other]
     Other,
 }
@@ -35,18 +34,9 @@ pub trait MemberView {
     fn wait(&self, display: &str);
 }
 
+#[derive(View)]
 pub struct CliMemberView {
     console: Console,
-}
-
-impl View for CliMemberView {}
-
-impl CliMemberView {
-    pub fn new() -> CliMemberView {
-        CliMemberView {
-            console: Console::new(),
-        }
-    }
 }
 
 impl MemberView for CliMemberView {
@@ -150,54 +140,5 @@ impl MemberView for CliMemberView {
 
     fn wait(&self, display: &str) {
         self.console.wait(display);
-    }
-}
-
-impl Show for CliMemberView {
-    fn show_simple(&self, model_data: &str, system: impl LendingSystem) {
-        let member = Member::from_str(model_data)
-            .ok()
-            .expect("Not going to fail");
-        let number_of_items = system.count_items_for_member(&member);
-        let out = format!(
-            "Name:\t\t{}\nEmail:\t\t{}\nCredits:\t{}\nItems:\t\t{}\n",
-            member.get_name(),
-            member.get_email(),
-            member.get_credits(),
-            number_of_items,
-        );
-        let console = Console::new();
-        console.writef(out.as_str());
-    }
-
-    fn show_verbose(&self, model_data: &str, system: impl LendingSystem) {
-        let mut items_str = String::new();
-        let member = Member::from_str(model_data)
-            .ok()
-            .expect("Not going to fail.");
-        let items = system.get_items_for_member(&member);
-        if items.len() == 0 {
-            items_str.push_str(" []")
-        }
-        for item in items.iter() {
-            let formatted = format!(
-                "\n\t({}\n\t{}\n\t{}\n\t{}),",
-                item.get_name(),
-                item.get_description(),
-                item.get_category(),
-                item.get_cost_per_day()
-            );
-            items_str.push_str(&formatted);
-        }
-        let out = format!(
-            "Name:\t\t{}\nEmail:\t\t{}\nPhone number:\t{}\nCredits:\t{}\nItems [{}\n]",
-            member.get_name(),
-            member.get_email(),
-            member.get_phone_nr(),
-            member.get_credits(),
-            items_str,
-        );
-        let console = Console::new();
-        console.writef(out.as_str());
     }
 }

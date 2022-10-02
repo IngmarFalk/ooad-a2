@@ -23,14 +23,6 @@ pub struct CliMainView {
     console: Console,
 }
 
-impl CliMainView {
-    pub fn new() -> CliMainView {
-        CliMainView {
-            console: Console::new(),
-        }
-    }
-}
-
 impl MainView for CliMainView {
     fn main_menu(&self) -> MainMenuOption {
         self.console.title();

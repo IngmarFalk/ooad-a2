@@ -16,12 +16,12 @@ where
     view: V,
 }
 
-impl<M, V> App for SimulatorController<M, V>
+impl<M, V> App<M> for SimulatorController<M, V>
 where
     M: Model + LendingSystem,
     V: View + SimulatorView,
 {
-    fn run(&mut self) {
+    fn run(&mut self, sys: M) -> M {
         todo!()
     }
 }
