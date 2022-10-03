@@ -25,6 +25,11 @@ where
     M: Model + LendingSystem + Clone,
     V: View + MemberView,
 {
+    fn ret(&self, display: &str) -> M {
+        self.view.wait(display);
+        self.model.clone()
+    }
+
     fn display_member_simple(&mut self) -> M {
         let members_vec = self.model.get_members();
         let member = self.view.select_member(members_vec);
@@ -32,10 +37,9 @@ where
             Some(m) => {
                 let number_of_items = self.model.count_items_for_member(&m);
                 self.view.display_member_simple(&m, number_of_items);
-                self.view.wait("");
-                self.model.clone()
+                self.ret("")
             }
-            None => self.model.clone(),
+            None => self.ret("No members to display."),
         }
     }
 
@@ -46,27 +50,17 @@ where
             Some(m) => {
                 let items = self.model.get_items_for_member(&m);
                 self.view.display_member_verbose(&m, items);
-                self.view.wait("");
-                self.model.clone()
+                self.ret("")
             }
-            None => {
-                self.view.wait("Something went wrong.");
-                self.model.clone()
-            }
+            None => self.ret("No members to display."),
         }
     }
 
     fn create_member(&mut self) -> M {
         let new_member = self.view.get_member_info();
         match self.model.add_member(new_member) {
-            Ok(_) => {
-                self.view.wait("Member created successfully.");
-                self.model.clone()
-            }
-            Err(_) => {
-                self.view.wait("Unable to create member, please try again.");
-                self.model.clone()
-            }
+            Ok(_) => self.ret("Member created successfully."),
+            Err(_) => self.ret("Unable to create member, please try again."),
         }
     }
 
@@ -77,15 +71,9 @@ where
         match member_to_delete {
             Some(m) => match self.model.remove_member(m) {
                 Ok(_) => self.model.clone(),
-                Err(_) => {
-                    self.view.wait("There was a problem deleting the member.");
-                    self.model.clone()
-                }
+                Err(_) => self.ret("There was a problem deleting the member."),
             },
-            None => {
-                self.view.wait("Couldnt retrieve member.");
-                self.model.clone()
-            }
+            None => self.ret("Couldnt retrieve member."),
         }
     }
 
@@ -95,17 +83,10 @@ where
         let new_info = self.view.get_member_info();
         match member_to_edit {
             Some(mem) => match self.model.update_member(mem, &new_info) {
-                Ok(_) => self.model.clone(),
-                Err(_) => {
-                    self.view
-                        .wait("There was a problem updating the member information.");
-                    self.model.clone()
-                }
+                Ok(_) => self.ret("Member updated successfully."),
+                Err(_) => self.ret("There was a problem updating the member information."),
             },
-            None => {
-                self.view.wait("Couldnt retrieve member.");
-                self.model.clone()
-            }
+            None => self.ret("Couldnt retrieve member."),
         }
     }
 

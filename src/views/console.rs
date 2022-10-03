@@ -1,4 +1,4 @@
-use super::{Options, Show};
+use super::Options;
 use crate::{
     models::domain::{Data, FromMap, ToMap},
     types::{Model, StringMap},

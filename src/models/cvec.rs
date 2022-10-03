@@ -37,6 +37,10 @@ where
         self.iter().position(|v| v == val)
     }
 
+    pub fn set(&mut self, idx: usize, val: &T) {
+        self.values[idx] = val.clone();
+    }
+
     pub fn iter(&self) -> std::slice::Iter<T> {
         self.values.iter()
     }

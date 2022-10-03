@@ -1,9 +1,6 @@
-use super::{app::App, member_controller::MemberController};
+use super::app::App;
 use crate::{
-    models::{
-        domain::item::Item,
-        system::{LendingSystem, System},
-    },
+    models::{domain::item::Item, system::LendingSystem},
     types::{Model, View},
     views::{
         item_view::{ItemMenuOption, ItemView},
@@ -28,19 +25,20 @@ where
     M: Model + LendingSystem + Clone,
     V: View + ItemView,
 {
+    fn ret(&self, display: &str) -> M {
+        self.view.wait(display);
+        self.model.clone()
+    }
+
     fn display_item_info(&self) -> M {
         let items = self.model.get_items();
         let item: Option<&Item> = self.view.select_item(items);
         match item {
             Some(i) => {
                 self.view.display_item_info(i);
-                self.view.wait("");
-                self.model.clone()
+                self.ret("")
             }
-            None => {
-                self.view.wait("Nothing to select.");
-                self.model.clone()
-            }
+            None => self.ret("Nothing to select."),
         }
     }
 
@@ -51,16 +49,10 @@ where
         let new_info = self.view.get_item_info();
         match item_to_edit {
             Some(i) => match self.model.update_item(i, &new_info) {
-                Ok(_) => self.model.clone(),
-                Err(_) => {
-                    self.view.wait("Unable to update item information.");
-                    self.model.clone()
-                },
+                Ok(_) => self.ret("Updated item data successfully."),
+                Err(_) => self.ret("Unable to update item information."),
             },
-            None => {
-                self.view.wait("Unable to retrieve item.");
-                self.model.clone()
-            }
+            None => self.ret("Unable to retrieve item."),
         }
     }
 
@@ -73,13 +65,11 @@ where
             Some(o) => {
                 let item = self.view.get_item_info().owner(o.clone()).build();
                 match self.model.add_item(item) {
-                    Ok(_) => self.view.wait("Item created successfully."),
-                    Err(_) => self.view.wait("Unable to create Item, please try again."),
+                    Ok(_) => self.ret("Item created successfully."),
+                    Err(_) => self.ret("Unable to create Item, please try again."),
                 }
             }
-            None => self
-                .view
-                .wait("No members found. Cannot create item without an owner."),
+            None => self.ret("No members found. Cannot create item without an owner."),
         }
     }
 
@@ -89,10 +79,10 @@ where
         let item_to_delete = self.view.select_item(items);
         match item_to_delete {
             Some(item) => match self.model.remove_item(item) {
-                Ok(_) => self.view.wait("Successfully removed item."),
-                Err(_) => self.view.wait("Unable to remove item"),
+                Ok(_) => self.ret("Successfully removed item."),
+                Err(_) => self.ret("Unable to remove item"),
             },
-            None => self.view.wait("Unable to retrieve item."),
+            None => self.ret("Unable to retrieve item."),
         }
     }
 }
@@ -111,7 +101,7 @@ where
             ItemMenuOption::DeleteItem => self.delete_item(),
             ItemMenuOption::Quit => std::process::exit(0),
             _ => sys,
-        }
+        };
         self.run(state)
     }
 }

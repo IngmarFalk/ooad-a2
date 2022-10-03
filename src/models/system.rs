@@ -55,6 +55,11 @@ impl System {
         self.items = items;
         self
     }
+
+    pub fn build(self) -> Self {
+        let Self { members, items } = self;
+        Self { members, items }
+    }
 }
 
 impl LendingSystem for System {
