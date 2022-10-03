@@ -100,7 +100,8 @@ where
             ItemMenuOption::CreateItem => self.create_item(),
             ItemMenuOption::DeleteItem => self.delete_item(),
             ItemMenuOption::Quit => std::process::exit(0),
-            _ => sys,
+            ItemMenuOption::Back => return sys,
+            ItemMenuOption::Other => sys,
         };
         self.run(state)
     }

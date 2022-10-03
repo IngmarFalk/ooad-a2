@@ -1,8 +1,9 @@
 // #![warn(missing_docs)]
 // #![warn(clippy::missing_docs_in_private_items)]
 #![crate_type = "proc-macro"]
+#![feature(closure_lifetime_binder)]
 
-use controllers::app::{App, MainApp};
+use controllers::app::MainApp;
 use models::system::System;
 use views::main_view::CliMainView;
 
@@ -15,5 +16,5 @@ fn main() {
     let system = System::new();
     let main_view = CliMainView::new();
     let mut app = MainApp::new(system.clone(), main_view);
-    app.run(system);
+    app.start()
 }

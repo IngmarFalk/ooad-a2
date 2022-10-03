@@ -39,7 +39,7 @@ where
                 self.view.display_member_simple(&m, number_of_items);
                 self.ret("")
             }
-            None => self.ret("No members to display."),
+            None => self.model.clone(),
         }
     }
 
@@ -52,12 +52,17 @@ where
                 self.view.display_member_verbose(&m, items);
                 self.ret("")
             }
-            None => self.ret("No members to display."),
+            None => self.model.clone(),
         }
     }
 
     fn create_member(&mut self) -> M {
         let new_member = self.view.get_member_info();
+        if self.model.exists_member(&new_member) {
+            self.view
+                .wait("A member already exists with that email/phone number.");
+            return self.create_member();
+        }
         match self.model.add_member(new_member) {
             Ok(_) => self.ret("Member created successfully."),
             Err(_) => self.ret("Unable to create member, please try again."),
@@ -137,7 +142,8 @@ where
             MemberMenuOption::DeleteMember => self.delete_member(),
             MemberMenuOption::EditMember => self.edit_member(),
             MemberMenuOption::Quit => std::process::exit(0),
-            _ => sys,
+            MemberMenuOption::Back => return sys,
+            MemberMenuOption::Other => sys,
         };
         self.run(state)
     }

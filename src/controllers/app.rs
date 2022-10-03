@@ -42,6 +42,10 @@ where
     pub fn new(model: M, view: V) -> MainApp<M, V> {
         MainApp { model, view }
     }
+
+    pub fn start(&mut self) {
+        self.run(self.model.clone());
+    }
 }
 
 impl<M, V> App<M> for MainApp<M, V>

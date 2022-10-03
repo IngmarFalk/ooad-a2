@@ -9,6 +9,26 @@ use std::{
     io::{self, stdin, Write},
 };
 
+#[derive(Debug, Clone, Copy)]
+pub enum Either<A, B> {
+    Left(A),
+    Right(B),
+    None,
+}
+
+impl<'a, A: 'a, B: 'a> Either<A, B> {
+    pub fn unwrap_left<F>(self, fun: F) -> Option<A>
+    where
+        F: Fn(B) -> Either<A, B>,
+    {
+        match self {
+            Either::Left(left) => Option::Some(left),
+            Either::Right(right) => fun(right).unwrap_left(fun),
+            Either::None => Option::None,
+        }
+    }
+}
+
 pub trait Ui {
     fn show_menu<T>(&self, menu_options: Vec<String>) -> T
     where
@@ -20,6 +40,14 @@ pub trait Ui {
     fn get_int_input(&self, display: &str) -> usize;
     fn get_char_input(&self, display: &str) -> char;
     fn get_consecutive_str_input(&self, display_strings: Vec<String>) -> StringMap;
+    fn display_page<'a, M>(
+        &'a self,
+        vec_model: Vec<&'a M>,
+        chunks: Vec<&[&M]>,
+        current_page: usize,
+    ) -> Either<&M, usize>
+    where
+        M: Data + FromMap + ToMap + Model;
     fn select_model<'a, M>(&'a self, vec_model: Vec<&'a M>) -> Option<&M>
     where
         M: Data + FromMap + ToMap + Model;
@@ -176,6 +204,74 @@ impl Ui for Console {
         out
     }
 
+    fn display_page<'a, M>(
+        &'a self,
+        vec_model: Vec<&'a M>,
+        chunks: Vec<&[&M]>,
+        curr_page: usize,
+    ) -> Either<&M, usize>
+    where
+        M: Data + FromMap + ToMap + Model + Data,
+    {
+        if curr_page > chunks.len() {
+            return Either::None;
+        }
+        let page = chunks[curr_page];
+        let head = M::head();
+        let _page = page.clone();
+        let mut table = Table::new();
+        let mut table_head = Row::new(vec![]);
+        table_head.add_cell(Cell::new("Selection"));
+        for key in head.iter() {
+            table_head.add_cell(Cell::new(key.as_str()));
+        }
+        table.add_row(table_head);
+        for (jdx, item) in _page.iter().enumerate() {
+            let mut row = Row::new(vec![]);
+            row.add_cell(Cell::new(jdx.to_string().as_str()));
+            for key in head.iter() {
+                let data = item.to_map();
+                let cell_data = data.get(key).unwrap();
+                row.add_cell(Cell::new(cell_data.as_str()));
+            }
+            table.add_row(row);
+        }
+        self.display_table(table);
+
+        let page_count = chunks.len();
+        let page_display = format!("Page: {} / {}", curr_page, page_count);
+        self.write(page_display.as_str());
+        let msg = format!("Press \n\tn\t(next)\n\tp\t(previous)\n\tq\t(quit)\n\te\t(go back to menu)\n\t0..9\t(select)\n\t");
+        let inp = self.get_char_input(&msg);
+
+        if let Ok(res) = inp.to_string().parse::<usize>() {
+            return match res < 10 {
+                true => Either::Left(vec_model[curr_page * 10 + res]),
+                false => self.display_page(vec_model.clone(), chunks.clone(), curr_page),
+            };
+        } else {
+            return match inp {
+                'n' => {
+                    if curr_page < page_count {
+                        Either::Right(curr_page + 1)
+                    } else {
+                        self.display_page(vec_model.clone(), chunks.clone(), curr_page)
+                    }
+                }
+                'p' => {
+                    if curr_page > 0 {
+                        Either::Right(curr_page - 1)
+                    } else {
+                        self.display_page(vec_model.clone(), chunks.clone(), curr_page)
+                    }
+                }
+                'q' => std::process::exit(0),
+                'e' => Either::None,
+                _ => self.display_page(vec_model, chunks, curr_page),
+            };
+        };
+    }
+
     fn select_model<'a, M>(&'a self, vec_model: Vec<&'a M>) -> Option<&M>
     where
         M: Data + FromMap + ToMap + Model + Data,
@@ -187,61 +283,12 @@ impl Ui for Console {
         self.clear();
         self.title();
 
-        for (idx, page) in pages.iter().enumerate() {
-            let head = M::head();
-            let _page = page.clone();
-            let mut table = Table::new();
-            let mut table_head = Row::new(vec![]);
-            table_head.add_cell(Cell::new("Selection"));
-            for key in head.iter() {
-                table_head.add_cell(Cell::new(key.as_str()));
-            }
-            table.add_row(table_head);
-            for (jdx, item) in _page.iter().enumerate() {
-                let mut row = Row::new(vec![]);
-                row.add_cell(Cell::new(jdx.to_string().as_str()));
-                for key in head.iter() {
-                    let data = item.to_map();
-                    let cell_data = data.get(key).unwrap();
-                    row.add_cell(Cell::new(cell_data.as_str()));
-                }
-                table.add_row(row);
-            }
-            self.display_table(table);
+        let fun = |page: usize| -> Either<&M, usize> {
+            self.display_page(vec_model.clone(), pages.clone(), page.to_owned())
+        };
 
-            let mut page = 1;
-            let page_count = pages.len();
-            let page_display = format!("Page: {} / {}", page, page_count);
-            self.write(page_display.as_str());
-            let msg = format!("Press \n\tn\t(next)\n\tp\t(previous)\n\tq\t(quit)\n\te\t(go back to menu)\n\t0..9\t(select)\n\t");
-            let inp = self.get_char_input(&msg);
-
-            if let Ok(res) = inp.to_string().parse::<usize>() {
-                return match res < 10 {
-                    true => Some(vec_model[idx * 10 + res]),
-                    false => self.select_model::<M>(vec_model.clone()),
-                };
-            } else {
-                return match inp {
-                    'n' => {
-                        if page < page_count {
-                            page += 1;
-                        }
-                        None
-                    }
-                    'p' => {
-                        if page > 0 {
-                            page -= 1;
-                        }
-                        None
-                    }
-                    'q' => std::process::exit(0),
-                    'e' => None,
-                    _ => self.select_model::<M>(vec_model),
-                };
-            };
-        }
-        None
+        self.display_page(vec_model.clone(), pages.clone(), 0)
+            .unwrap_left::<_>(fun)
     }
 
     fn edit_model_info<T>(&self, obj: T) -> Option<T>
