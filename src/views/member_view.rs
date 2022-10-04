@@ -72,11 +72,11 @@ impl MemberView for CliMemberView {
             member.get_credits(),
             items_str,
         );
-        self.console.writef(out.as_str());
+        self.console.clear();
+        self.console.write(out.as_str());
     }
 
     fn display_member_simple(&self, member: &Member, number_of_items: usize) {
-        self.console.clear();
         let out = format!(
             "Name:\t\t{}\nEmail:\t\t{}\nCredits:\t{}\nItems:\t\t{}\n",
             member.get_name(),
@@ -84,7 +84,8 @@ impl MemberView for CliMemberView {
             member.get_credits(),
             number_of_items,
         );
-        self.console.writef(out.as_str());
+        self.console.clear();
+        self.console.write(out.as_str());
     }
 
     fn display_all_simple(&self, data: Vec<(&Member, usize)>) {

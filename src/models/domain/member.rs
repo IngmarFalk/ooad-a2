@@ -51,28 +51,6 @@ impl Member {
         }
     }
 
-    // pub fn add_item(&mut self, item: Item) -> MResult<()> {
-    //     let exists = self.items.iter().any(|e| e.get_uuid() == item.get_uuid());
-    //     if exists {
-    //         return Err(MError::AlreadyExists);
-    //     }
-    //     self.items.push(item);
-    //     self.add_credits(100f64).unwrap();
-    //     Ok(())
-    // }
-
-    // pub fn remove_item(&mut self, item: Item) -> MResult<()> {
-    //     if !self.has_item(&item) {
-    //         return Err(MError::DoesntExist);
-    //     }
-    //     self.items.to_vec().retain(|i| i != &item);
-    //     Ok(())
-    // }
-
-    // pub fn has_item(&self, item: &Item) -> bool {
-    //     self.items.to_vec().contains(item)
-    // }
-
     pub fn add_credits(&mut self, credits: f64) -> Result<(), NegativeCreditInput> {
         if credits < 0.0 {
             return Err(NegativeCreditInput);
@@ -132,12 +110,6 @@ mod member_test {
         let name = "Bob".to_owned();
         let email = "bob@gmail.com".to_owned();
         let phone_nr = "40123456789".to_owned();
-        // vec![Item::new(
-        //     "Monopoly".to_owned(),
-        //     "Family Game".to_owned(),
-        //     crate::models::domain::item::Category::Game,
-        //     20f64,
-        // )],
         let bob = Member::new(name, email, phone_nr);
         assert_eq!(bob.name, "Bob".to_owned());
         assert_eq!(bob.email, "bob@gmail.com".to_owned());
@@ -149,9 +121,9 @@ mod member_test {
     #[test]
     fn test_default_creation() {
         let member = Member::default();
-        assert_eq!(member.name, String::new()); // String::new()
-        assert_eq!(member.email, String::new()); // String::new()
-        assert_eq!(member.phone_nr, String::new()); // String::new()
-        assert_eq!(member.credits, 0.0); // 0.0
+        assert_eq!(member.name, String::new());
+        assert_eq!(member.email, String::new());
+        assert_eq!(member.phone_nr, String::new());
+        assert_eq!(member.credits, 0.0);
     }
 }

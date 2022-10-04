@@ -1,12 +1,15 @@
 use super::domain::FromMap;
+use derive_getters::Getters;
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
 use shared::{CFromMap, CFromStr, CToMap, CToStr};
 use std::collections::HashMap;
 use std::str::FromStr;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, CFromStr, CToStr, CFromMap, CToMap)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, CFromStr, CToStr, CFromMap, CToMap, Getters)]
 pub struct Uuid {
-    pub len: usize,
+    #[getter(rename = "get_len")]
+    len: usize,
+    #[getter(rename = "get_value")]
     value: String,
 }
 

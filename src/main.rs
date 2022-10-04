@@ -1,10 +1,9 @@
 // #![warn(missing_docs)]
 // #![warn(clippy::missing_docs_in_private_items)]
 #![crate_type = "proc-macro"]
-#![feature(closure_lifetime_binder)]
 
 use controllers::app::MainApp;
-use models::system::System;
+use models::domain::system::System;
 use views::main_view::CliMainView;
 
 pub mod controllers;

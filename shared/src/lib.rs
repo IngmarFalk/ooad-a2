@@ -99,7 +99,7 @@ pub fn derive_from_str(inp: TokenStream) -> TokenStream {
 
     let res = quote! {
         impl FromStr for #ident {
-            type Err = crate::models::system::MError;
+            type Err = crate::models::domain::system::MError;
 
             fn from_str(s: &str) -> Result<Self, Self::Err> {
 
@@ -711,12 +711,12 @@ pub fn controller(view: TokenStream, strct: TokenStream) -> TokenStream {
         #s2
         impl<M, V> crate::types::Controller for #ident<M, V>
         where
-            M: crate::types::Model + crate::models::system::LendingSystem,
+            M: crate::types::Model + crate::models::domain::system::LendingSystem,
             V: crate::types::View + #v2,
         {}
         impl<M, V> #ident<M, V>
         where
-            M: crate::types::Model + crate::models::system::LendingSystem,
+            M: crate::types::Model + crate::models::domain::system::LendingSystem,
             V: crate::types::View + #v2,
         {
             pub fn new(model: M, view: V) -> Self {

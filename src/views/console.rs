@@ -234,7 +234,22 @@ impl Ui for Console {
             for key in head.iter() {
                 let data = item.to_map();
                 let cell_data = data.get(key).unwrap();
-                row.add_cell(Cell::new(cell_data.as_str()));
+                match key.to_lowercase().as_str() {
+                    "uuid" => {
+                        let uuid_value = cell_data
+                            .split(";")
+                            .collect::<Vec<&str>>()
+                            .last()
+                            .unwrap()
+                            .split(",")
+                            .last()
+                            .unwrap();
+                        row.add_cell(Cell::new(uuid_value));
+                    }
+                    _ => {
+                        row.add_cell(Cell::new(cell_data.as_str()));
+                    }
+                }
             }
             table.add_row(row);
         }

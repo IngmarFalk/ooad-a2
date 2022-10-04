@@ -1,9 +1,6 @@
 use super::app::App;
 use crate::{
-    models::{
-        domain::{item::Item, member::Member},
-        system::LendingSystem,
-    },
+    models::domain::{item::Item, member::Member, system::LendingSystem},
     types::{Model, View},
     views::member_view::{MemberMenuOption, MemberView},
 };
@@ -151,8 +148,6 @@ where
             MemberMenuOption::Back => return sys,
             MemberMenuOption::Other => sys,
         };
-        let o = format!("{:?}", state.get_members());
-        self.view.wait(o.as_str());
         self.run(state)
     }
 }

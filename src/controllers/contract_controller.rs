@@ -1,9 +1,6 @@
 use super::app::App;
 use crate::{
-    models::{
-        domain::{contract::Contract, item::Item, FromMap, ToMap},
-        system::LendingSystem,
-    },
+    models::domain::{contract::Contract, item::Item, system::LendingSystem, FromMap, ToMap},
     types::{Model, View},
     views::{
         contract_view::{ContractOption, ContractView},

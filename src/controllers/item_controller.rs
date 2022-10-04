@@ -1,6 +1,6 @@
 use super::app::App;
 use crate::{
-    models::{domain::item::Item, system::LendingSystem},
+    models::domain::{item::Item, system::LendingSystem},
     types::{Model, View},
     views::{
         item_view::{ItemMenuOption, ItemView},

@@ -1,6 +1,6 @@
 use super::app::App;
 use crate::{
-    models::system::LendingSystem,
+    models::domain::system::LendingSystem,
     types::{Model, View},
     views::simulator_view::SimulatorView,
 };

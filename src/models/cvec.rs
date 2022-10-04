@@ -1,6 +1,6 @@
 use std::{fmt::Display, str::FromStr};
 
-use super::system::MError;
+use super::domain::system::MError;
 
 #[derive(Debug, PartialEq, Eq, Default, Clone)]
 pub struct CVec<T>

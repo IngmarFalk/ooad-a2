@@ -1,8 +1,5 @@
-use super::{
-    domain::{item::Item, member::Member},
-    uuid::Uuid,
-};
-use crate::types::Model;
+use super::{item::Item, member::Member};
+use crate::{models::uuid::Uuid, types::Model};
 use anyhow::Result;
 use std::collections::HashMap;
 use thiserror::Error;
@@ -195,6 +192,7 @@ mod system_tests {
         member::Member,
     };
 
+    use super::System;
     use super::*;
 
     #[test]
@@ -240,7 +238,7 @@ mod system_tests {
 
     #[test]
     fn test_exists_member() {
-        let turing = Member::new(
+        let turing: Member = Member::new(
             "Turing".to_owned(),
             "turing@enigma.com".to_owned(),
             "123".to_owned(),

@@ -1,10 +1,12 @@
+use shared::controller;
+
 use super::{
     item_controller::ItemController, member_controller::MemberController,
     simulator_controller::SimulatorController,
 };
 use crate::{
-    models::system::LendingSystem,
-    types::{Controller, Model, View},
+    models::domain::system::LendingSystem,
+    types::{Model, View},
     views::{
         item_view::CliItemView,
         main_view::{MainMenuOption, MainView},
@@ -17,21 +19,15 @@ pub trait App<T> {
     fn run(&mut self, sys: T) -> T;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
+#[controller(MainView)]
 pub struct MainApp<M, V>
 where
-    M: Model + LendingSystem + Clone,
+    M: Model + LendingSystem,
     V: View + MainView,
 {
     model: M,
     view: V,
-}
-
-impl<M, V> Controller for MainApp<M, V>
-where
-    M: Model + LendingSystem + Clone,
-    V: View + MainView,
-{
 }
 
 impl<M, V> MainApp<M, V>
@@ -39,10 +35,6 @@ where
     M: Model + LendingSystem + Clone,
     V: View + MainView,
 {
-    pub fn new(model: M, view: V) -> MainApp<M, V> {
-        MainApp { model, view }
-    }
-
     pub fn start(&mut self) {
         self.run(self.model.clone());
     }

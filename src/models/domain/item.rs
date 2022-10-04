@@ -1,7 +1,7 @@
+use super::system::{MError, MResult};
 use super::{contract::Contract, member::Member, FromMap};
 use crate::models::cdate::CDate;
 use crate::models::cvec::CVec;
-use crate::models::system::{MError, MResult};
 use crate::models::uuid::Uuid;
 use derive_getters::{Dissolve, Getters};
 use shared::{Builder, CData, CFromMap, CFromStr, CPartialEq, CToMap, CToStr, Model};

@@ -25,7 +25,7 @@ pub enum ItemMenuOption {
 pub trait ItemView {
     fn item_menu(&self) -> ItemMenuOption;
     fn display_item_info(&self, item: &Item);
-    fn edit_item_info(&self, item: Item) -> Item;
+    fn edit_item_info(&self, item: &Item) -> Item;
     fn get_item_info(&self) -> Item;
     fn select_item<'a>(&'a self, items: Vec<&'a Item>) -> Option<&Item>;
     fn wait(&self, display: &str);
@@ -54,7 +54,7 @@ impl ItemView for CliItemView {
         self.console.display_table(table);
     }
 
-    fn edit_item_info(&self, item: Item) -> Item {
+    fn edit_item_info(&self, item: &Item) -> Item {
         let new_item_info = self
             .console
             .get_consecutive_str_input(Item::head_allowed_mutable());
