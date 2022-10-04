@@ -203,7 +203,7 @@ pub fn derive_from_map(inp: TokenStream) -> TokenStream {
                     if attr.path.is_ident("from_map") {
                         let arg = attr.path.segments.first();
                         let ident = &arg.unwrap().ident;
-                        if ident.to_string() == "ignore".to_owned() {
+                        if *ident == *"ignore" {
                             out = quote! {}
                         }
                     } else {
@@ -304,7 +304,7 @@ pub fn derive_to_map(inp: TokenStream) -> TokenStream {
                         .collect::<Vec<PathSegment>>();
 
                     for seg in segs.iter() {
-                        let ignoring = seg.ident.to_string() == "mutable_ignore";
+                        let ignoring = seg.ident == "mutable_ignore";
                         if ignoring {
                             return None;
                         }
@@ -323,7 +323,7 @@ pub fn derive_to_map(inp: TokenStream) -> TokenStream {
             });
         }
 
-        return Some(out);
+        Some(out)
     });
 
     let res = quote! {
@@ -392,7 +392,7 @@ pub fn derive_to_table(inp: TokenStream) -> TokenStream {
                         .collect::<Vec<PathSegment>>();
 
                     for seg in segs.iter() {
-                        let ignoring = seg.ident.to_string() == "mutable_ignore";
+                        let ignoring = seg.ident == "mutable_ignore";
                         if ignoring {
                             return None;
                         }
@@ -411,7 +411,7 @@ pub fn derive_to_table(inp: TokenStream) -> TokenStream {
             });
         }
 
-        return Some(out);
+        Some(out)
     });
 
     let res = quote! {
@@ -457,41 +457,6 @@ pub fn derive_partial_eq(inp: TokenStream) -> TokenStream {
         _ => panic!("Not supported"),
     };
 
-    let ne_attrs = fields.iter().filter_map(|f| {
-        let name = &f.ident;
-        let attrs = &f.attrs;
-
-        for attr in attrs.iter() {
-            let style = attr.style;
-            match style {
-                syn::AttrStyle::Outer => {
-                    let segs = attr
-                        .path
-                        .segments
-                        .clone()
-                        .into_iter()
-                        .collect::<Vec<PathSegment>>();
-
-                    for seg in segs.iter() {
-                        let is_mutable = seg.ident.to_string() == "eq";
-                        if is_mutable {
-                            return Some(quote! {
-                                self.#name != other.#name
-                            });
-                        }
-                    }
-                }
-                syn::AttrStyle::Inner(_) => {}
-            }
-        }
-
-        if attrs.is_empty() {
-            return None;
-        }
-
-        return None;
-    });
-
     let eq_attrs = fields.iter().filter_map(|f| {
         let name = &f.ident;
         let attrs = &f.attrs;
@@ -508,7 +473,7 @@ pub fn derive_partial_eq(inp: TokenStream) -> TokenStream {
                         .collect::<Vec<PathSegment>>();
 
                     for seg in segs.iter() {
-                        let is_mutable = seg.ident.to_string() == "eq";
+                        let is_mutable = seg.ident == "eq";
                         if is_mutable {
                             return Some(quote! {
                                 self.#name == other.#name
@@ -524,17 +489,13 @@ pub fn derive_partial_eq(inp: TokenStream) -> TokenStream {
             return None;
         }
 
-        return None;
+        None
     });
 
     let res = quote! {
     impl core::cmp::PartialEq for #ident {
         fn eq(&self, other: &Self) -> bool {
             vec![#(#eq_attrs,)*].iter().any(|cond| cond == &true)
-        }
-
-        fn ne(&self, other: &Self) -> bool {
-            vec![#(#ne_attrs,)*].iter().all(|cond| cond == &true)
         }
     }
     };
@@ -552,7 +513,7 @@ pub fn derive_options(inp: TokenStream) -> TokenStream {
         unimplemented!()
     };
 
-    let temp_variants = variants.clone();
+    let temp_variants = variants;
     let from_usize_choice = temp_variants.iter().enumerate().map(|v| {
         let v_ident = v.1.ident.clone();
         let v_nr = v.0;
@@ -563,8 +524,7 @@ pub fn derive_options(inp: TokenStream) -> TokenStream {
                 .segments
                 .iter()
                 .map(|seg: &PathSegment| seg.ident.to_string())
-                .collect::<Vec<String>>()
-                .contains(&"other".to_owned())
+                .any(|x| x == *"other")
             {
                 return quote! {
                     _ => #name::#v_ident
@@ -586,8 +546,7 @@ pub fn derive_options(inp: TokenStream) -> TokenStream {
                 .segments
                 .iter()
                 .map(|seg: &PathSegment| seg.ident.to_string())
-                .collect::<Vec<String>>()
-                .contains(&"other".to_owned())
+                .any(|x| x == *"other")
             {
                 return quote! {};
             }
@@ -607,8 +566,7 @@ pub fn derive_options(inp: TokenStream) -> TokenStream {
                 .segments
                 .iter()
                 .map(|seg: &PathSegment| seg.ident.to_string())
-                .collect::<Vec<String>>()
-                .contains(&"other".to_owned())
+                .any(|x| x == *"other")
             {
                 return quote! {
                     _ => Ok(#name::#v_ident)

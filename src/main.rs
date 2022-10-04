@@ -14,6 +14,6 @@ pub mod views;
 fn main() {
     let system = System::new();
     let main_view = CliMainView::new();
-    let mut app = MainApp::new(system.clone(), main_view);
+    let mut app = MainApp::new(system, main_view);
     app.start()
 }

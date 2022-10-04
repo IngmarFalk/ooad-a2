@@ -68,14 +68,14 @@ impl LendingSystem for System {
     }
 
     fn get_member(&self, member: &Member) -> MResult<Member> {
-        match self.members.get(&member.get_uuid()) {
+        match self.members.get(member.get_uuid()) {
             Some(m) => Ok(m.clone()),
             None => Err(MError::DoesntExist),
         }
     }
 
     fn get_member_mut(&mut self, member: &Member) -> MResult<&mut Member> {
-        match self.members.get_mut(&member.get_uuid()) {
+        match self.members.get_mut(member.get_uuid()) {
             Some(m) => Ok(m),
             None => Err(MError::DoesntExist),
         }
@@ -101,7 +101,7 @@ impl LendingSystem for System {
         if !self.exists_member(old_info) {
             return Err(MError::DoesntExist);
         }
-        *self.members.get_mut(&old_info.get_uuid()).unwrap() = new_info.clone();
+        *self.members.get_mut(old_info.get_uuid()).unwrap() = new_info.clone();
         Ok(())
     }
 
@@ -122,13 +122,7 @@ impl LendingSystem for System {
     fn get_items_for_member(&self, member: &Member) -> Vec<&Item> {
         self.get_items()
             .into_iter()
-            .filter(|item| {
-                if item.get_owner() == member {
-                    true
-                } else {
-                    false
-                }
-            })
+            .filter(|item| item.get_owner() == member)
             .collect::<Vec<&Item>>()
     }
 
@@ -148,7 +142,10 @@ impl LendingSystem for System {
 
     fn update_item(&mut self, old_info: &Item, new_info: &Item) -> MResult<()> {
         match self.items.get_mut(old_info.get_uuid()) {
-            Some(_) => Ok(*self.items.get_mut(old_info.get_uuid()).unwrap() = new_info.clone()),
+            Some(_) => {
+                *self.items.get_mut(old_info.get_uuid()).unwrap() = new_info.clone();
+                Ok(())
+            }
             None => Err(MError::DoesntExist),
         }
     }
@@ -166,7 +163,7 @@ impl LendingSystem for System {
 
 pub type MResult<T> = Result<T, MError>;
 
-#[derive(Debug, Error, PartialEq)]
+#[derive(Debug, Error, PartialEq, Eq)]
 pub enum MError {
     AlreadyExists,
     DoesntExist,

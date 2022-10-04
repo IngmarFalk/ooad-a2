@@ -33,7 +33,7 @@ where
     fn fetch_item(&self) -> Option<Item> {
         let item_view: CliItemView = CliItemView::new();
         let items = self.model.get_items();
-        let item = item_view.select_item(items).clone();
+        let item = item_view.select_item(items);
         match item {
             Some(i) => {
                 let out = Item::default().copy_with(i.to_map());

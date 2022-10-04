@@ -58,11 +58,10 @@ impl ItemView for CliItemView {
         let new_item_info = self
             .console
             .get_consecutive_str_input(Item::head_allowed_mutable());
-        let data: StringMap = HashMap::from(
-            new_item_info
-                .into_iter()
-                .collect::<HashMap<String, String>>(),
-        );
+        let data: StringMap = new_item_info
+            .into_iter()
+            .collect::<HashMap<String, String>>();
+
         item.copy_with(data)
     }
 

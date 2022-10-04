@@ -141,7 +141,10 @@ impl Item {
     pub fn add_contract(&mut self, contract: Contract) -> MResult<()> {
         match self.get_active_contract() {
             Some(_) => Err(MError::AlreadyExists),
-            None => Ok(self.history.push(contract)),
+            None => {
+                self.history.push(contract);
+                Ok(())
+            }
         }
     }
 

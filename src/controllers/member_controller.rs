@@ -32,8 +32,8 @@ where
         let member = self.view.select_member(members_vec);
         match member {
             Some(m) => {
-                let number_of_items = self.model.count_items_for_member(&m);
-                self.view.display_member_simple(&m, number_of_items);
+                let number_of_items = self.model.count_items_for_member(m);
+                self.view.display_member_simple(m, number_of_items);
                 self.ret("")
             }
             None => self.model.clone(),
@@ -45,8 +45,8 @@ where
         let member = self.view.select_member(members_vec);
         match member {
             Some(m) => {
-                let items = self.model.get_items_for_member(&m);
-                self.view.display_member_verbose(&m, items);
+                let items = self.model.get_items_for_member(m);
+                self.view.display_member_verbose(m, items);
                 self.ret("")
             }
             None => self.model.clone(),
@@ -86,7 +86,7 @@ where
             Some(mem) => {
                 let new_info = self.view.edit_member_info(mem);
                 match new_info {
-                    Some(info) => match self.model.update_member(&mem, &info) {
+                    Some(info) => match self.model.update_member(mem, &info) {
                         Ok(_) => self.ret("Member updated successfully."),
                         Err(_) => self.ret("There was a problem updating the member information."),
                     },

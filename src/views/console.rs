@@ -96,11 +96,9 @@ impl Console {
     {
         self.title();
         let new_model_info = self.get_consecutive_str_input(T::head_allowed_mutable());
-        let data: StringMap = HashMap::from(
-            new_model_info
-                .into_iter()
-                .collect::<HashMap<String, String>>(),
-        );
+        let data: StringMap = new_model_info
+            .into_iter()
+            .collect::<HashMap<String, String>>();
         obj.copy_with(data)
     }
 }
@@ -118,8 +116,7 @@ impl Ui for Console {
             .collect::<Vec<String>>()
             .join("\n");
         let inp = self.get_int_input((out + "\n").as_str());
-        let choice = T::from_choice(inp);
-        choice
+        T::from_choice(inp)
     }
 
     fn confirm(&self, arg: String, val: String) -> bool {
@@ -140,13 +137,11 @@ impl Ui for Console {
         self.clear();
 
         match chr {
-            c => match c {
-                'y' => true,
-                'Y' => true,
-                'n' => false,
-                'N' => false,
-                _ => self.confirm(arg, val),
-            },
+            'y' => true,
+            'Y' => true,
+            'n' => false,
+            'N' => false,
+            _ => self.confirm(arg, val),
         }
     }
 
@@ -175,7 +170,7 @@ impl Ui for Console {
             }
         };
 
-        buf.strip_suffix("\n").unwrap().to_owned()
+        buf.strip_suffix('\n').unwrap().to_owned()
     }
 
     fn get_int_input(&self, display: &str) -> usize {
@@ -189,7 +184,7 @@ impl Ui for Console {
     fn get_char_input(&self, display: &str) -> char {
         let buf = self.get_str_input(display);
         match buf.parse::<char>() {
-            Ok(chr) => return chr,
+            Ok(chr) => chr,
             Err(_) => self.get_char_input(display),
         }
     }
@@ -237,11 +232,11 @@ impl Ui for Console {
                 match key.to_lowercase().as_str() {
                     "uuid" => {
                         let uuid_value = cell_data
-                            .split(";")
+                            .split(';')
                             .collect::<Vec<&str>>()
                             .last()
                             .unwrap()
-                            .split(",")
+                            .split(',')
                             .last()
                             .unwrap();
                         row.add_cell(Cell::new(uuid_value));
@@ -258,8 +253,8 @@ impl Ui for Console {
         let page_count = chunks.len();
         let page_display = format!("Page: {} / {}", curr_page, page_count);
         self.write(page_display.as_str());
-        let msg = format!("Press \n\tn\t(next)\n\tp\t(previous)\n\tq\t(quit)\n\te\t(go back to menu)\n\t0..9\t(select)\n\t");
-        let inp = self.get_char_input(&msg);
+        let msg = "Press \n\tn\t(next)\n\tp\t(previous)\n\tq\t(quit)\n\te\t(go back to menu)\n\t0..9\t(select)\n\t";
+        let inp = self.get_char_input(msg);
 
         if let Ok(res) = inp.to_string().parse::<usize>() {
             return match res < 10 {

@@ -51,7 +51,7 @@ impl MemberView for CliMemberView {
 
     fn display_member_verbose(&self, member: &Member, items: Vec<&Item>) {
         let mut items_str = String::new();
-        if items.len() == 0 {
+        if items.is_empty() {
             items_str.push_str("[]")
         }
         for item in items.iter() {

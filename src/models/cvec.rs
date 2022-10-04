@@ -49,6 +49,10 @@ where
         self.values.len()
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.values.is_empty()
+    }
+
     pub fn to_vec(&self) -> Vec<T> {
         self.values.clone()
     }
@@ -59,7 +63,7 @@ where
     T: Display + PartialEq + Clone + FromStr,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if self.values.len() == 0 {
+        if self.values.is_empty() {
             return match f.write_str("-") {
                 Ok(out) => Ok(out),
                 Err(err) => Err(err),
@@ -83,12 +87,11 @@ where
         }
 
         let mut arr: Vec<T> = Vec::new();
-        let new_str = s.replace("[", "").replace("]", "");
-        for item in new_str.split(";").into_iter() {
+        let new_str = s.replace(['[', ']'], "");
+        for item in new_str.split(';') {
             let temp = T::from_str(item);
-            match temp {
-                Ok(val) => arr.push(val),
-                Err(_) => {}
+            if let Ok(val) = temp {
+                arr.push(val)
             }
         }
         let len = arr.len();
