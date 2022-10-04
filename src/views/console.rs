@@ -51,7 +51,7 @@ pub trait Ui {
     fn select_model<'a, M>(&'a self, vec_model: Vec<&'a M>) -> Option<&M>
     where
         M: Data + FromMap + ToMap + Model;
-    fn edit_model_info<T>(&self, model: T) -> Option<T>
+    fn edit_model_info<T>(&self, model: &T) -> Option<T>
     where
         T: Data + FromMap + ToMap + Model;
     fn wait(&self, display: &str);
@@ -194,11 +194,13 @@ impl Ui for Console {
         }
     }
 
-    fn get_consecutive_str_input(&self, input_buffers: Vec<String>) -> StringMap {
+    fn get_consecutive_str_input(&self, inputs: Vec<String>) -> StringMap {
         let mut out = HashMap::new();
-        for buf in input_buffers {
+        for buf in inputs {
             let inp = self.get_str_input(buf.as_str());
-            out.insert(buf, inp);
+            if inp.as_str() != "" {
+                out.insert(buf, inp);
+            }
         }
 
         out
@@ -291,22 +293,16 @@ impl Ui for Console {
             .unwrap_left::<_>(fun)
     }
 
-    fn edit_model_info<T>(&self, obj: T) -> Option<T>
+    fn edit_model_info<T>(&self, obj: &T) -> Option<T>
     where
         T: Data + FromMap + ToMap + Model,
     {
         self.title();
         let new_model_info = self.get_consecutive_str_input(T::head_allowed_mutable());
-        let data: StringMap = HashMap::from(
-            new_model_info
-                .into_iter()
-                .collect::<HashMap<String, String>>(),
-        );
         let obj_map = obj.to_map_allowed_mutable();
-        let temp: Vec<String> = T::head_allowed_mutable().clone();
-        let values_tuples = temp
+        let values_tuples = new_model_info
             .iter()
-            .map(|s| (obj_map.get(s).unwrap(), data.get(s).unwrap()));
+            .map(|s| (obj_map.get(s.0).unwrap(), new_model_info.get(s.0).unwrap()));
         let (keys, vals) =
             values_tuples
                 .into_iter()
@@ -316,7 +312,7 @@ impl Ui for Console {
                     tpl
                 });
         if self.confirm(keys, vals) {
-            return Some(obj.copy_with(data));
+            return Some(obj.copy_with(new_model_info));
         }
         None
     }

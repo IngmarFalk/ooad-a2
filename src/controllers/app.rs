@@ -74,6 +74,7 @@ where
             MainMenuOption::Quit => std::process::exit(0),
             _ => sys,
         };
+
         self.run(state)
     }
 }

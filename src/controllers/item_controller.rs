@@ -94,6 +94,7 @@ where
 {
     fn run(&mut self, sys: M) -> M {
         let choice = self.view.item_menu();
+        self.model = sys.clone();
         let state = match choice {
             ItemMenuOption::DisplayItemInfo => self.display_item_info(),
             ItemMenuOption::EditItemInfo => self.edit_item(),

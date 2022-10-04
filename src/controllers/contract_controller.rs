@@ -109,7 +109,7 @@ where
                     .select_contract(history.iter().collect::<Vec<&Contract>>());
                 match contract {
                     Some(c) => {
-                        let new_contract_info = self.view.edit_contract(c.clone());
+                        let new_contract_info = self.view.edit_contract(c);
                         match new_contract_info {
                             Some(new_contract) => {
                                 let idx = history.index_of(&new_contract).unwrap();

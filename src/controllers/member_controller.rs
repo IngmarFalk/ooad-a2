@@ -85,13 +85,18 @@ where
     fn edit_member(&mut self) -> M {
         let model = self.model.clone();
         let member_to_edit: Option<&Member> = self.view.select_member(model.get_members());
-        let new_info = self.view.get_member_info();
         match member_to_edit {
-            Some(mem) => match self.model.update_member(mem, &new_info) {
-                Ok(_) => self.ret("Member updated successfully."),
-                Err(_) => self.ret("There was a problem updating the member information."),
-            },
-            None => self.ret("Couldnt retrieve member."),
+            Some(mem) => {
+                let new_info = self.view.edit_member_info(mem);
+                match new_info {
+                    Some(info) => match self.model.update_member(&mem, &info) {
+                        Ok(_) => self.ret("Member updated successfully."),
+                        Err(_) => self.ret("There was a problem updating the member information."),
+                    },
+                    None => todo!(),
+                }
+            }
+            None => self.ret("No members to select."),
         }
     }
 
@@ -133,6 +138,7 @@ where
 {
     fn run(&mut self, sys: M) -> M {
         let choice = self.view.member_menu();
+        self.model = sys.clone();
         let state = match choice {
             MemberMenuOption::DisplayMemberSimple => self.display_member_simple(),
             MemberMenuOption::DisplayMemberVerbose => self.display_member_verbose(),
@@ -145,6 +151,8 @@ where
             MemberMenuOption::Back => return sys,
             MemberMenuOption::Other => sys,
         };
+        let o = format!("{:?}", state.get_members());
+        self.view.wait(o.as_str());
         self.run(state)
     }
 }

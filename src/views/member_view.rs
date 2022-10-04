@@ -16,8 +16,8 @@ pub enum MemberMenuOption {
     CreateMember,
     DeleteMember,
     EditMember,
-    Quit,
     Back,
+    Quit,
     #[other]
     Other,
 }
@@ -29,7 +29,7 @@ pub trait MemberView {
     fn display_all_simple(&self, members: Vec<(&Member, usize)>);
     fn display_all_verbose(&self, members: Vec<(&Member, Vec<&Item>)>);
     fn get_member_info(&self) -> Member;
-    fn edit_member_info(&self, member: Member) -> Option<Member>;
+    fn edit_member_info(&self, member: &Member) -> Option<Member>;
     fn select_member<'a>(&'a self, members: Vec<&'a Member>) -> Option<&Member>;
     fn wait(&self, display: &str);
 }
@@ -130,7 +130,7 @@ impl MemberView for CliMemberView {
         self.console.get_model_info(new_member)
     }
 
-    fn edit_member_info(&self, member: Member) -> Option<Member> {
+    fn edit_member_info(&self, member: &Member) -> Option<Member> {
         self.console.edit_model_info(member)
     }
 

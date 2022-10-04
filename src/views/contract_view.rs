@@ -20,7 +20,7 @@ pub enum ContractOption {
 
 pub trait ContractView {
     fn select_contract<'a>(&'a self, contracts: Vec<&'a Contract>) -> Option<&Contract>;
-    fn edit_contract(&self, c: Contract) -> Option<Contract>;
+    fn edit_contract(&self, c: &Contract) -> Option<Contract>;
     fn contract_menu(&self) -> ContractOption;
     fn get_contract_info(&self) -> Contract;
     fn display_contract_simple(&self, contract: &Contract);
@@ -38,7 +38,7 @@ impl ContractView for CliContractView {
         self.console.select_model(contracts)
     }
 
-    fn edit_contract(&self, c: Contract) -> Option<Contract> {
+    fn edit_contract(&self, c: &Contract) -> Option<Contract> {
         self.console.edit_model_info::<Contract>(c)
     }
 
