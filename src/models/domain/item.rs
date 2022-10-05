@@ -8,13 +8,14 @@ use shared::{Builder, CData, CFromMap, CFromStr, CPartialEq, CToMap, CToStr, Mod
 use std::str::FromStr;
 use std::{collections::HashMap, fmt::Display};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub enum Category {
     Tool,
     Vehicle,
     Game,
     Toy,
     Sport,
+    #[default]
     Other,
 }
 
@@ -35,7 +36,6 @@ impl FromStr for Category {
 
 impl Display for Category {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // f.write_fmt(format_args!("{}", self.to_string().as_str()))
         match *self {
             Category::Tool => f.write_str("Tool"),
             Category::Vehicle => f.write_str("Vehicle"),
@@ -43,25 +43,6 @@ impl Display for Category {
             Category::Toy => f.write_str("Toy"),
             Category::Sport => f.write_str("Sport"),
             Category::Other => f.write_str("Other"),
-        }
-    }
-}
-
-impl Default for Category {
-    fn default() -> Self {
-        Category::Other
-    }
-}
-
-impl From<&str> for Category {
-    fn from(inp: &str) -> Self {
-        match inp.to_lowercase().as_str() {
-            "tool" => Category::Tool,
-            "vehicle" => Category::Vehicle,
-            "game" => Category::Game,
-            "toy" => Category::Toy,
-            "sport" => Category::Sport,
-            _ => Category::Other,
         }
     }
 }

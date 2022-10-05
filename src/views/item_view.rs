@@ -40,8 +40,6 @@ impl ItemView for CliItemView {
     fn item_menu(&self) -> ItemMenuOption {
         self.console.title();
         let choice: ItemMenuOption = self.console.show_menu(ItemMenuOption::options());
-        // let out = format!("{}", choice);
-        // self.wait(out.as_str());
         match choice {
             ItemMenuOption::Other => self.item_menu(),
             _ => choice,
@@ -79,17 +77,8 @@ impl ItemView for CliItemView {
         let cost_per_day = match cost_per_day.parse::<f64>() {
             Ok(val) => val,
             Err(_) => {
-                let cpd_i = match cost_per_day.parse::<i32>() {
-                    Ok(val) => val,
-                    Err(_) => -1,
-                };
-                match cpd_i < 0 {
-                    true => {
-                        self.wait("Invalid input: Cost per day has to be of type int/float.");
-                        self.parse_float(|| self.console.get_str_input("cost_per_day: "))
-                    }
-                    false => cpd_i as f64,
-                }
+                self.wait("Invalid input: Cost per day has to be of type int/float.");
+                self.parse_float(|| self.console.get_str_input("cost_per_day: "))
             }
         };
         Item::default()
