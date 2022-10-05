@@ -1,10 +1,7 @@
 use super::console::{Console, Ui};
 use super::Options;
 use crate::models::domain::item::Category;
-use crate::{
-    models::domain::{item::Item, Data, FromMap},
-    types::StringMap,
-};
+use crate::models::domain::{item::Item, Data, FromMap};
 use prettytable::Table;
 use shared::{COptions, View};
 use std::collections::HashMap;
@@ -56,7 +53,7 @@ impl ItemView for CliItemView {
         let new_item_info = self
             .console
             .get_consecutive_str_input(Item::head_allowed_mutable());
-        let data: StringMap = new_item_info
+        let data = new_item_info
             .into_iter()
             .collect::<HashMap<String, String>>();
 
@@ -64,15 +61,28 @@ impl ItemView for CliItemView {
     }
 
     fn get_item_info(&self) -> Item {
-        let [name, description, category, cost_per_day] = <[String; 4]>::try_from(
-            self.console
-                .get_consecutive_str_input(Item::head_allowed_mutable())
-                .iter()
-                .map(|entry| -> String { entry.1.clone() })
-                .collect::<Vec<String>>(),
-        )
-        .ok()
+        let data = self
+            .console
+            .get_consecutive_str_input(Item::head_allowed_mutable());
+
+        let buf = String::new();
+        let name = match data.get("name") {
+            Some(val) => val,
+            None => &buf,
+        };
+        let description = match data.get("description") {
+            Some(val) => val,
+            None => &buf,
+        };
+        let category = Category::from_str(match data.get("category") {
+            Some(val) => val,
+            None => &buf,
+        })
         .unwrap();
+        let cost_per_day = match data.get("cost_per_day") {
+            Some(val) => val,
+            None => &buf,
+        };
 
         let cost_per_day = match cost_per_day.parse::<f64>() {
             Ok(val) => val,
@@ -82,9 +92,9 @@ impl ItemView for CliItemView {
             }
         };
         Item::default()
-            .name(name)
-            .description(description)
-            .category(Category::from_str(category.as_str()).unwrap())
+            .name(name.clone())
+            .description(description.clone())
+            .category(category)
             .cost_per_day(cost_per_day)
             .build()
     }

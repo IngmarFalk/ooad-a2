@@ -66,9 +66,17 @@ where
         match owner {
             Some(o) => {
                 let item = self.view.get_item_info().owner(o.clone()).build();
-                println!("{}", item.clone());
                 match self.model.add_item(item) {
-                    Ok(_) => self.ret("Item created successfully."),
+                    Ok(_) => {
+                        let mut updated_owner = o.clone();
+                        match updated_owner.add_credits(100f64) {
+                            Ok(_) => match self.model.update_member(o, &updated_owner) {
+                                Ok(_) => self.ret("Item created successfully."),
+                                Err(err) => self.ret(err.to_string().as_str()),
+                            },
+                            Err(err) => self.ret(err.to_string().as_str()),
+                        }
+                    }
                     Err(err) => self.ret(err.to_string().as_str()),
                 }
             }

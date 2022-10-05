@@ -21,18 +21,23 @@ pub struct Member {
     #[getter(rename = "get_name")]
     #[eq]
     name: String,
+
     #[getter(rename = "get_email")]
     #[eq]
     email: String,
+
     #[getter(rename = "get_phone_nr")]
     #[eq]
     phone_nr: String,
+
     #[getter(rename = "get_credits")]
     #[mutable_ignore]
     credits: f64,
+
     #[getter(rename = "get_day_of_creation")]
     #[mutable_ignore]
     day_of_creation: CDate,
+
     #[getter(rename = "get_uuid")]
     #[mutable_ignore]
     uuid: Uuid,

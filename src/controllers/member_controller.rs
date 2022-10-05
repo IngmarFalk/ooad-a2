@@ -75,7 +75,7 @@ where
                 Ok(_) => self.model.clone(),
                 Err(_) => self.ret("There was a problem deleting the member."),
             },
-            None => self.ret("Couldnt retrieve member."),
+            None => self.model.clone(),
         }
     }
 
@@ -93,7 +93,7 @@ where
                     None => todo!(),
                 }
             }
-            None => self.ret("No members to select."),
+            None => self.model.clone(),
         }
     }
 

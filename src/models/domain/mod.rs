@@ -1,6 +1,5 @@
-use crate::types::StringMap;
 use prettytable::{Row, Table};
-use std::{fmt, str::FromStr};
+use std::{collections::HashMap, fmt, str::FromStr};
 
 pub mod contract;
 pub mod item;
@@ -15,11 +14,11 @@ pub trait Data: FromMap + ToMap + FromStr + fmt::Display {
 }
 
 pub trait FromMap {
-    fn from_complete_map(data: StringMap) -> Self;
-    fn copy_with(&self, data: StringMap) -> Self;
+    fn from_complete_map(data: HashMap<String, String>) -> Self;
+    fn copy_with(&self, data: HashMap<String, String>) -> Self;
 }
 
 pub trait ToMap {
-    fn to_map(&self) -> StringMap;
-    fn to_map_allowed_mutable(&self) -> StringMap;
+    fn to_map(&self) -> HashMap<String, String>;
+    fn to_map_allowed_mutable(&self) -> HashMap<String, String>;
 }

@@ -57,9 +57,7 @@ where
                         fun(c);
                         self.view.wait("");
                     }
-                    None => {
-                        self.view.wait("Couldnt find contract.");
-                    }
+                    None => {}
                 };
                 self.model.clone()
             }
@@ -89,10 +87,10 @@ where
                         }
                         self.ret("Successfully created contract.")
                     }
-                    Err(_) => self.ret("Contract Already Exists."),
+                    Err(_) => self.model.clone(),
                 }
             }
-            None => self.ret("Couldnt retrieve item."),
+            None => self.model.clone(),
         }
     }
 
@@ -120,10 +118,10 @@ where
 
                         self.model.clone()
                     }
-                    None => self.ret("Couldnt retrieve Contract."),
+                    None => self.model.clone(),
                 }
             }
-            None => self.ret("Couldnt retrieve item."),
+            None => self.model.clone(),
         }
     }
 }
@@ -135,13 +133,14 @@ where
 {
     fn run(&mut self, sys: M) -> M {
         let choice = self.view.contract_menu();
-        match choice {
+        let state = match choice {
             ContractOption::DisplayContractSimple => self.display_contract_simple(),
             ContractOption::DisplayContractVerbose => self.display_contract_verbose(),
             ContractOption::CreateContract => self.create_contract(),
             ContractOption::EditContract => self.edit_contract(),
             ContractOption::Quit => std::process::exit(0),
-            _ => sys,
-        }
+            _ => return sys,
+        };
+        self.run(state)
     }
 }

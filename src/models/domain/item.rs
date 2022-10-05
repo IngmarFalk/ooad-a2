@@ -64,11 +64,6 @@ impl Display for Category {
 )]
 #[dissolve(rename = "unpack")]
 pub struct Item {
-    #[eq]
-    #[mutable_ignore]
-    #[getter(rename = "get_uuid")]
-    uuid: Uuid,
-
     #[getter(rename = "get_name")]
     name: String,
 
@@ -96,6 +91,11 @@ pub struct Item {
     #[mutable_ignore]
     #[getter(rename = "get_is_available")]
     is_available: bool,
+
+    #[eq]
+    #[mutable_ignore]
+    #[getter(rename = "get_uuid")]
+    uuid: Uuid,
 }
 
 impl Item {

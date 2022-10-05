@@ -1,13 +1,14 @@
 use shared::controller;
 
 use super::{
-    item_controller::ItemController, member_controller::MemberController,
-    simulator_controller::SimulatorController,
+    contract_controller::ContractController, item_controller::ItemController,
+    member_controller::MemberController, simulator_controller::SimulatorController,
 };
 use crate::{
     models::domain::system::LendingSystem,
     types::{Model, View},
     views::{
+        contract_view::CliContractView,
         item_view::CliItemView,
         main_view::{MainMenuOption, MainView},
         member_view::CliMemberView,
@@ -50,17 +51,22 @@ where
         let state = match choice {
             MainMenuOption::MembersPage => {
                 let member_view = CliMemberView::new();
-                let mut controller = MemberController::new(self.model.clone(), member_view);
+                let mut controller = MemberController::new(sys.clone(), member_view);
                 controller.run(sys)
             }
             MainMenuOption::ItemsPage => {
                 let item_view = CliItemView::new();
-                let mut controller = ItemController::new(self.model.clone(), item_view);
+                let mut controller = ItemController::new(sys.clone(), item_view);
                 controller.run(sys)
             }
             MainMenuOption::Simulator => {
                 let simulator_view = CliSimulatorView::new();
-                let mut controller = SimulatorController::new(self.model.clone(), simulator_view);
+                let mut controller = SimulatorController::new(sys.clone(), simulator_view);
+                controller.run(sys)
+            }
+            MainMenuOption::ContractsPage => {
+                let contract_view = CliContractView::new();
+                let mut controller = ContractController::new(sys.clone(), contract_view);
                 controller.run(sys)
             }
             MainMenuOption::Quit => std::process::exit(0),

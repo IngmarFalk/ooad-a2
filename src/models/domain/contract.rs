@@ -29,20 +29,33 @@ pub trait ContractValidation {
 #[dissolve(rename = "unpack")]
 pub struct Contract {
     #[getter(rename = "get_owner")]
+    #[mutable_ignore]
     owner: Member,
+
     #[getter(rename = "get_lendee")]
+    #[mutable_ignore]
     lendee: Member,
+
     #[getter(rename = "get_start_day")]
+    #[mutable_ignore]
     start_day: CDate,
+
     #[getter(rename = "get_end_day")]
     end_day: CDate,
+
     #[eq]
     #[getter(rename = "get_uuid")]
+    #[mutable_ignore]
     uuid: Uuid,
+
     #[getter(rename = "get_item")]
+    #[mutable_ignore]
     item: Item,
+
     #[getter(rename = "get_contract_len")]
+    #[mutable_ignore]
     contract_len: u32,
+
     #[getter(rename = "get_credits")]
     credits: f64,
 }

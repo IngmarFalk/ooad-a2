@@ -1,7 +1,7 @@
 use super::Options;
 use crate::{
     models::domain::{Data, FromMap, ToMap},
-    types::{Model, StringMap},
+    types::Model,
 };
 use prettytable::{Cell, Row, Table};
 use std::{
@@ -39,7 +39,7 @@ pub trait Ui {
     fn get_str_input(&self, display: &str) -> String;
     fn get_int_input(&self, display: &str) -> usize;
     fn get_char_input(&self, display: &str) -> char;
-    fn get_consecutive_str_input(&self, display_strings: Vec<String>) -> StringMap;
+    fn get_consecutive_str_input(&self, display_strings: Vec<String>) -> HashMap<String, String>;
     fn display_page<'a, M>(
         &'a self,
         vec_model: Vec<&'a M>,
@@ -96,7 +96,7 @@ impl Console {
     {
         self.title();
         let new_model_info = self.get_consecutive_str_input(T::head_allowed_mutable());
-        let data: StringMap = new_model_info
+        let data = new_model_info
             .into_iter()
             .collect::<HashMap<String, String>>();
         obj.copy_with(data)
@@ -190,12 +190,12 @@ impl Ui for Console {
         }
     }
 
-    fn get_consecutive_str_input(&self, inputs: Vec<String>) -> StringMap {
+    fn get_consecutive_str_input(&self, inputs: Vec<String>) -> HashMap<String, String> {
         let mut out = HashMap::new();
         for buf in inputs {
             let inp = self.get_str_input(buf.as_str());
             if inp.as_str() != "" {
-                out.insert(buf, inp);
+                out.insert(buf, inp.replace('\n', ""));
             }
         }
 

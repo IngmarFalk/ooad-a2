@@ -8,6 +8,7 @@ use std::str::FromStr;
 pub enum MainMenuOption {
     MembersPage,
     ItemsPage,
+    ContractsPage,
     Simulator,
     Quit,
     #[other]
