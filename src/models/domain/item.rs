@@ -1,4 +1,4 @@
-use super::system::{MResult, SysError};
+use super::system::{SysError, SysResult};
 use super::{contract::Contract, member::Member, FromMap};
 use crate::models::cdate::CDate;
 use crate::models::cvec::CVec;
@@ -119,7 +119,7 @@ impl Item {
         }
     }
 
-    pub fn add_contract(&mut self, contract: Contract) -> MResult<()> {
+    pub fn add_contract(&mut self, contract: Contract) -> SysResult<()> {
         match self.get_active_contract() {
             Some(_) => Err(SysError::AlreadyExists),
             None => {

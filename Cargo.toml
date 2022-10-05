@@ -15,6 +15,7 @@ derive-getters = "0.2.0"
 syn = {version= "1.0", features = ["full", "extra-traits"]}
 quote = "1.0"
 shared = { path = "shared" }
+regex = "1.6.0"
 
 [workspace]
 members = [
