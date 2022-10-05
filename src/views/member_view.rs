@@ -90,13 +90,19 @@ impl MemberView for CliMemberView {
 
     fn display_all_simple(&self, data: Vec<(&Member, usize)>) {
         self.console.clear();
+        if data.is_empty() {
+            self.wait("No members to show.");
+            return;
+        }
         let mut table = Table::new();
         let mut head = Row::from(Member::head());
         let number_of_items = Cell::new("Number of Items");
         head.add_cell(number_of_items);
-        table.add_row(head);
+        table.set_titles(head);
         for entry in data {
             let mut row = entry.0.to_row();
+            row.remove_cell(5);
+            row.add_cell(Cell::new(entry.0.get_uuid().get_value()));
             let cell = Cell::new(&entry.1.to_string());
             row.add_cell(cell);
             table.add_row(row);
@@ -107,17 +113,23 @@ impl MemberView for CliMemberView {
 
     fn display_all_verbose(&self, data: Vec<(&Member, Vec<&Item>)>) {
         self.console.clear();
+        if data.is_empty() {
+            self.wait("No members to show.");
+            return;
+        }
         let mut table = Table::new();
         let mut head = Row::from(Member::head());
         let items = Cell::new("Items");
         head.add_cell(items);
-        table.add_row(head);
+        table.set_titles(head);
         for entry in data {
             let mut buf = String::new();
             for item in entry.1 {
                 buf.push_str(item.to_string().as_str());
             }
             let mut row = entry.0.to_row();
+            row.remove_cell(5);
+            row.add_cell(Cell::new(entry.0.get_uuid().get_value()));
             let cell = Cell::new(buf.as_str());
             row.add_cell(cell);
             table.add_row(row);

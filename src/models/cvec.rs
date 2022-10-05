@@ -1,6 +1,6 @@
 use std::{fmt::Display, str::FromStr};
 
-use super::domain::system::MError;
+use super::domain::system::SysError;
 
 #[derive(Debug, PartialEq, Eq, Default, Clone)]
 pub struct CVec<T>
@@ -79,7 +79,7 @@ impl<T> FromStr for CVec<T>
 where
     T: Display + PartialEq + FromStr + Clone,
 {
-    type Err = MError;
+    type Err = SysError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.eq("-") {

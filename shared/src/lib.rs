@@ -99,7 +99,7 @@ pub fn derive_from_str(inp: TokenStream) -> TokenStream {
 
     let res = quote! {
         impl FromStr for #ident {
-            type Err = crate::models::domain::system::MError;
+            type Err = crate::models::domain::system::SysError;
 
             fn from_str(s: &str) -> Result<Self, Self::Err> {
 

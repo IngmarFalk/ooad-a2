@@ -1,4 +1,4 @@
-use super::system::{MError, MResult};
+use super::system::{MResult, SysError};
 use super::{contract::Contract, member::Member, FromMap};
 use crate::models::cdate::CDate;
 use crate::models::cvec::CVec;
@@ -19,7 +19,7 @@ pub enum Category {
 }
 
 impl FromStr for Category {
-    type Err = MError;
+    type Err = SysError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
@@ -88,14 +88,14 @@ pub struct Item {
     #[getter(rename = "get_uuid")]
     uuid: Uuid,
 
-    #[getter(rename = "get_category")]
-    category: Category,
-
     #[getter(rename = "get_name")]
     name: String,
 
     #[getter(rename = "get_description")]
     description: String,
+
+    #[getter(rename = "get_category")]
+    category: Category,
 
     #[mutable_ignore]
     #[getter(rename = "get_history")]
@@ -140,7 +140,7 @@ impl Item {
 
     pub fn add_contract(&mut self, contract: Contract) -> MResult<()> {
         match self.get_active_contract() {
-            Some(_) => Err(MError::AlreadyExists),
+            Some(_) => Err(SysError::AlreadyExists),
             None => {
                 self.history.push(contract);
                 Ok(())

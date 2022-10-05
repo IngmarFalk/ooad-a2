@@ -16,8 +16,8 @@ pub enum ItemMenuOption {
     EditItemInfo,
     CreateItem,
     DeleteItem,
-    Quit,
     Back,
+    Quit,
     #[other]
     Other,
 }
@@ -75,11 +75,28 @@ impl ItemView for CliItemView {
         )
         .ok()
         .unwrap();
+
+        let cost_per_day = match cost_per_day.parse::<f64>() {
+            Ok(val) => val,
+            Err(_) => {
+                let cpd_i = match cost_per_day.parse::<i32>() {
+                    Ok(val) => val,
+                    Err(_) => -1,
+                };
+                match cpd_i < 0 {
+                    true => {
+                        self.wait("Invalid input: Cost per day has to be of type int/float.");
+                        self.parse_float(|| self.console.get_str_input("cost_per_day: "))
+                    }
+                    false => cpd_i as f64,
+                }
+            }
+        };
         Item::default()
             .name(name)
             .description(description)
             .category(Category::from_str(category.as_str()).unwrap())
-            .cost_per_day(cost_per_day.parse::<f64>().unwrap())
+            .cost_per_day(cost_per_day)
             .build()
     }
 
@@ -89,5 +106,30 @@ impl ItemView for CliItemView {
 
     fn wait(&self, display: &str) {
         self.console.wait(display)
+    }
+}
+
+impl CliItemView {
+    fn parse_float<F>(&self, cpd: F) -> f64
+    where
+        F: Fn() -> String,
+    {
+        let s = cpd();
+        match s.parse::<f64>() {
+            Ok(val) => val,
+            Err(_) => {
+                let cpd_i = match s.parse::<i32>() {
+                    Ok(val) => val,
+                    Err(_) => -1,
+                };
+                match cpd_i < 0 {
+                    true => {
+                        self.wait("Invalid input: Cost per day has to be of type int/float.");
+                        self.parse_float(cpd)
+                    }
+                    false => cpd_i as f64,
+                }
+            }
+        }
     }
 }

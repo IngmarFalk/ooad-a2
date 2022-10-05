@@ -108,7 +108,6 @@ impl Ui for Console {
     where
         T: Options + std::str::FromStr + std::fmt::Display,
     {
-        self.title();
         let out = menu_options
             .iter()
             .enumerate()
@@ -174,6 +173,8 @@ impl Ui for Console {
     }
 
     fn get_int_input(&self, display: &str) -> usize {
+        self.clear();
+        self.title();
         let raw = self.get_str_input(display);
         match raw.parse::<usize>() {
             Ok(out) => out,
@@ -210,6 +211,7 @@ impl Ui for Console {
     where
         M: Data + FromMap + ToMap + Model + Data,
     {
+        self.clear();
         if curr_page > chunks.len() {
             return Either::None;
         }
@@ -222,7 +224,7 @@ impl Ui for Console {
         for key in head.iter() {
             table_head.add_cell(Cell::new(key.as_str()));
         }
-        table.add_row(table_head);
+        table.set_titles(table_head);
         for (jdx, item) in _page.iter().enumerate() {
             let mut row = Row::new(vec![]);
             row.add_cell(Cell::new(jdx.to_string().as_str()));
@@ -238,8 +240,9 @@ impl Ui for Console {
                             .unwrap()
                             .split(',')
                             .last()
-                            .unwrap();
-                        row.add_cell(Cell::new(uuid_value));
+                            .unwrap()
+                            .replace(']', "");
+                        row.add_cell(Cell::new(uuid_value.as_str()));
                     }
                     _ => {
                         row.add_cell(Cell::new(cell_data.as_str()));
@@ -289,6 +292,7 @@ impl Ui for Console {
         M: Data + FromMap + ToMap + Model + Data,
     {
         if vec_model.is_empty() {
+            self.wait("Nothing to select.");
             return None;
         }
         let pages: Vec<&[&M]> = vec_model.chunks(10).collect::<Vec<_>>();

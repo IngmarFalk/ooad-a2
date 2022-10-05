@@ -18,19 +18,14 @@ pub trait LendingSystem {
     fn remove_item(&mut self, item: &Item) -> MResult<()>;
     fn update_item(&mut self, old_info: &Item, new_info: &Item) -> MResult<()>;
     fn count_items_for_member(&self, member: &Member) -> usize;
-}
-
-pub trait LendingSystemState {
-    fn add_member(&mut self, member: Member) -> MResult<()>;
-    fn remove_member(&mut self, member: &Member) -> MResult<()>;
-    fn add_item(&mut self, item: Item) -> MResult<()>;
-    fn remove_item(&mut self, item: Item) -> MResult<()>;
+    fn incr_time(&mut self);
 }
 
 #[derive(Debug, Clone)]
 pub struct System {
     members: HashMap<Uuid, Member>,
     items: HashMap<Uuid, Item>,
+    day: usize,
 }
 
 impl Model for System {}
@@ -40,6 +35,7 @@ impl System {
         System {
             members: HashMap::new(),
             items: HashMap::new(),
+            day: 0,
         }
     }
 
@@ -54,8 +50,16 @@ impl System {
     }
 
     pub fn build(self) -> Self {
-        let Self { members, items } = self;
-        Self { members, items }
+        let Self {
+            members,
+            items,
+            day,
+        } = self;
+        Self {
+            members,
+            items,
+            day,
+        }
     }
 }
 
@@ -70,20 +74,20 @@ impl LendingSystem for System {
     fn get_member(&self, member: &Member) -> MResult<Member> {
         match self.members.get(member.get_uuid()) {
             Some(m) => Ok(m.clone()),
-            None => Err(MError::DoesntExist),
+            None => Err(SysError::DoesntExist),
         }
     }
 
     fn get_member_mut(&mut self, member: &Member) -> MResult<&mut Member> {
         match self.members.get_mut(member.get_uuid()) {
             Some(m) => Ok(m),
-            None => Err(MError::DoesntExist),
+            None => Err(SysError::DoesntExist),
         }
     }
 
     fn add_member(&mut self, member: Member) -> MResult<()> {
         if self.exists_member(&member) {
-            return Err(MError::AlreadyExists);
+            return Err(SysError::AlreadyExists);
         }
         self.members.insert(member.get_uuid().clone(), member);
         Ok(())
@@ -91,7 +95,7 @@ impl LendingSystem for System {
 
     fn remove_member(&mut self, member: &Member) -> MResult<()> {
         if !self.exists_member(member) {
-            return Err(MError::DoesntExist);
+            return Err(SysError::DoesntExist);
         }
         self.members.remove(member.get_uuid());
         Ok(())
@@ -99,7 +103,7 @@ impl LendingSystem for System {
 
     fn update_member(&mut self, old_info: &Member, new_info: &Member) -> MResult<()> {
         if !self.exists_member(old_info) {
-            return Err(MError::DoesntExist);
+            return Err(SysError::DoesntExist);
         }
         *self.members.get_mut(old_info.get_uuid()).unwrap() = new_info.clone();
         Ok(())
@@ -128,15 +132,15 @@ impl LendingSystem for System {
 
     fn add_item(&mut self, item: Item) -> MResult<()> {
         match self.items.insert(item.get_uuid().clone(), item) {
-            Some(_) => todo!(),
-            None => todo!(),
+            Some(_) => Err(SysError::AlreadyExists),
+            None => Ok(()),
         }
     }
 
     fn remove_item(&mut self, item: &Item) -> MResult<()> {
         match self.items.remove(&item.get_uuid().clone()) {
-            Some(_) => todo!(),
-            None => todo!(),
+            Some(_) => Ok(()),
+            None => Err(SysError::CannotDelete),
         }
     }
 
@@ -146,7 +150,7 @@ impl LendingSystem for System {
                 *self.items.get_mut(old_info.get_uuid()).unwrap() = new_info.clone();
                 Ok(())
             }
-            None => Err(MError::DoesntExist),
+            None => Err(SysError::CannotUpdate),
         }
     }
 
@@ -159,25 +163,31 @@ impl LendingSystem for System {
             }
         })
     }
+
+    fn incr_time(&mut self) {
+        self.day += 1;
+    }
 }
 
-pub type MResult<T> = Result<T, MError>;
+pub type MResult<T> = Result<T, SysError>;
 
 #[derive(Debug, Error, PartialEq, Eq)]
-pub enum MError {
+pub enum SysError {
     AlreadyExists,
     DoesntExist,
-    ReadingFile,
-    WritingFile,
+    CannotInsert,
+    CannotDelete,
+    CannotUpdate,
 }
 
-impl std::fmt::Display for MError {
+impl std::fmt::Display for SysError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match *self {
-            MError::AlreadyExists => f.write_str("There already exists an element with this info"),
-            MError::DoesntExist => f.write_str("There doesnt exists an element with this info"),
-            MError::ReadingFile => f.write_str("There was a problem reading from a file"),
-            MError::WritingFile => f.write_str("There was a problem writing to a file"),
+            SysError::AlreadyExists => f.write_str("This object already exists."),
+            SysError::DoesntExist => f.write_str("This object doesnt exists."),
+            SysError::CannotInsert => f.write_str("There was an problem inserting this object."),
+            SysError::CannotDelete => f.write_str("There was a problem deleting this object."),
+            SysError::CannotUpdate => f.write_str("There was a problem updating this object."),
         }
     }
 }
@@ -221,11 +231,11 @@ mod system_tests {
         println!("1");
 
         let r2 = system.add_member(turing1);
-        assert_eq!(r2, Err(MError::AlreadyExists));
+        assert_eq!(r2, Err(SysError::AlreadyExists));
         println!("2");
 
         let r3 = system.add_member(turing2);
-        assert_eq!(r3, Err(MError::AlreadyExists));
+        assert_eq!(r3, Err(SysError::AlreadyExists));
         println!("3");
 
         let r4 = system.add_member(turing3);

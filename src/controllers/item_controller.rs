@@ -38,7 +38,7 @@ where
                 self.view.display_item_info(i);
                 self.ret("")
             }
-            None => self.ret("Nothing to select."),
+            None => self.model.clone(),
         }
     }
 
@@ -46,13 +46,15 @@ where
         let model = self.model.clone();
         let items = model.get_items();
         let item_to_edit = self.view.select_item(items);
-        let new_info = self.view.get_item_info();
         match item_to_edit {
-            Some(i) => match self.model.update_item(i, &new_info) {
-                Ok(_) => self.ret("Updated item data successfully."),
-                Err(_) => self.ret("Unable to update item information."),
-            },
-            None => self.ret("Unable to retrieve item."),
+            Some(i) => {
+                let new_info = self.view.get_item_info();
+                match self.model.update_item(i, &new_info) {
+                    Ok(_) => self.ret("Updated item data successfully."),
+                    Err(_) => self.ret("Unable to update item information."),
+                }
+            }
+            None => self.model.clone(),
         }
     }
 
@@ -64,12 +66,13 @@ where
         match owner {
             Some(o) => {
                 let item = self.view.get_item_info().owner(o.clone()).build();
+                println!("{}", item.clone());
                 match self.model.add_item(item) {
                     Ok(_) => self.ret("Item created successfully."),
-                    Err(_) => self.ret("Unable to create Item, please try again."),
+                    Err(err) => self.ret(err.to_string().as_str()),
                 }
             }
-            None => self.ret("No members found. Cannot create item without an owner."),
+            None => self.model.clone(),
         }
     }
 
@@ -82,7 +85,7 @@ where
                 Ok(_) => self.ret("Successfully removed item."),
                 Err(_) => self.ret("Unable to remove item"),
             },
-            None => self.ret("Unable to retrieve item."),
+            None => self.model.clone(),
         }
     }
 }
