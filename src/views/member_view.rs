@@ -7,33 +7,55 @@ use prettytable::{Cell, Row, Table};
 use shared::{COptions, View};
 use std::str::FromStr;
 
+/// All the options for the member menu.
 #[derive(Debug, COptions)]
 pub enum MemberMenuOption {
+    /// Displaying a single member in a simple format.
     DisplayMemberSimple,
+    /// Displaying a single meber in a verbose format.
     DisplayMemberVerbose,
+    /// Displays all members in a simple format.
     ListAllMembersSimple,
+    /// Displays all members in a verbose format.
     ListAllMembersVerbose,
+    /// Creates a new member in the system.
     CreateMember,
+    /// Deletes a member from the system.
     DeleteMember,
+    /// Edits member information for a specific member.
     EditMember,
+    /// Goes back to previous page.
     Back,
+    /// Quits the entire application.
     Quit,
     #[other]
+    /// Any other choice made by the user.
     Other,
 }
 
+/// Defines all methods required by a concrete implementaion of the member view.
 pub trait MemberView {
+    /// Displays all options for the member menu.
     fn member_menu(&self) -> MemberMenuOption;
+    /// Displaying a sinlge member in a verbose format.
     fn display_member_verbose(&self, member: &Member, items: Vec<&Item>);
+    /// Displaying a member in a simple format.
     fn display_member_simple(&self, member: &Member, number_of_items: usize);
+    /// Displays all members in a simple format.
     fn display_all_simple(&self, members: Vec<(&Member, usize)>);
+    /// Displays all members in a verbose format.
     fn display_all_verbose(&self, members: Vec<(&Member, Vec<&Item>)>);
+    /// Getting information for a new member.
     fn get_member_info(&self) -> Member;
+    /// Edits a single member.
     fn edit_member_info(&self, member: &Member) -> Option<Member>;
+    /// Selecting a member from a list of options.
     fn select_member<'a>(&'a self, members: Vec<&'a Member>) -> Option<&Member>;
+    /// Displays a message to the user and waits for him to respond.
     fn wait(&self, display: &str);
 }
 
+/// A concrete implementation of the member view.
 #[derive(View)]
 pub struct CliMemberView {
     console: Console,

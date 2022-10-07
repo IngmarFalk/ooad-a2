@@ -9,6 +9,7 @@ use crate::{
 };
 use shared::controller;
 
+/// The Contract controller.
 #[derive(Debug, Clone)]
 #[controller(ContractView)]
 pub struct ContractController<M, V>

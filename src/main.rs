@@ -1,16 +1,38 @@
-// #![warn(missing_docs)]
-// #![warn(clippy::missing_docs_in_private_items)]
+//! This is the entry point for the lending app.
+#![deny(missing_docs)]
+#![warn(clippy::missing_docs_in_private_items)]
 #![crate_type = "proc-macro"]
 
 use controllers::app::MainApp;
 use models::domain::system::System;
 use views::main_view::CliMainView;
 
+/// Controllers Module.
+///
+/// Contains workflow and combines views and models functionality.
 pub mod controllers;
+
+/// Models Module.
+///
+/// Contains the data and functionality structs.
 pub mod models;
+
+/// Test Module.
+///
+/// Contains test files for each major model.
+pub mod tests;
+
+/// Types.
+///
+/// Contains Shared types.
 pub mod types;
+
+/// Views Module
+///
+/// Contains all ui/ux related functionality.
 pub mod views;
 
+/// Main method
 fn main() {
     let system = System::new();
     let main_view = CliMainView::new();

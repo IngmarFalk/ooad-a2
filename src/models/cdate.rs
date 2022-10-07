@@ -1,12 +1,14 @@
 use chrono::ParseError;
 use std::str::FromStr;
 
+/// Date wrapper for `chrono::Date`
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct CDate {
     date: chrono::NaiveDate,
 }
 
 impl CDate {
+    /// Creates a new CDate.
     pub fn new() -> Self {
         Self {
             date: chrono::offset::Local::now().naive_local().date(),

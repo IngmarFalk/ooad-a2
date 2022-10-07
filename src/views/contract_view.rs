@@ -6,28 +6,47 @@ use crate::models::domain::contract::Contract;
 use shared::{COptions, View};
 use std::str::FromStr;
 
+/// Enum that contains all valid operations for the contract page.
 #[derive(Debug, COptions)]
 pub enum ContractOption {
+    /// Displays a single contract in a simple format.
     DisplayContractSimple,
+    /// Displays a single contract in a vernose format.
     DisplayContractVerbose,
+    /// Asks user for input and returns a new contract instance.
     CreateContract,
+    /// Asks user for input and returns a new instance of the previous contract
+    /// with (possibly) updated attributes.
     EditContract,
+    /// Quits the entire application.
     Quit,
+    /// Returns to the previous page.
     Back,
+    /// Any other operation the user tried to execute.
     #[other]
     Other,
 }
 
+/// Defines the methods a specific contract view needs to implement, be it tui/gui.
 pub trait ContractView {
+    /// Selecting a contract from a list of possible ones..
     fn select_contract<'a>(&'a self, contracts: Vec<&'a Contract>) -> Option<&Contract>;
+    /// Edit a certain contract.
     fn edit_contract(&self, c: &Contract) -> Option<Contract>;
+    /// Show all possible choices for the contract view.
     fn contract_menu(&self) -> ContractOption;
+    /// Get information for a new contract.
     fn get_contract_info(&self) -> Contract;
+    /// Displays a contract in a simple format.
     fn display_contract_simple(&self, contract: &Contract);
+    /// Displays a contract in a verbose format.
     fn display_contract_verbose(&self, contract: &Contract);
+    /// Displays a message to the user and waits till the user acknowledges the message
+    /// before continuing with the regular flow.
     fn wait(&self, display: &str);
 }
 
+/// A concrete implementation of the ContractView.
 #[derive(View)]
 pub struct CliContractView {
     console: Console,

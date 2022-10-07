@@ -1,11 +1,16 @@
 use super::app::App;
 use crate::{
-    models::domain::{item::Item, member::Member, system::LendingSystem},
+    models::domain::{
+        item::Item,
+        member::{Member, MemberValidation},
+        system::LendingSystem,
+    },
     types::{Model, View},
     views::member_view::{MemberMenuOption, MemberView},
 };
 use shared::controller;
 
+/// The member controller.
 #[derive(Debug, Clone)]
 #[controller(MemberView)]
 pub struct MemberController<M, V>
@@ -60,9 +65,12 @@ where
                 .wait("A member already exists with that email/phone number.");
             return self.create_member();
         }
-        match self.model.add_member(new_member) {
-            Ok(_) => self.ret("Member created successfully."),
-            Err(_) => self.ret("Unable to create member, please try again."),
+        match new_member.validate() {
+            Ok(member) => match self.model.add_member(member) {
+                Ok(_) => self.ret("Member created successfully."),
+                Err(_) => self.ret("Unable to create member, please try again."),
+            },
+            Err(err) => self.ret(err.to_string().as_str()),
         }
     }
 

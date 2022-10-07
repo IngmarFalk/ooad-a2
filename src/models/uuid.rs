@@ -5,6 +5,9 @@ use shared::{CFromMap, CFromStr, CToMap, CToStr};
 use std::collections::HashMap;
 use std::str::FromStr;
 
+/// Uuid struct.
+///
+/// This struct is used to create a unique key for different objects.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, CFromStr, CToStr, CFromMap, CToMap, Getters)]
 pub struct Uuid {
     #[getter(rename = "get_len")]
@@ -14,6 +17,7 @@ pub struct Uuid {
 }
 
 impl Uuid {
+    /// Creates a new uuid.
     pub fn new() -> Self {
         let len: usize = 6;
         let value: String = thread_rng()
@@ -24,6 +28,7 @@ impl Uuid {
         Uuid { value, len }
     }
 
+    /// Creates a new uuid with a specific length.
     pub fn with_len(len: usize) -> Self {
         let value: String = thread_rng()
             .sample_iter(&Alphanumeric)
@@ -33,6 +38,7 @@ impl Uuid {
         Uuid { value, len }
     }
 
+    /// Creates a new uuid with no value.
     pub fn empty() -> Self {
         Uuid {
             len: 0,

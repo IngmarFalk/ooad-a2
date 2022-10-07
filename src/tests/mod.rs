@@ -1,0 +1,10 @@
+/// Contract tests
+pub mod contract_tests;
+/// Item tests
+pub mod item_tests;
+/// Member tests
+pub mod member_tests;
+/// System tests
+pub mod system_tests;
+/// Uuid tests
+pub mod uuid_tests;

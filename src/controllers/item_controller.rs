@@ -9,6 +9,7 @@ use crate::{
 };
 use shared::controller;
 
+/// Item Controller.
 #[derive(Debug, Clone)]
 #[controller(ItemView)]
 pub struct ItemController<M, V>

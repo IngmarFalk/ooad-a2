@@ -9,14 +9,30 @@ use std::{
     io::{self, stdin, Write},
 };
 
+/// Either<A, B> has three valid states:
+///
+/// `Left(A)`,
+/// `Right(B)`,
+/// `None`
 #[derive(Debug, Clone, Copy)]
 pub enum Either<A, B> {
+    /// Left is always of type `A`
     Left(A),
+    /// Right is always of type `B`
     Right(B),
+    /// None represents an absent value.
     None,
 }
 
 impl<'a, A: 'a, B: 'a> Either<A, B> {
+    /// This method will return an Option<A>. It takes as an input
+    /// a function that returns another Either<A, B>.
+    ///
+    /// `None`   -> Neither::None.
+    ///
+    /// `Left`   -> Some(left).
+    ///
+    /// `Right`  -> calls function (fun(right)) and passes in right. Then it calls unwrap_left on the result of that
     pub fn unwrap_left<F>(self, fun: F) -> Option<A>
     where
         F: Fn(B) -> Either<A, B>,
@@ -29,17 +45,40 @@ impl<'a, A: 'a, B: 'a> Either<A, B> {
     }
 }
 
+///
 pub trait Ui {
+    /// Shows a menu for an enum that implements the `Options` trait.
+    ///
+    /// It takes in a list of options (Vec<String>), matches it against the enum and returns the corresponding state.
     fn show_menu<T>(&self, menu_options: Vec<String>) -> T
     where
         T: Options + std::fmt::Display + std::str::FromStr;
+
+    /// Confirms that the user wants to change a certain original element to a new state.
     fn confirm(&self, original: String, new: String) -> bool;
+
+    /// Displays a table to the user.
     fn display_table(&self, table: Table);
+
+    /// Displays a row to the user.
     fn display_row(&self, row: Row);
+
+    /// Gets string input from user.
     fn get_str_input(&self, display: &str) -> String;
+
+    /// Gets integer input from user.
     fn get_int_input(&self, display: &str) -> usize;
+
+    /// Gets a sinlge character from user.
     fn get_char_input(&self, display: &str) -> char;
+
+    /// Takes in a list of keys to ask the user for input and
+    /// uses them to store the answers in a hashmap, which will then be returned.
     fn get_consecutive_str_input(&self, display_strings: Vec<String>) -> HashMap<String, String>;
+
+    /// When displaying models, there are only 10 objects at a time that are actually being
+    /// shown. This is called a page. This method shows one page at a time and allows the user to
+    /// navigate back and forwards.
     fn display_page<'a, M>(
         &'a self,
         vec_model: Vec<&'a M>,
@@ -48,41 +87,60 @@ pub trait Ui {
     ) -> Either<&M, usize>
     where
         M: Data + FromMap + ToMap + Model;
+
+    /// Shows a list of models in pages of 10 and then lets the user
+    /// select one of those.
     fn select_model<'a, M>(&'a self, vec_model: Vec<&'a M>) -> Option<&M>
     where
         M: Data + FromMap + ToMap + Model;
+
+    /// Lets the user edit the information for a model.
     fn edit_model_info<T>(&self, model: &T) -> Option<T>
     where
         T: Data + FromMap + ToMap + Model;
+
+    /// Displays a message to the user and waits for him to acknowledge the message
+    ///  before continuing with the flow.
     fn wait(&self, display: &str);
 }
 
+/// This struct does ALL the displaying to the terminal.
+/// Any tui display/interaction goes through the `Console` struct.
+/// Views will have an attribute `console` to for user interaction
+/// which they will use to display and get information to/from the user.
 #[derive(Debug)]
 pub struct Console;
 
 impl Console {
+    /// Creates a new Console.
     pub fn new() -> Console {
         Console {}
     }
 
+    /// Cleas the screen.
     pub fn clear(&self) {
-        if cfg!(windows) {
-            std::process::Command::new("cls").status().unwrap();
-        } else {
-            std::process::Command::new("clear").status().unwrap();
-        }
+        print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
+        io::stdout().flush().unwrap();
+        // if cfg!(windows) {
+        //     std::process::Command::new("cls").status().unwrap();
+        // } else {
+        //     std::process::Command::new("clear").status().unwrap();
+        // }
     }
 
+    /// Writes string to output with `\n` in front of it and flushes stdout.
     pub fn write(&self, out: &str) {
         print!("\n{out}");
         io::stdout().flush().unwrap();
     }
 
+    /// Writes string to output with `\n` in front and a `:` behind it and flushes stdout.
     pub fn writef(&self, out: &str) {
         print!("\n{out}: ");
         io::stdout().flush().unwrap();
     }
 
+    /// Displays `+ S T U F F   L E N D I N G   S Y S T E M  + to the terminal.
     pub fn title(&self) {
         self.clear();
 
@@ -90,6 +148,9 @@ impl Console {
         io::stdout().flush().unwrap();
     }
 
+    /// Collects information for any model that implements the following traits.
+    ///
+    /// - `Data`, `FromMap`, `ToMap`, `Model`
     pub fn get_model_info<T>(&self, obj: T) -> T
     where
         T: Data + FromMap + ToMap + Model,
@@ -169,7 +230,10 @@ impl Ui for Console {
             }
         };
 
-        buf.strip_suffix('\n').unwrap().to_owned()
+        match buf.strip_suffix('\n') {
+            Some(val) => val.to_owned(),
+            None => buf,
+        }
     }
 
     fn get_int_input(&self, display: &str) -> usize {

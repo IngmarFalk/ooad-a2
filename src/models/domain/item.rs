@@ -8,13 +8,20 @@ use shared::{Builder, CData, CFromMap, CFromStr, CPartialEq, CToMap, CToStr, Mod
 use std::str::FromStr;
 use std::{collections::HashMap, fmt::Display};
 
+/// The category an Item can have.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub enum Category {
+    /// A tool.
     Tool,
+    /// A vehicle.
     Vehicle,
+    /// A game.
     Game,
+    /// A toy.
     Toy,
+    /// Sport
     Sport,
+    /// Anything else.
     #[default]
     Other,
 }
@@ -47,6 +54,7 @@ impl Display for Category {
     }
 }
 
+/// Item.
 #[derive(
     Debug,
     Clone,
@@ -99,6 +107,7 @@ pub struct Item {
 }
 
 impl Item {
+    /// Creates a new item.
     pub fn new(
         name: String,
         description: String,
@@ -119,6 +128,7 @@ impl Item {
         }
     }
 
+    /// Adds a contract to history.
     pub fn add_contract(&mut self, contract: Contract) -> SysResult<()> {
         match self.get_active_contract() {
             Some(_) => Err(SysError::AlreadyExists),
@@ -129,6 +139,7 @@ impl Item {
         }
     }
 
+    /// Gets the active contract. Returns Some(contract) if contract exists else None
     fn get_active_contract(&self) -> Option<Contract> {
         let current_date = CDate::new();
         for contract in self.history.iter() {

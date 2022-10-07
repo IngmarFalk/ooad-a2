@@ -4,38 +4,47 @@
 To be able to run this, you are going to have docker installed.
 To install docker, pls refer to the official website:
 
-Go here to <a href=https://docs.docker.com/get-docker/>Download Docker</a>
+Go here to [download docker](<https://docs.docker.com/get-docker/>)
 
-## How to check out the project
+# How to check out the project
 
-### Building
+## **Building**
 
 To build the project run:
 
 ```docker
-docker build -t `build_name` .
+~ docker build -t a2 .
 ```
 
-e.g.:
+## **Running**
 
 ```docker
-docker build -t assignment2 .
+First - Enter the environment:
+~ docker container run --rm -it `build_name` bash
+
+You will then enter the container environment:
+root@e7417beb0975:/usr/src/a2# ~
+
+You can then run:
+root@e7417beb0975:/usr/src/a2# ~ cargo run
 ```
 
-### Running
+## **Test**
 
 ```docker
-docker run `build_name`
+First - Enter the environment:
+~ docker container run --rm -it `build_name` bash
+
+Then - in the container environment type:
+root@e7417beb0975:/usr/src/a2# ~ cargo test
 ```
 
-e.g.:
+## **Linting**
 
 ```docker
-docker run assignment2
+First - Enter the environment:
+~ docker container run --rm -it `build_name` bash
+
+Then - in the container environment type:
+root@e7417beb0975:/usr/src/a2# ~ cargo clippy --all
 ```
-
-### Linting
-
-Linting is integrated into the build tool (cargo). Meaning when this project is run via `docker run ..` the compiler will display all
-stylistic problems and errors. When there are no errors, warnings or tips, this means the code is clean and functioning.
-

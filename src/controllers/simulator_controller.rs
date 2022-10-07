@@ -6,6 +6,7 @@ use crate::{
 };
 use shared::controller;
 
+/// The simulator.
 #[controller(SimulatorView)]
 pub struct SimulatorController<M, V>
 where

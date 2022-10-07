@@ -1,64 +1,58 @@
 use super::{item::Item, member::Member};
-use crate::{models::uuid::Uuid, types::Model};
+use crate::models::uuid::Uuid;
 use anyhow::Result;
+use shared::{Builder, Model};
 use std::collections::HashMap;
 use thiserror::Error;
 
+/// All methods for the lending system.
 pub trait LendingSystem {
+    /// Gets all the members in the system.
     fn get_members(&self) -> Vec<&Member>;
+    /// Gets a specific member.
     fn get_member(&self, member: &Member) -> SysResult<Member>;
+    /// Returns a mutable version of a member.
     fn get_member_mut(&mut self, member: &Member) -> SysResult<&mut Member>;
+    /// Adds a member to the system.
     fn add_member(&mut self, member: Member) -> SysResult<()>;
+    /// Removes a member from the system.
     fn remove_member(&mut self, member: &Member) -> SysResult<()>;
+    /// updates a member with the new information.
     fn update_member(&mut self, old_info: &Member, new_info: &Member) -> SysResult<()>;
+    /// checks if the member passed into function acutally exists in this system.
     fn exists_member(&self, member: &Member) -> bool;
+    /// Gets all the items in the system.
     fn get_items(&self) -> Vec<&Item>;
+    /// Gets all the items for a specific member.
     fn get_items_for_member(&self, member: &Member) -> Vec<&Item>;
+    /// Adds item to the system.
     fn add_item(&mut self, item: Item) -> SysResult<()>;
+    /// Removes item from the system.
     fn remove_item(&mut self, item: &Item) -> SysResult<()>;
+    /// Updates item with the new information.
     fn update_item(&mut self, old_info: &Item, new_info: &Item) -> SysResult<()>;
+    /// Counts the number of items for a certain member.
     fn count_items_for_member(&self, member: &Member) -> usize;
+    /// Increments system day counter and calls all required methods to update contracts
+    /// items and members information.
     fn incr_time(&mut self);
 }
 
-#[derive(Debug, Clone)]
+/// system struct.
+#[derive(Debug, Clone, Model, Builder)]
 pub struct System {
     members: HashMap<Uuid, Member>,
     items: HashMap<Uuid, Item>,
     day: usize,
 }
 
-impl Model for System {}
-
 impl System {
+    /// Creates a new system instance.
     pub fn new() -> System {
         System {
             members: HashMap::new(),
             items: HashMap::new(),
             day: 0,
-        }
-    }
-
-    pub fn members(&mut self, members: HashMap<Uuid, Member>) -> &mut Self {
-        self.members = members;
-        self
-    }
-
-    pub fn items(&mut self, items: HashMap<Uuid, Item>) -> &mut Self {
-        self.items = items;
-        self
-    }
-
-    pub fn build(self) -> Self {
-        let Self {
-            members,
-            items,
-            day,
-        } = self;
-        Self {
-            members,
-            items,
-            day,
         }
     }
 }
@@ -169,14 +163,21 @@ impl LendingSystem for System {
     }
 }
 
+/// System error result.
 pub type SysResult<T> = Result<T, SysError>;
 
+/// System Error.
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum SysError {
+    /// If an object already exists.
     AlreadyExists,
+    /// If an object doesnt exists.
     DoesntExist,
+    /// Cannot insert an object.
     CannotInsert,
+    /// Cannot delete an object.
     CannotDelete,
+    /// Cannot update an object.
     CannotUpdate,
 }
 

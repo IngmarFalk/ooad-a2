@@ -22,6 +22,7 @@ pub fn derive_builder(inp: TokenStream) -> TokenStream {
         let name = &f.ident;
         let ty = &f.ty;
         quote! {
+            /// building the attributes.
             pub fn #name(mut self, inp: #ty) -> Self {
                 self.#name = inp;
                 self
@@ -43,6 +44,7 @@ pub fn derive_builder(inp: TokenStream) -> TokenStream {
         impl #ident {
             #(#builders)*
 
+            /// Builds the struct.
             pub fn build(self) -> Self {
                 let Self { #(#builder_params,)* } = self;
                 Self { #(#builder_params_build,)* }
@@ -648,6 +650,7 @@ pub fn derive_view(inp: TokenStream) -> TokenStream {
         impl crate::types::View for #ident {}
 
         impl #ident {
+            /// Creates a new View.
             pub fn new() -> #ident {
                 Self {
                     console: crate::views::console::Console::new()
@@ -677,6 +680,7 @@ pub fn controller(view: TokenStream, strct: TokenStream) -> TokenStream {
             M: crate::types::Model + crate::models::domain::system::LendingSystem,
             V: crate::types::View + #v2,
         {
+            /// Creates a new controller.
             pub fn new(model: M, view: V) -> Self {
                 Self { model, view }
             }

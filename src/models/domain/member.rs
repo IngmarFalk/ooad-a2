@@ -7,13 +7,19 @@ use std::collections::HashMap;
 use std::str::FromStr;
 use thiserror::Error;
 
+/// Defines methods needed for member validation.
 pub trait MemberValidation {
-    fn validate(&self) -> MValResult<Member>;
-    fn validate_id(&self) -> MValResult<()>;
-    fn validate_phone_nr(&self) -> MValResult<()>;
-    fn validate_email(&self) -> MValResult<()>;
+    /// Validates everything.
+    fn validate(self) -> MemValResult<Member>;
+    /// Validates the id.
+    fn validate_id(&self) -> MemValResult<()>;
+    /// Validates the phone number.
+    fn validate_phone_nr(&self) -> MemValResult<()>;
+    /// Validates email.
+    fn validate_email(&self) -> MemValResult<()>;
 }
 
+/// Member.
 #[derive(
     Clone, Debug, Getters, Dissolve, CFromStr, CToStr, CFromMap, CToMap, CData, CPartialEq, Model,
 )]
@@ -45,7 +51,8 @@ pub struct Member {
 }
 
 impl Member {
-    pub fn new(name: String, email: String, phone_nr: String) -> MValResult<Member> {
+    /// Creates new member.
+    pub fn new(name: String, email: String, phone_nr: String) -> MemValResult<Member> {
         let m = Member {
             uuid: Uuid::new(),
             day_of_creation: CDate::new(),
@@ -57,17 +64,19 @@ impl Member {
         m.validate()
     }
 
-    pub fn add_credits(&mut self, credits: f64) -> Result<(), NegativeCreditInput> {
+    /// Adds credits to member.
+    pub fn add_credits(&mut self, credits: f64) -> MemValResult<()> {
         if credits < 0.0 {
-            return Err(NegativeCreditInput);
+            return Err(MemValError::NegativeCreditInput);
         }
         self.credits += credits;
         Ok(())
     }
 
-    pub fn deduce_credits(&mut self, credits: f64) -> Result<(), NegativeCreditInput> {
+    /// Deduces credits from member.
+    pub fn deduce_credits(&mut self, credits: f64) -> MemValResult<()> {
         if credits < 0.0 {
-            return Err(NegativeCreditInput);
+            return Err(MemValError::NegativeCreditInput);
         }
         self.credits -= credits;
         Ok(())
@@ -75,27 +84,35 @@ impl Member {
 }
 
 impl MemberValidation for Member {
-    fn validate_id(&self) -> MValResult<()> {
+    fn validate_id(&self) -> MemValResult<()> {
         if let true = self.get_uuid().get_len() != &6 {
             return Err(MemValError::Id);
+        }
+
+        if let false = self
+            .get_uuid()
+            .get_value()
+            .chars()
+            .into_iter()
+            .all(|c| c.is_alphanumeric())
+        {
+            return Err(MemValError::IdContainsNonAlphaNumeric);
         }
 
         Ok(())
     }
 
-    fn validate_phone_nr(&self) -> MValResult<()> {
+    fn validate_phone_nr(&self) -> MemValResult<()> {
         if let false = self
             .get_phone_nr()
             .chars()
-            .map(|chr| chr.to_string().parse::<usize>())
-            .all(|item| item.is_ok())
+            .map(|chr| chr.is_digit(10) || chr.is_whitespace())
+            .all(|is_digit| is_digit == true)
         {
-            return Err(MemValError::ContainsNonIntegers);
+            return Err(MemValError::PhoneNumberContainsNonNumeric);
         }
 
-        let reg =
-            regex::Regex::new(r"^(\+\d{1,2}\s?)?1?\-?\.?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$")
-                .unwrap();
+        let reg = regex::Regex::new(r"([ 0-9]){10,16}$").unwrap();
 
         if let false = reg.is_match(self.get_phone_nr()) {
             return Err(MemValError::PhoneNumberPattern);
@@ -104,19 +121,20 @@ impl MemberValidation for Member {
         Ok(())
     }
 
-    fn validate_email(&self) -> MValResult<()> {
-        let reg =
-            regex::Regex::new(r"/^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/")
-                .unwrap();
+    fn validate_email(&self) -> MemValResult<()> {
+        let email_regex = regex::Regex::new(
+            r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,6})",
+        )
+        .unwrap();
 
-        if let false = reg.is_match(&self.get_email()) {
-            return Err(MemValError::PhoneNumberPattern);
+        if let false = email_regex.is_match(&self.get_email()) {
+            return Err(MemValError::EmailPattern);
         }
 
         Ok(())
     }
 
-    fn validate(&self) -> MValResult<Member> {
+    fn validate(self) -> MemValResult<Member> {
         if let Err(err) = self.validate_email() {
             return Err(err);
         }
@@ -126,7 +144,7 @@ impl MemberValidation for Member {
         if let Err(err) = self.validate_phone_nr() {
             return Err(err);
         }
-        Ok(self.clone())
+        Ok(self)
     }
 }
 
@@ -143,15 +161,29 @@ impl Default for Member {
     }
 }
 
-pub type MValResult<T> = Result<T, MemValError>;
+/// Member validation result.
+///
+/// This is the result returned by the member validation,
+pub type MemValResult<T> = Result<T, MemValError>;
 
+/// Member Validation Error.
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum MemValError {
+    /// Negative Credits
+    NegativeCreditInput,
+    /// Id error.
     Id,
+    /// If the id contains anything else then integers or alphabetic characters.
+    IdContainsNonAlphaNumeric,
+    /// Email error.
     Email,
+    /// If the email doesnt match the validation pattern.
     EmailPattern,
+    /// Phone number error.
     PhoneNumber,
-    ContainsNonIntegers,
+    /// if the phone number contains anything but integers.
+    PhoneNumberContainsNonNumeric,
+    /// If the phone number doesnt match the validation pattern.
     PhoneNumberPattern,
 }
 
@@ -159,22 +191,24 @@ impl std::fmt::Display for MemValError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match *self {
             MemValError::Id => f.write_str("Invalid Id"),
+            MemValError::IdContainsNonAlphaNumeric => {
+                f.write_str("Id contains non alpha-numeric characters.")
+            }
             MemValError::Email => f.write_str("Invalid Email"),
             MemValError::EmailPattern => f.write_str("Email doesnt match any valid patterns."),
             MemValError::PhoneNumber => f.write_str("Invalid Phone number"),
-            MemValError::ContainsNonIntegers => {
-                f.write_str("Phone number contains non-integer values.")
+            MemValError::PhoneNumberContainsNonNumeric => {
+                f.write_str("Phone number contains non-numeric values.")
             }
             MemValError::PhoneNumberPattern => {
                 f.write_str("Phone number doesnt match any valid patterns.")
             }
+            MemValError::NegativeCreditInput => {
+                f.write_str("Tried adding/substracting negative amount of credits.")
+            }
         }
     }
 }
-
-#[derive(Debug, Error)]
-#[error("Tried adding/deducing a negative amount to credits")]
-pub struct NegativeCreditInput;
 
 #[cfg(test)]
 mod member_test {

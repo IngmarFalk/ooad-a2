@@ -16,10 +16,13 @@ use crate::{
     },
 };
 
+/// Defines a controller struct.
 pub trait App<T> {
+    /// Runs the application/subapplication.
     fn run(&mut self, sys: T) -> T;
 }
 
+/// This is the main app of the program.
 #[derive(Debug, Clone)]
 #[controller(MainView)]
 pub struct MainApp<M, V>
@@ -36,6 +39,7 @@ where
     M: Model + LendingSystem + Clone,
     V: View + MainView,
 {
+    /// Starts the entire application.
     pub fn start(&mut self) {
         self.run(self.model.clone());
     }

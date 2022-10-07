@@ -7,27 +7,44 @@ use shared::{COptions, View};
 use std::collections::HashMap;
 use std::str::FromStr;
 
+/// An enum that contains all possible valid choices for the
+/// item menu.
 #[derive(Debug, COptions)]
 pub enum ItemMenuOption {
+    /// Displays a single item.
     DisplayItemInfo,
+    /// Items a specific item and returns a new instance.
     EditItemInfo,
+    /// Creates a new item.
     CreateItem,
+    /// Delets a specific item.
     DeleteItem,
+    /// Go back to the previous page.
     Back,
+    /// Quits the entire application.
     Quit,
+    /// Any other state chosen by the user.
     #[other]
     Other,
 }
 
+/// Defines all required methods for a concrete implementation of the item view.
 pub trait ItemView {
+    ///Displays all options for the item menu.
     fn item_menu(&self) -> ItemMenuOption;
+    /// Displaying information of a specific item.
     fn display_item_info(&self, item: &Item);
+    /// Editing a specific item.
     fn edit_item_info(&self, item: &Item) -> Item;
+    /// Getting information for a new item.
     fn get_item_info(&self) -> Item;
+    /// Selecting an item from a list of possible options.
     fn select_item<'a>(&'a self, items: Vec<&'a Item>) -> Option<&Item>;
+    /// Displays a message to the user and waits for him to respond.
     fn wait(&self, display: &str);
 }
 
+/// A concrete implementation of the item view.
 #[derive(View)]
 pub struct CliItemView {
     console: Console,

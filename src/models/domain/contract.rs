@@ -6,11 +6,7 @@ use shared::{Builder, CData, CFromMap, CFromStr, CPartialEq, CToMap, CToStr, Mod
 use std::collections::HashMap;
 use std::str::FromStr;
 
-pub trait ContractValidation {
-    fn validate_credits() -> bool;
-    fn validate_availability() -> bool;
-}
-
+/// Contract.
 #[derive(
     Debug,
     Clone,
@@ -61,6 +57,7 @@ pub struct Contract {
 }
 
 impl Contract {
+    /// Creates a new Contract.
     pub fn new(
         owner: Member,
         lendee: Member,
