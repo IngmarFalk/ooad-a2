@@ -123,14 +123,14 @@ impl Item {
             cost_per_day,
             uuid: Uuid::new(),
             history: CVec::new(),
-            day_of_creation: CDate::new(),
+            day_of_creation: CDate::now(),
             is_available: true,
         }
     }
 
     /// Adds a contract to history.
     pub fn add_contract(&mut self, contract: Contract) -> SysResult<()> {
-        match self.get_active_contract() {
+        match self.get_contract_in_period(contract.get_start_day(), contract.get_end_day()) {
             Some(_) => Err(SysError::AlreadyExists),
             None => {
                 self.history.push(contract);
@@ -141,9 +141,18 @@ impl Item {
 
     /// Gets the active contract. Returns Some(contract) if contract exists else None
     fn get_active_contract(&self) -> Option<Contract> {
-        let current_date = CDate::new();
+        let current_date = CDate::now();
         for contract in self.history.iter() {
             if &current_date > contract.get_start_day() && &current_date < contract.get_end_day() {
+                return Some(contract.clone());
+            }
+        }
+        None
+    }
+
+    fn get_contract_in_period(&self, start_day: &CDate, end_day: &CDate) -> Option<Contract> {
+        for contract in self.history.iter() {
+            if &start_day > &contract.get_start_day() && &end_day < &contract.get_end_day() {
                 return Some(contract.clone());
             }
         }

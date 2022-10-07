@@ -78,4 +78,8 @@ impl Contract {
             credits,
         }
     }
+
+    pub fn from_now_with_len(&mut self, len: usize) -> &mut Self {
+        todo!()
+    }
 }

@@ -3,6 +3,7 @@ mod item_tests {
     use crate::models::{
         cdate::CDate,
         domain::{
+            contract::Contract,
             item::{Category, Item},
             member::Member,
         },
@@ -34,6 +35,62 @@ mod item_tests {
         assert_eq!(*monopoly.get_cost_per_day(), cost_per_day);
         assert_eq!(monopoly.get_history().to_vec(), vec![]);
         assert_eq!(*monopoly.get_is_available(), true);
-        assert_eq!(*monopoly.get_day_of_creation(), CDate::new());
+        assert_eq!(*monopoly.get_day_of_creation(), CDate::now());
+    }
+
+    #[test]
+    fn test_add_contract() {
+        let allan = Member::default()
+            .name("Allan".to_owned())
+            .email("allan@turing.com".to_owned())
+            .phone_nr("4602134567".to_owned())
+            .build();
+        let bob = Member::default()
+            .name("Bob".to_owned())
+            .email("bob@gmail.com".to_owned())
+            .phone_nr("46291328475".to_owned())
+            .build();
+        let mut item = Item::default()
+            .name("Monopoly".to_owned())
+            .description("A Family Game".to_owned())
+            .category(Category::Game)
+            .cost_per_day(20f64)
+            .owner(allan.clone());
+
+        let contract = Contract::default()
+            .owner(allan.clone())
+            .lendee(bob.clone())
+            .contract_len(10)
+            .build();
+
+        assert_eq!(item.add_contract(contract).is_ok(), true);
+    }
+
+    #[test]
+    fn test_add_contract_in_taken_period() {
+        let allan = Member::default()
+            .name("Allan".to_owned())
+            .email("allan@turing.com".to_owned())
+            .phone_nr("4602134567".to_owned())
+            .build();
+        let bob = Member::default()
+            .name("Bob".to_owned())
+            .email("bob@gmail.com".to_owned())
+            .phone_nr("46291328475".to_owned())
+            .build();
+        let mut item = Item::default()
+            .name("Monopoly".to_owned())
+            .description("A Family Game".to_owned())
+            .category(Category::Game)
+            .cost_per_day(20f64)
+            .owner(allan.clone());
+
+        let contract = Contract::default()
+            .owner(allan.clone())
+            .lendee(bob.clone())
+            .contract_len(10)
+            .build();
+
+        assert_eq!(item.add_contract(contract).is_ok(), true);
     }
 }

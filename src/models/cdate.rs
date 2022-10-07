@@ -9,10 +9,23 @@ pub struct CDate {
 
 impl CDate {
     /// Creates a new CDate.
-    pub fn new() -> Self {
+    pub fn new(date: chrono::NaiveDate) -> Self {
+        Self { date }
+    }
+
+    pub fn now() -> Self {
         Self {
             date: chrono::offset::Local::now().naive_local().date(),
         }
+    }
+
+    pub fn add_days(&self, days: i64) -> Self {
+        let mut date = self.as_naive_date();
+        CDate::new(date + chrono::Duration::days(days))
+    }
+
+    pub fn as_naive_date(&self) -> chrono::NaiveDate {
+        self.date.clone()
     }
 }
 
@@ -24,7 +37,7 @@ impl std::fmt::Display for CDate {
 
 impl Default for CDate {
     fn default() -> Self {
-        CDate::new()
+        Self::now()
     }
 }
 
@@ -46,7 +59,7 @@ mod cdate_tests {
 
     #[test]
     fn test_lower_than() {
-        let date1 = CDate::new();
+        let date1 = CDate::now();
         let date2 = CDate {
             date: NaiveDate::from_ymd(2015, 6, 3),
         };
@@ -56,7 +69,7 @@ mod cdate_tests {
 
     #[test]
     fn test_bigger_than() {
-        let date1 = CDate::new();
+        let date1 = CDate::now();
         let date2 = CDate {
             date: NaiveDate::from_ymd(2015, 6, 3),
         };

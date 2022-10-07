@@ -65,7 +65,7 @@ impl Member {
     pub fn new(name: String, email: String, phone_nr: String) -> ValResult<Member> {
         let m = Member {
             uuid: Uuid::new(),
-            day_of_creation: CDate::new(),
+            day_of_creation: CDate::now(),
             credits: 0f64,
             name,
             email,
@@ -183,7 +183,7 @@ impl Default for Member {
             email: String::new(),
             phone_nr: String::new(),
             credits: 0f64,
-            day_of_creation: CDate::new(),
+            day_of_creation: CDate::now(),
             uuid: Uuid::new(),
         }
     }
