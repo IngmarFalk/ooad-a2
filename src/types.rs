@@ -1,3 +1,5 @@
+use thiserror::Error;
+
 /// All traits in this file can be implemented without any methods.
 ///
 /// E.g:
@@ -23,3 +25,26 @@ pub trait View {}
 
 /// All Controllers implement this trait.
 pub trait Controller {}
+
+pub type ValResult<T> = Result<T, Check>;
+
+/// Member Validation Error.
+#[derive(Debug, Error, PartialEq, Eq)]
+pub enum Check {
+    Ok,
+    Invalid,
+}
+
+impl std::fmt::Display for Check {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match *self {
+            Check::Ok => f.write_str("Ok"),
+            Check::Invalid => f.write_str("Invalid"),
+        }
+    }
+}
+
+pub trait Validate<T> {
+    fn validate(&self) -> ValResult<()>;
+    fn validate_and_build(self) -> ValResult<T>;
+}

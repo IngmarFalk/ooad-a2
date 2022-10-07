@@ -53,12 +53,9 @@ where
             Some(i) => {
                 let contracts = i.get_history().iter().collect::<Vec<&Contract>>();
                 let contract = self.view.select_contract(contracts);
-                match contract {
-                    Some(c) => {
-                        fun(c);
-                        self.view.wait("");
-                    }
-                    None => {}
+                if let Some(c) = contract {
+                    fun(c);
+                    self.view.wait("");
                 };
                 self.model.clone()
             }

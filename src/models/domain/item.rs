@@ -9,7 +9,7 @@ use std::str::FromStr;
 use std::{collections::HashMap, fmt::Display};
 
 /// The category an Item can have.
-#[derive(Debug, Clone, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub enum Category {
     /// A tool.
     Tool,
@@ -124,7 +124,7 @@ impl Item {
             uuid: Uuid::new(),
             history: CVec::new(),
             day_of_creation: CDate::new(),
-            is_available: false,
+            is_available: true,
         }
     }
 

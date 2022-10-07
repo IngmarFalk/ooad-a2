@@ -134,10 +134,7 @@ impl CliItemView {
         match s.parse::<f64>() {
             Ok(val) => val,
             Err(_) => {
-                let cpd_i = match s.parse::<i32>() {
-                    Ok(val) => val,
-                    Err(_) => -1,
-                };
+                let cpd_i = s.parse::<i32>().unwrap_or(-1);
                 match cpd_i < 0 {
                     true => {
                         self.wait("Invalid input: Cost per day has to be of type int/float.");
