@@ -1,9 +1,17 @@
-use super::{item::Item, member::Member};
-use crate::models::uuid::Uuid;
+use super::{
+    contract::Contract,
+    item::{Category, Item},
+    member::Member,
+};
+use crate::models::{cdate::CDate, uuid::Uuid};
 use anyhow::Result;
 use shared::{Builder, Model};
 use std::collections::HashMap;
 use thiserror::Error;
+
+pub trait Demo {
+    fn init_demo(&mut self);
+}
 
 /// All methods for the lending system.
 pub trait LendingSystem {
@@ -38,6 +46,8 @@ pub trait LendingSystem {
     /// Increments system day counter and calls all required methods to update contracts
     /// items and members information.
     fn incr_time(&mut self);
+    /// Gets current time.
+    fn now(&self) -> usize;
 }
 
 /// system struct.
@@ -169,6 +179,102 @@ impl LendingSystem for System {
 
     fn incr_time(&mut self) {
         self.day += 1;
+    }
+
+    fn now(&self) -> usize {
+        self.day
+    }
+}
+
+impl Demo for System {
+    fn init_demo(&mut self) {
+        let sys = Self::new();
+
+        let members = vec![
+            Member::new(
+                "Allan".to_owned(),
+                "allan@enigma.com".to_owned(),
+                "0123456789".to_owned(),
+                sys.now(),
+            )
+            .expect("Should not fail"),
+            Member::new(
+                "Tina".to_owned(),
+                "tina@somethingelse.com".to_owned(),
+                "01234543210".to_owned(),
+                sys.now(),
+            )
+            .expect("Should not fail."),
+            Member::new(
+                "Turing".to_owned(),
+                "turing@enigma.com".to_owned(),
+                "9876567890".to_owned(),
+                sys.now(),
+            )
+            .expect("Should not fail."),
+            Member::new(
+                "Jeff".to_owned(),
+                "jeff@bezos.com".to_owned(),
+                "0987654321".to_owned(),
+                sys.now(),
+            )
+            .expect("Should not fail."),
+        ];
+
+        let items = vec![
+            Item::new(
+                "Monopoly".to_owned(),
+                "Family Game".to_owned(),
+                Category::Game,
+                members[0].clone(),
+                30f64,
+                sys.now(),
+            ),
+            Item::new(
+                "Siedler".to_owned(),
+                "Another Family Game".to_owned(),
+                Category::Game,
+                members[0].clone(),
+                45f64,
+                sys.now(),
+            ),
+            Item::new(
+                "T-Rex".to_owned(),
+                "Dinosaur".to_owned(),
+                Category::Toy,
+                members[2].clone(),
+                10f64,
+                sys.now(),
+            ),
+            Item::new(
+                "Hammer".to_owned(),
+                "A useful tool".to_owned(),
+                Category::Tool,
+                members[2].clone(),
+                150f64,
+                sys.now(),
+            ),
+        ];
+
+        let contracts = vec![
+            Contract::new(members[1].clone(), sys.now() + 6, items[2].clone(), 6),
+            Contract::new(members[1].clone(), sys.now(), items[3].clone(), 2),
+            Contract::new(members[0].clone(), sys.now() + 2, items[2].clone(), 20),
+        ];
+
+        for member in members.iter() {
+            self.add_member(member.clone()).expect("");
+        }
+        for item in items.iter() {
+            self.add_item(item.clone()).expect("");
+        }
+        for contract in contracts.iter() {
+            let mut item = contract.clone().get_item().clone();
+            match item.add_contract(contract.clone(), sys.now()) {
+                Ok(_) => self.update_item(contract.get_item(), &item).expect(""),
+                Err(_) => {}
+            };
+        }
     }
 }
 

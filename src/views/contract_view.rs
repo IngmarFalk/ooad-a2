@@ -1,8 +1,10 @@
 use super::{
     console::{Console, Ui},
+    item_view::{CliItemView, ItemView},
+    member_view::{CliMemberView, MemberView},
     Options,
 };
-use crate::models::domain::contract::Contract;
+use crate::models::domain::{contract::Contract, item::Item, member::Member, FromMap};
 use shared::{COptions, View};
 use std::str::FromStr;
 
@@ -18,10 +20,10 @@ pub enum ContractOption {
     /// Asks user for input and returns a new instance of the previous contract
     /// with (possibly) updated attributes.
     EditContract,
-    /// Quits the entire application.
-    Quit,
     /// Returns to the previous page.
     Back,
+    /// Quits the entire application.
+    Quit,
     /// Any other operation the user tried to execute.
     #[other]
     Other,
@@ -75,9 +77,21 @@ impl ContractView for CliContractView {
         self.console.get_model_info(new_contract)
     }
 
-    fn display_contract_simple(&self, _contract: &Contract) {
-        // let info = contract.unpack();
-        todo!()
+    fn display_contract_simple(&self, contract: &Contract) {
+        let out = format!(
+            "Owner:\t{}\nLendee:\t{}\nItem:{}\nCredits:\t{}\nStatus:\t{}\nStart Date:\t{}\nEnd Date:\t{}",
+            contract.get_owner().get_name(),
+            contract.get_lendee(),
+            contract.get_item(),
+            contract.get_credits(),
+            contract.get_status(),
+            contract.get_start_date(),
+            contract.get_end_date(),
+        );
+
+        self.console.clear();
+        self.console.title();
+        self.console.write(out.as_str());
     }
 
     fn display_contract_verbose(&self, _contract: &Contract) {

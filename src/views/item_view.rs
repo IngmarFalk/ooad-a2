@@ -1,10 +1,9 @@
 use super::console::{Console, Ui};
 use super::Options;
+use crate::models::cdate::CDate;
 use crate::models::domain::item::Category;
-use crate::models::domain::{item::Item, Data, FromMap};
-use prettytable::{Cell, Table};
+use crate::models::domain::{item::Item, Data};
 use shared::{COptions, View};
-use std::collections::HashMap;
 use std::str::FromStr;
 
 /// An enum that contains all possible valid choices for the
@@ -35,11 +34,15 @@ pub trait ItemView {
     /// Displaying information of a specific item.
     fn display_item_info(&self, item: &Item);
     /// Editing a specific item.
-    fn edit_item_info(&self, item: &Item) -> Item;
+    fn edit_item_info(&self, item: &Item) -> Option<Item>;
     /// Getting information for a new item.
     fn get_item_info(&self) -> Item;
     /// Selecting an item from a list of possible options.
     fn select_item<'a>(&'a self, items: Vec<&'a Item>) -> Option<&Item>;
+    /// Displays the next 30 days and wether the item is available on the day.
+    fn display_availability(&self, item: &Item);
+    /// Selecting a date
+    fn select_date(&self, item: &Item) -> Option<usize>;
     /// Displays a message to the user and waits for him to respond.
     fn wait(&self, display: &str);
 }
@@ -61,23 +64,23 @@ impl ItemView for CliItemView {
     }
 
     fn display_item_info(&self, item: &Item) {
-        let mut table = Table::new();
-        let mut row = item.to_row();
-        row.remove_cell(5);
-        row.insert_cell(5, Cell::new(item.get_owner().get_name()));
-        table.add_row(row);
-        self.console.display_table(table);
+        let out = format!(
+            "Name:\t\t{}\nDescriptioin:\t{}\nCategory:\t{}\nOwner:\t\t{}\nCost/Day:\t\t{}\nHistory\t\t\n{:#?}",
+            item.get_name(),
+            item.get_description(),
+            item.get_category(),
+            item.get_owner().get_name(),
+            item.get_cost_per_day(),
+            item.get_history_map(),
+        );
+
+        self.console.clear();
+        self.console.title();
+        self.console.write(out.as_str());
     }
 
-    fn edit_item_info(&self, item: &Item) -> Item {
-        let new_item_info = self
-            .console
-            .get_consecutive_str_input(Item::head_allowed_mutable());
-        let data = new_item_info
-            .into_iter()
-            .collect::<HashMap<String, String>>();
-
-        item.copy_with(data)
+    fn edit_item_info(&self, item: &Item) -> Option<Item> {
+        self.console.edit_model_info(item)
     }
 
     fn get_item_info(&self) -> Item {
@@ -121,6 +124,38 @@ impl ItemView for CliItemView {
 
     fn select_item<'a>(&'a self, items: Vec<&'a Item>) -> Option<&Item> {
         self.console.select_model(items)
+    }
+
+    fn display_availability(&self, item: &Item) {
+        let check = '☑';
+        let cross = '☒';
+        let am = item.get_availability();
+        for (tens, chunk) in am.chunks(10).into_iter().enumerate() {
+            for (day, tpl) in chunk.iter().enumerate() {
+                print!(
+                    "| {}\t: {} : {} ",
+                    tens + day,
+                    tpl.0,
+                    if tpl.1 { cross.clone() } else { check.clone() }
+                );
+            }
+            println!("|")
+        }
+    }
+
+    fn select_date(&self, item: &Item) -> Option<usize> {
+        self.display_availability(item);
+        let inp = self
+            .console
+            .get_char_input("Press (0..30) to select or (e) to go back: ");
+        if let Ok(res) = inp.to_string().parse::<usize>() {
+            Some(res)
+        } else {
+            match inp {
+                'e' => None,
+                _ => self.select_date(item),
+            }
+        }
     }
 
     fn wait(&self, display: &str) {

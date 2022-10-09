@@ -8,7 +8,7 @@ mod member_test {
         let name = "Bob".to_owned();
         let email = "bob@gmail.com".to_owned();
         let phone_nr = "40123456789".to_owned();
-        let bob = Member::new(name, email, phone_nr).ok().unwrap();
+        let bob = Member::new(name, email, phone_nr, 0).ok().unwrap();
         assert_eq!(bob.get_name(), "Bob");
         assert_eq!(bob.get_email(), "bob@gmail.com");
         assert_eq!(bob.get_phone_nr(), "40123456789");

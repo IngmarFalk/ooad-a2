@@ -47,7 +47,9 @@ pub fn derive_builder(inp: TokenStream) -> TokenStream {
             /// Builds the struct.
             pub fn build(self) -> Self {
                 let Self { #(#builder_params,)* } = self;
-                Self { #(#builder_params_build,)* }
+                Self {
+                    #(#builder_params_build,)*
+                }
             }
         }
 
@@ -256,7 +258,7 @@ pub fn derive_from_map(inp: TokenStream) -> TokenStream {
             }
         }
 
-        fn copy_with(&self, data: ::std::collections::HashMap<::std::string::String, ::std::string::String>) -> Self {
+        fn copy_with_map(&self, data: ::std::collections::HashMap<::std::string::String, ::std::string::String>) -> Self {
             let Self { #(#fields_args,)* } = self;
             Self {
                 #(#copy_with_args,)*

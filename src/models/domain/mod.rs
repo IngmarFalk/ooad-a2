@@ -29,7 +29,7 @@ pub trait FromMap {
     /// data map includes (possibly) only some of the attribtes.
     /// The method returns a struct with the same values for each attribute unless
     /// there is a corresponding value in the map.
-    fn copy_with(&self, data: HashMap<String, String>) -> Self;
+    fn copy_with_map(&self, data: HashMap<String, String>) -> Self;
 }
 
 /// To deconstructing struct into a hashmap.

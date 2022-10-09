@@ -12,6 +12,7 @@ mod system_tests {
             "Allan".to_owned(),
             "allan@enigma.com".to_owned(),
             "0123456789".to_owned(),
+            0,
         )
         .expect("Should not fail");
         let mut system = System::new();
@@ -25,6 +26,7 @@ mod system_tests {
             "Allan".to_owned(),
             "allan@enigma.com".to_owned(),
             "0123456789".to_owned(),
+            0,
         )
         .expect("Should not fail");
 
@@ -32,6 +34,7 @@ mod system_tests {
             "Turing".to_owned(),
             "allan@enigma.com".to_owned(),
             "012345678901".to_owned(),
+            0,
         )
         .expect("Should not fail.");
 
@@ -48,6 +51,7 @@ mod system_tests {
             "Allan".to_owned(),
             "allan@enigma.com".to_owned(),
             "0123456789".to_owned(),
+            0,
         )
         .expect("Should not fail");
 
@@ -55,6 +59,7 @@ mod system_tests {
             "Turing".to_owned(),
             "turing@enigma.com".to_owned(),
             "0123456789".to_owned(),
+            0,
         )
         .expect("Should not fail.");
 
@@ -67,32 +72,36 @@ mod system_tests {
 
     #[test]
     fn test_multiple_validd_members() {
+        let mut system = System::new();
         let allan = Member::new(
             "Allan".to_owned(),
             "allan@enigma.com".to_owned(),
             "0123456789".to_owned(),
+            system.now(),
         )
         .expect("Should not fail");
         let turing1 = Member::new(
             "Turing".to_owned(),
             "allan@somethingelse.com".to_owned(),
             "01234543210".to_owned(),
+            system.now(),
         )
         .expect("Should not fail.");
         let turing2 = Member::new(
             "Turing".to_owned(),
             "turing2@enigma.com".to_owned(),
             "9876567890".to_owned(),
+            system.now(),
         )
         .expect("Should not fail.");
         let turing3 = Member::new(
             "Turing".to_owned(),
             "another@turing.com".to_owned(),
             "0987654321".to_owned(),
+            system.now(),
         )
         .expect("Should not fail.");
 
-        let mut system = System::new();
         let r1 = system.add_member(allan);
         assert_eq!(r1, Ok(()));
 
@@ -113,6 +122,7 @@ mod system_tests {
             "Turing".to_owned(),
             "turing@enigma.com".to_owned(),
             "0123456789".to_owned(),
+            0,
         )
         .expect("Should not fail.");
 
@@ -120,6 +130,7 @@ mod system_tests {
             "Allan".to_owned(),
             "allan@enigma.com".to_owned(),
             "1235678999".to_owned(),
+            0,
         )
         .expect("Should not fail.");
 
@@ -141,6 +152,7 @@ mod system_tests {
             "Turing".to_owned(),
             "turing@enigma.com".to_owned(),
             "12345678909".to_owned(),
+            0,
         )
         .expect("Should not fail.");
 
@@ -167,6 +179,7 @@ mod system_tests {
             "Turing".to_owned(),
             "turing@enigma.com".to_owned(),
             "01234567890".to_owned(),
+            0,
         )
         .expect("Should not fail.");
 
@@ -192,6 +205,7 @@ mod system_tests {
             "Turing".to_owned(),
             "turing@enigma.com".to_owned(),
             "1234567890".to_owned(),
+            0,
         )
         .expect("Should not fail.");
 
@@ -219,6 +233,7 @@ mod system_tests {
             "Turing".to_owned(),
             "turing@enigma.com".to_owned(),
             "1234567890".to_owned(),
+            0,
         )
         .expect("Should not fail.");
 
@@ -238,14 +253,5 @@ mod system_tests {
 
         let r2 = system.remove_item(&item);
         assert_eq!(r2, Ok(()));
-
-        // let r3 = match system.get_member(&turing) {
-        //     Ok(member) => {
-        //         println!("{:?}", member.get_items());
-        //         member.has_item(&item)
-        //     }
-        //     Err(_) => false,
-        // };
-        // assert_eq!(r3, false);
     }
 }

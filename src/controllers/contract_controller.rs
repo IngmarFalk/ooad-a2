@@ -1,10 +1,11 @@
 use super::app::App;
 use crate::{
-    models::domain::{contract::Contract, item::Item, system::LendingSystem, FromMap, ToMap},
+    models::domain::{contract::Contract, item::Item, system::LendingSystem},
     types::{Model, View},
     views::{
         contract_view::{ContractOption, ContractView},
         item_view::{CliItemView, ItemView},
+        member_view::{CliMemberView, MemberView},
     },
 };
 use shared::controller;
@@ -36,10 +37,7 @@ where
         let items = self.model.get_items();
         let item = item_view.select_item(items);
         match item {
-            Some(i) => {
-                let out = Item::default().copy_with(i.to_map());
-                Some(out)
-            }
+            Some(i) => Some(i.clone()),
             None => None,
         }
     }
@@ -72,22 +70,38 @@ where
     }
 
     fn create_contract(&mut self) -> M {
+        let mview = CliMemberView::new();
+        let iview = CliItemView::new();
         let item = self.fetch_item();
         match item {
-            Some(i) => {
-                let contract = self.view.get_contract_info();
-                let mut temp = i.clone();
-                match temp.add_contract(contract) {
-                    Ok(_) => {
-                        match self.model.update_item(&i, &temp) {
-                            Ok(_) => {}
-                            Err(_) => todo!(),
-                        }
-                        self.ret("Successfully created contract.")
+            Some(i) => match mview.select_member(self.model.get_members()) {
+                Some(lendee) => {
+                    if lendee == i.get_owner() {
+                        return self.ret("Cannot lend to yourself.");
                     }
-                    Err(_) => self.model.clone(),
+                    match iview.select_date(&i) {
+                        Some(start_date) => {
+                            let data = self.view.get_contract_info();
+                            let contract = Contract::new(
+                                lendee.clone(),
+                                start_date,
+                                i.clone(),
+                                *data.get_contract_len(),
+                            );
+                            let mut temp = i.clone();
+                            match temp.add_contract(contract, self.model.now()) {
+                                Ok(_) => match self.model.update_item(&i, &temp) {
+                                    Ok(_) => self.ret("Successfully created contract."),
+                                    Err(_) => self.ret("Failed to create contrct."),
+                                },
+                                Err(_) => self.model.clone(),
+                            }
+                        }
+                        None => self.model.clone(),
+                    }
                 }
-            }
+                None => self.model.clone(),
+            },
             None => self.model.clone(),
         }
     }

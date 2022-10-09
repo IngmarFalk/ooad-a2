@@ -52,7 +52,7 @@ pub struct Member {
 
     #[getter(rename = "get_day_of_creation")]
     #[mutable_ignore]
-    day_of_creation: CDate,
+    day_of_creation: usize,
 
     #[getter(rename = "get_uuid")]
     #[mutable_ignore]
@@ -61,11 +61,16 @@ pub struct Member {
 
 impl Member {
     /// Creates new member.
-    pub fn new(name: String, email: String, phone_nr: String) -> ValResult<Member> {
+    pub fn new(
+        name: String,
+        email: String,
+        phone_nr: String,
+        day_of_creation: usize,
+    ) -> ValResult<Member> {
         let m = Member {
             uuid: Uuid::new(),
-            day_of_creation: CDate::now(),
             credits: 0f64,
+            day_of_creation,
             name,
             email,
             phone_nr,
@@ -176,7 +181,7 @@ impl Default for Member {
             email: String::new(),
             phone_nr: String::new(),
             credits: 0f64,
-            day_of_creation: CDate::now(),
+            day_of_creation: 0,
             uuid: Uuid::new(),
         }
     }

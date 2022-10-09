@@ -1,3 +1,4 @@
+use super::contract::Status;
 use super::system::{SysError, SysResult};
 use super::{contract::Contract, member::Member, FromMap};
 use crate::models::cdate::CDate;
@@ -90,7 +91,7 @@ pub struct Item {
 
     #[mutable_ignore]
     #[getter(rename = "get_day_of_creation")]
-    day_of_creation: CDate,
+    day_of_creation: usize,
 
     #[getter(rename = "get_cost_per_day")]
     cost_per_day: f64,
@@ -129,6 +130,7 @@ impl Item {
         category: Category,
         owner: Member,
         cost_per_day: f64,
+        day_of_creation: usize,
     ) -> Item {
         Item {
             name,
@@ -136,20 +138,20 @@ impl Item {
             description,
             owner,
             cost_per_day,
+            day_of_creation,
             uuid: Uuid::new(),
             history: CVec::new(),
-            day_of_creation: CDate::now(),
             is_available: true,
         }
     }
 
     /// Adds a contract to history.
-    pub fn add_contract(&mut self, contract: Contract) -> SysResult<()> {
+    pub fn add_contract(&mut self, contract: Contract, now: usize) -> SysResult<()> {
         match self.get_contract_in_period(contract.get_start_date(), contract.get_end_date()) {
             Some(_) => Err(SysError::AlreadyExists),
             None => {
                 self.history.push(contract);
-                if let Some(_) = self.get_active_contract() {
+                if let Some(_) = self.get_active_contract(now) {
                     self.set_unavailable();
                 }
                 Ok(())
@@ -158,18 +160,16 @@ impl Item {
     }
 
     /// Gets the active contract. Returns Some(contract) if contract exists else None
-    fn get_active_contract(&self) -> Option<Contract> {
-        let current_date = CDate::now();
+    fn get_active_contract(&self, now: usize) -> Option<Contract> {
         for contract in self.history.iter() {
-            if &current_date > contract.get_start_date() && &current_date < contract.get_end_date()
-            {
+            if &now > contract.get_start_date() && &now < contract.get_end_date() {
                 return Some(contract.clone());
             }
         }
         None
     }
 
-    fn get_contract_in_period(&self, start_day: &CDate, end_day: &CDate) -> Option<Contract> {
+    fn get_contract_in_period(&self, start_day: &usize, end_day: &usize) -> Option<Contract> {
         for contract in self.history.iter() {
             if &start_day > &contract.get_start_date() && &end_day < &contract.get_end_date() {
                 return Some(contract.clone());
@@ -178,11 +178,45 @@ impl Item {
         None
     }
 
+    fn has_contract_on_date(&self, date: &usize) -> bool {
+        for contract in self.history.iter() {
+            if date >= contract.get_start_date() && date < contract.get_end_date() {
+                return true;
+            }
+        }
+        false
+    }
+
     fn set_unavailable(&mut self) {
         self.is_available = false;
     }
 
     fn set_available(&mut self) {
         self.is_available = true;
+    }
+
+    pub fn get_history_map(&self) -> HashMap<&str, Vec<Contract>> {
+        let mut past: Vec<Contract> = Vec::new();
+        let mut active: Vec<Contract> = Vec::new();
+        let mut future: Vec<Contract> = Vec::new();
+
+        for contract in self.history.iter() {
+            match contract.get_status() {
+                Status::Active => active.push(contract.clone()),
+                Status::Finished | Status::Canceled => past.push(contract.clone()),
+                Status::Future => future.push(contract.clone()),
+                Status::Other => {}
+            }
+        }
+
+        HashMap::from([("past", past), ("future", future), ("active", active)])
+    }
+
+    pub fn get_availability(&self) -> Vec<(String, bool)> {
+        let mut out = Vec::new();
+        for i in 0..30 {
+            out.push((i.to_string(), self.has_contract_on_date(&i)));
+        }
+        out
     }
 }

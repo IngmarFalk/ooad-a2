@@ -1,6 +1,9 @@
-use std::{fmt::Display, str::FromStr};
-
 use super::domain::system::SysError;
+use std::{
+    fmt::Display,
+    io::{self, Write},
+    str::FromStr,
+};
 
 /// Wrapper fro `Vec<T>`
 #[derive(Debug, PartialEq, Eq, Default, Clone)]
@@ -81,7 +84,7 @@ where
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.values.is_empty() {
             return match f.write_str("-") {
-                Ok(out) => Ok(out),
+                Ok(_) => Ok(()),
                 Err(err) => Err(err),
             };
         }

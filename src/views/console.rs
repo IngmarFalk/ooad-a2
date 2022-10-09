@@ -1,12 +1,14 @@
 use super::Options;
 use crate::{
-    models::domain::{Data, FromMap, ToMap},
+    models::domain::{item::Item, Data, FromMap, ToMap},
     types::Model,
 };
 use prettytable::{Cell, Row, Table};
 use std::{
     collections::HashMap,
+    fmt::Debug,
     io::{self, stdin, Write},
+    str::FromStr,
 };
 
 /// Either<A, B> has three valid states:
@@ -160,7 +162,7 @@ impl Console {
         let data = new_model_info
             .into_iter()
             .collect::<HashMap<String, String>>();
-        obj.copy_with(data)
+        obj.copy_with_map(data)
     }
 }
 
@@ -308,6 +310,39 @@ impl Ui for Console {
                             .replace(']', "");
                         row.add_cell(Cell::new(uuid_value.as_str()));
                     }
+                    "owner" => {
+                        let owner_name = cell_data
+                            .split(';')
+                            .collect::<Vec<&str>>()
+                            .first()
+                            .unwrap()
+                            .split(',')
+                            .last()
+                            .unwrap();
+                        row.add_cell(Cell::new(owner_name))
+                    }
+                    "lendee" => {
+                        let owner_name = cell_data
+                            .split(';')
+                            .collect::<Vec<&str>>()
+                            .first()
+                            .unwrap()
+                            .split(',')
+                            .last()
+                            .unwrap();
+                        row.add_cell(Cell::new(owner_name))
+                    }
+                    "item" => {
+                        let item = Item::from_str(cell_data).expect("Item was created successfully, which means the tostring method converted it to a valid string.");
+                        row.add_cell(Cell::new(item.get_name()))
+                    }
+                    "history" => {
+                        row.add_cell(Cell::new(if cell_data.starts_with("[owner,") {
+                            "..."
+                        } else {
+                            "None"
+                        }));
+                    }
                     _ => {
                         row.add_cell(Cell::new(cell_data.as_str()));
                     }
@@ -359,6 +394,7 @@ impl Ui for Console {
             self.wait("Nothing to select.");
             return None;
         }
+
         let pages: Vec<&[&M]> = vec_model.chunks(10).collect::<Vec<_>>();
         self.clear();
         self.title();
@@ -391,7 +427,7 @@ impl Ui for Console {
                     tpl
                 });
         if self.confirm(keys, vals) {
-            return Some(obj.copy_with(new_model_info));
+            return Some(obj.copy_with_map(new_model_info));
         }
         None
     }

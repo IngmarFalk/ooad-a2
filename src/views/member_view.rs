@@ -78,7 +78,7 @@ impl MemberView for CliMemberView {
         }
         for item in items.iter() {
             let formatted = format!(
-                "\n\t({}\n\t{}\n\t{}\n\t{}),",
+                "\n\t(\n\t\t{}\n\t\t{}\n\t\t{}\n\t\t{}\n\t),",
                 item.get_name(),
                 item.get_description(),
                 item.get_category(),
@@ -87,7 +87,7 @@ impl MemberView for CliMemberView {
             items_str.push_str(&formatted);
         }
         let out = format!(
-            "Name:\t\t{}\nEmail:\t\t{}\nPhone number:\t{}\nCredits:\t{}\nItems: [{}]\n",
+            "Name:\t\t{}\nEmail:\t\t{}\nPhone number:\t{}\nCredits:\t{}\nItems: [\n{}\n]\n",
             member.get_name(),
             member.get_email(),
             member.get_phone_nr(),
@@ -95,6 +95,7 @@ impl MemberView for CliMemberView {
             items_str,
         );
         self.console.clear();
+        self.console.title();
         self.console.write(out.as_str());
     }
 
@@ -107,6 +108,7 @@ impl MemberView for CliMemberView {
             number_of_items,
         );
         self.console.clear();
+        self.console.title();
         self.console.write(out.as_str());
     }
 

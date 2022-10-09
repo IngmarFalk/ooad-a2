@@ -49,10 +49,13 @@ where
         let item_to_edit = self.view.select_item(items);
         match item_to_edit {
             Some(i) => {
-                let new_info = self.view.get_item_info();
-                match self.model.update_item(i, &new_info) {
-                    Ok(_) => self.ret("Updated item data successfully."),
-                    Err(_) => self.ret("Unable to update item information."),
+                let new_info = self.view.edit_item_info(i);
+                match new_info {
+                    Some(info) => match self.model.update_item(i, &info) {
+                        Ok(_) => self.ret("Updated item data successfully."),
+                        Err(_) => self.ret("Unable to update item information."),
+                    },
+                    None => todo!(),
                 }
             }
             None => self.model.clone(),

@@ -1,6 +1,5 @@
 #[cfg(test)]
 mod item_tests {
-    use chrono::Duration;
 
     use crate::models::{
         cdate::CDate,
@@ -29,6 +28,7 @@ mod item_tests {
             category.clone(),
             owner.clone(),
             cost_per_day,
+            0,
         );
         assert_eq!(*monopoly.get_name(), name);
         assert_eq!(*monopoly.get_description(), description);
@@ -37,7 +37,7 @@ mod item_tests {
         assert_eq!(*monopoly.get_cost_per_day(), cost_per_day);
         assert_eq!(monopoly.get_history().to_vec(), vec![]);
         assert_eq!(*monopoly.get_is_available(), true);
-        assert_eq!(*monopoly.get_day_of_creation(), CDate::now());
+        assert_eq!(*monopoly.get_day_of_creation(), 0);
     }
 
     #[test]
@@ -58,6 +58,7 @@ mod item_tests {
             .category(category.clone())
             .owner(owner.clone())
             .cost_per_day(cost_per_day)
+            .day_of_creation(0)
             .build();
 
         assert_eq!(*monopoly.get_name(), name);
@@ -67,7 +68,7 @@ mod item_tests {
         assert_eq!(*monopoly.get_cost_per_day(), cost_per_day);
         assert_eq!(monopoly.get_history().to_vec(), vec![]);
         assert_eq!(*monopoly.get_is_available(), true);
-        assert_eq!(*monopoly.get_day_of_creation(), CDate::now());
+        assert_eq!(*monopoly.get_day_of_creation(), 0);
     }
 
     #[test]
@@ -95,22 +96,21 @@ mod item_tests {
             .lendee(bob.clone())
             .item(item.clone())
             .credits(200f64)
-            .from_now_with_days(10)
+            .from_date(0, 10)
             .build();
         let end = CDate::now();
 
         let end_date = CDate::in_days(10);
 
-        assert_eq!(item.add_contract(contract).is_ok(), true);
+        assert_eq!(item.add_contract(contract, 0).is_ok(), true);
         let history = item.get_history().to_vec();
         let c = history.first().unwrap();
         assert_eq!(c.get_owner(), &allan);
         assert_eq!(c.get_lendee(), &bob);
         assert_eq!(c.get_credits(), &200f64);
         assert_eq!(c.get_item(), &item);
-        assert_eq!(c.get_start_date() >= &start, true);
-        assert_eq!(c.get_start_date() <= &end, true);
-        assert_eq!(c.get_end_date(), &end_date);
+        assert_eq!(c.get_start_date(), &0);
+        assert_eq!(c.get_end_date(), &10);
         assert_eq!(c.get_contract_len(), &10);
     }
 
@@ -138,7 +138,7 @@ mod item_tests {
             .lendee(bob.clone())
             .item(monopoly.clone())
             .credits(200f64)
-            .from_now_with_days(10)
+            .from_date(0, 10)
             .build();
 
         let c2 = Contract::default()
@@ -146,12 +146,12 @@ mod item_tests {
             .lendee(bob.clone())
             .item(monopoly.clone())
             .credits(100f64)
-            .from_date_with_days(CDate::in_days(3), 5)
+            .from_date(3, 5)
             .build();
 
         println!("{:#?}", monopoly.get_history());
 
-        assert_eq!(monopoly.add_contract(c1).is_ok(), true);
-        assert_eq!(monopoly.add_contract(c2).is_ok(), false);
+        assert_eq!(monopoly.add_contract(c1, 0).is_ok(), true);
+        assert_eq!(monopoly.add_contract(c2, 0).is_ok(), false);
     }
 }

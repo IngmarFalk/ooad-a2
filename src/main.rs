@@ -4,8 +4,13 @@
 #![crate_type = "proc-macro"]
 
 use controllers::app::MainApp;
-use models::domain::system::System;
+use models::domain::system::{Demo, System};
 use views::main_view::CliMainView;
+
+use crate::{
+    models::domain::system::LendingSystem,
+    views::console::{Console, Ui},
+};
 
 /// Controllers Module.
 ///
@@ -34,7 +39,9 @@ pub mod views;
 
 /// Main method
 fn main() {
-    let system = System::new();
+    let console = Console::new();
+    let mut system = System::new();
+    system.init_demo();
     let main_view = CliMainView::new();
     let mut app = MainApp::new(system, main_view);
     app.start()
