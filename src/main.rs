@@ -7,11 +7,6 @@ use controllers::app::MainApp;
 use models::domain::system::{Demo, System};
 use views::main_view::CliMainView;
 
-use crate::{
-    models::domain::system::LendingSystem,
-    views::console::{Console, Ui},
-};
-
 /// Controllers Module.
 ///
 /// Contains workflow and combines views and models functionality.
@@ -39,7 +34,6 @@ pub mod views;
 
 /// Main method
 fn main() {
-    let console = Console::new();
     let mut system = System::new();
     system.init_demo();
     let main_view = CliMainView::new();

@@ -51,6 +51,8 @@ where
             Some(i) => {
                 let contracts = i.get_history().iter().collect::<Vec<&Contract>>();
                 let contract = self.view.select_contract(contracts);
+                println!("{:#?}", contract);
+                self.view.wait("");
                 if let Some(c) = contract {
                     fun(c);
                     self.view.wait("");
@@ -63,10 +65,6 @@ where
 
     fn display_contract_simple(&self) -> M {
         self.fetch_contract(|c: &Contract| self.view.display_contract_simple(c))
-    }
-
-    fn display_contract_verbose(&self) -> M {
-        self.fetch_contract(|c: &Contract| self.view.display_contract_verbose(c))
     }
 
     fn create_contract(&mut self) -> M {
@@ -147,7 +145,6 @@ where
         let choice = self.view.contract_menu();
         let state = match choice {
             ContractOption::DisplayContractSimple => self.display_contract_simple(),
-            ContractOption::DisplayContractVerbose => self.display_contract_verbose(),
             ContractOption::CreateContract => self.create_contract(),
             ContractOption::EditContract => self.edit_contract(),
             ContractOption::Quit => std::process::exit(0),

@@ -1,10 +1,8 @@
 use super::{
     console::{Console, Ui},
-    item_view::{CliItemView, ItemView},
-    member_view::{CliMemberView, MemberView},
     Options,
 };
-use crate::models::domain::{contract::Contract, item::Item, member::Member, FromMap};
+use crate::models::domain::contract::Contract;
 use shared::{COptions, View};
 use std::str::FromStr;
 
@@ -14,8 +12,6 @@ pub enum ContractOption {
     /// Displays a single contract in a simple format.
     DisplayContractSimple,
     /// Displays a single contract in a vernose format.
-    DisplayContractVerbose,
-    /// Asks user for input and returns a new contract instance.
     CreateContract,
     /// Asks user for input and returns a new instance of the previous contract
     /// with (possibly) updated attributes.
@@ -41,8 +37,6 @@ pub trait ContractView {
     fn get_contract_info(&self) -> Contract;
     /// Displays a contract in a simple format.
     fn display_contract_simple(&self, contract: &Contract);
-    /// Displays a contract in a verbose format.
-    fn display_contract_verbose(&self, contract: &Contract);
     /// Displays a message to the user and waits till the user acknowledges the message
     /// before continuing with the regular flow.
     fn wait(&self, display: &str);
@@ -92,10 +86,6 @@ impl ContractView for CliContractView {
         self.console.clear();
         self.console.title();
         self.console.write(out.as_str());
-    }
-
-    fn display_contract_verbose(&self, _contract: &Contract) {
-        todo!()
     }
 
     fn wait(&self, display: &str) {

@@ -1,4 +1,3 @@
-use crate::models::cdate::CDate;
 use crate::models::domain::FromMap;
 use crate::models::uuid::Uuid;
 use crate::types::{Check, ValResult, Validate};

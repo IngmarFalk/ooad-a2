@@ -3,7 +3,7 @@ use super::{
     item::{Category, Item},
     member::Member,
 };
-use crate::models::{cdate::CDate, uuid::Uuid};
+use crate::models::uuid::Uuid;
 use anyhow::Result;
 use shared::{Builder, Model};
 use std::collections::HashMap;
@@ -144,9 +144,21 @@ impl LendingSystem for System {
     }
 
     fn add_item(&mut self, item: Item) -> SysResult<()> {
-        match self.items.insert(item.get_uuid().clone(), item) {
+        match self.items.insert(item.get_uuid().clone(), item.clone()) {
             Some(_) => Err(SysError::AlreadyExists),
-            None => Ok(()),
+            None => {
+                let temp = self.get_member(item.get_owner());
+                match temp {
+                    Ok(mut member) => match member.add_credits(100f64) {
+                        Ok(_) => match self.update_member(&item.get_owner(), &member) {
+                            Ok(_) => Ok(()),
+                            Err(err) => Err(err),
+                        },
+                        Err(_) => Err(SysError::CannotUpdate),
+                    },
+                    Err(_) => todo!(),
+                }
+            }
         }
     }
 

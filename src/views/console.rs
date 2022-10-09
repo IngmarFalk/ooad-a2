@@ -278,6 +278,7 @@ impl Ui for Console {
         M: Data + FromMap + ToMap + Model + Data,
     {
         self.clear();
+
         if curr_page > chunks.len() {
             return Either::None;
         }
@@ -297,6 +298,8 @@ impl Ui for Console {
             for key in head.iter() {
                 let data = item.to_map();
                 let cell_data = data.get(key).unwrap();
+                println!("{key}: {cell_data}");
+                self.wait("Waiting... 293482u4");
                 match key.to_lowercase().as_str() {
                     "uuid" => {
                         let uuid_value = cell_data
@@ -332,10 +335,10 @@ impl Ui for Console {
                             .unwrap();
                         row.add_cell(Cell::new(owner_name))
                     }
-                    "item" => {
-                        let item = Item::from_str(cell_data).expect("Item was created successfully, which means the tostring method converted it to a valid string.");
-                        row.add_cell(Cell::new(item.get_name()))
-                    }
+                    "item" => match Item::from_str(cell_data) {
+                        Ok(item) => row.add_cell(Cell::new(item.get_name())),
+                        Err(_) => row.add_cell(Cell::new("Item")),
+                    },
                     "history" => {
                         row.add_cell(Cell::new(if cell_data.starts_with("[owner,") {
                             "..."
@@ -381,6 +384,7 @@ impl Ui for Console {
                 }
                 'q' => std::process::exit(0),
                 'e' => Either::None,
+                ' ' => self.display_page(vec_model, chunks, curr_page),
                 _ => self.display_page(vec_model, chunks, curr_page),
             };
         };
@@ -398,6 +402,13 @@ impl Ui for Console {
         let pages: Vec<&[&M]> = vec_model.chunks(10).collect::<Vec<_>>();
         self.clear();
         self.title();
+
+        // for c in pages.iter() {
+        //     for item in c.iter() {
+        //         println!("{:#?}", item.to_string());
+        //         self.wait("Waiting..");
+        //     }
+        // }
 
         let fun = |page: usize| -> Either<&M, usize> {
             self.display_page(vec_model.clone(), pages.clone(), page.to_owned())

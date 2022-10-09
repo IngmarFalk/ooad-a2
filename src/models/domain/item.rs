@@ -1,7 +1,6 @@
 use super::contract::Status;
 use super::system::{SysError, SysResult};
 use super::{contract::Contract, member::Member, FromMap};
-use crate::models::cdate::CDate;
 use crate::models::cvec::CVec;
 use crate::models::uuid::Uuid;
 use derive_getters::{Dissolve, Getters};

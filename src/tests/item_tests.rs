@@ -1,13 +1,10 @@
 #[cfg(test)]
 mod item_tests {
 
-    use crate::models::{
-        cdate::CDate,
-        domain::{
-            contract::Contract,
-            item::{Category, Item},
-            member::Member,
-        },
+    use crate::models::domain::{
+        contract::Contract,
+        item::{Category, Item},
+        member::Member,
     };
 
     #[test]
@@ -90,7 +87,6 @@ mod item_tests {
             .cost_per_day(20f64)
             .owner(allan.clone());
 
-        let start = CDate::now();
         let contract = Contract::default()
             .owner(allan.clone())
             .lendee(bob.clone())
@@ -98,9 +94,6 @@ mod item_tests {
             .credits(200f64)
             .from_date(0, 10)
             .build();
-        let end = CDate::now();
-
-        let end_date = CDate::in_days(10);
 
         assert_eq!(item.add_contract(contract, 0).is_ok(), true);
         let history = item.get_history().to_vec();

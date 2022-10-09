@@ -1,7 +1,7 @@
 use super::domain::system::SysError;
 use std::{
     fmt::Display,
-    io::{self, Write},
+    io::{self, stdin, Write},
     str::FromStr,
 };
 
@@ -106,8 +106,10 @@ where
         }
 
         let mut arr: Vec<T> = Vec::new();
-        let new_str = s.replace(['[', ']'], "");
+        let new_str = &s[1..s.len() - 1];
         for item in new_str.split(';') {
+            println!("{item}");
+            wait("Waiting234...");
             let temp = T::from_str(item);
             if let Ok(val) = temp {
                 arr.push(val)
@@ -116,5 +118,34 @@ where
         let len = arr.len();
 
         Ok(CVec { values: arr, len })
+    }
+}
+
+fn wait(display: &str) {
+    let out = format!("{}\n\nPress Enter to continue", display);
+    match get_str_input(out.as_str()).as_str() {
+        "" => {}
+        _ => wait(display),
+    }
+}
+
+fn get_str_input(display: &str) -> String {
+    println!("{display}");
+    match io::stdout().flush() {
+        Ok(_) => {}
+        Err(err) => println!("There was some error displaying to console: {err}"),
+    }
+    let mut buf = String::new();
+    match stdin().read_line(&mut buf) {
+        Ok(_) => {}
+        Err(_) => {
+            let out = format!("{}\nThere was a problem reading the input.", display);
+            return get_str_input(out.as_str());
+        }
+    };
+
+    match buf.strip_suffix('\n') {
+        Some(val) => val.to_owned(),
+        None => buf,
     }
 }

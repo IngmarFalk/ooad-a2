@@ -1,6 +1,5 @@
 use super::console::{Console, Ui};
 use super::Options;
-use crate::models::cdate::CDate;
 use crate::models::domain::item::Category;
 use crate::models::domain::{item::Item, Data};
 use shared::{COptions, View};
