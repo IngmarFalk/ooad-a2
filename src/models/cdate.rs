@@ -1,4 +1,4 @@
-use chrono::ParseError;
+use chrono::{Duration, ParseError};
 use std::str::FromStr;
 
 /// Date wrapper for `chrono::Date`
@@ -16,6 +16,12 @@ impl CDate {
     pub fn now() -> Self {
         Self {
             date: chrono::offset::Local::now().naive_local().date(),
+        }
+    }
+
+    pub fn in_days(days: i64) -> Self {
+        Self {
+            date: chrono::offset::Local::now().naive_local().date() + Duration::days(days),
         }
     }
 

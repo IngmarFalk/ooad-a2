@@ -33,12 +33,12 @@ pub struct Contract {
     #[mutable_ignore]
     lendee: Member,
 
-    #[getter(rename = "get_start_day")]
+    #[getter(rename = "get_start_date")]
     #[mutable_ignore]
-    start_day: CDate,
+    start_date: CDate,
 
-    #[getter(rename = "get_end_day")]
-    end_day: CDate,
+    #[getter(rename = "get_end_date")]
+    end_date: CDate,
 
     #[eq]
     #[getter(rename = "get_uuid")]
@@ -55,10 +55,6 @@ pub struct Contract {
 
     #[getter(rename = "get_credits")]
     credits: f64,
-
-    #[getter(rename = "get_cost_per_day")]
-    #[mutable_ignore]
-    cost_per_day: f64,
 }
 
 impl Contract {
@@ -66,8 +62,8 @@ impl Contract {
     pub fn new(
         owner: Member,
         lendee: Member,
-        start_day: CDate,
-        end_day: CDate,
+        start_date: CDate,
+        end_date: CDate,
         item: Item,
         contract_len: i64,
         credits: f64,
@@ -76,31 +72,39 @@ impl Contract {
             owner,
             lendee,
             uuid: Uuid::new(),
-            start_day,
-            end_day,
+            start_date,
+            end_date: end_date,
             item,
             contract_len,
             credits,
-            cost_per_day: credits / contract_len as f64,
         }
     }
 
     pub fn get_days_left(&self) -> Option<u32> {
         let now = CDate::now();
-        if now < self.start_day || now > self.end_day {
+        if now < self.start_date || now > self.end_date {
             return None;
         }
-        Some(now.days_till(&self.end_day).unwrap() as u32)
+        Some(now.days_till(&self.end_date).unwrap() as u32)
     }
 
-    ///! Required:
+    /// ! IMPORTANT
     ///
-    ///! Before calling this method the `self.credits` have to already ben set.
+    /// ! Before calling this method to build a new contract instance, the item has to
+    /// have already been set.
     pub fn from_now_with_days(&mut self, days: i64) -> Self {
         self.contract_len = days;
-        self.start_day = CDate::now();
-        self.end_day = CDate::new(self.start_day.as_naive_date() + Duration::days(days));
-        self.cost_per_day = self.credits / days as f64;
+        self.start_date = CDate::now();
+        self.end_date = CDate::new(self.start_date.as_naive_date() + Duration::days(days));
+        self.credits = self.item.get_cost_per_day() * days as f64;
+        self.clone()
+    }
+
+    pub fn from_date_with_days(&mut self, date: CDate, days: i64) -> Self {
+        self.contract_len = days;
+        self.start_date = date;
+        self.end_date = CDate::new(self.start_date.as_naive_date() + Duration::days(days));
+        self.credits = self.item.get_cost_per_day() * days as f64;
         self.clone()
     }
 }

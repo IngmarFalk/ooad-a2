@@ -2,7 +2,7 @@ use super::console::{Console, Ui};
 use super::Options;
 use crate::models::domain::item::Category;
 use crate::models::domain::{item::Item, Data, FromMap};
-use prettytable::Table;
+use prettytable::{Cell, Table};
 use shared::{COptions, View};
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -62,7 +62,10 @@ impl ItemView for CliItemView {
 
     fn display_item_info(&self, item: &Item) {
         let mut table = Table::new();
-        table.add_row(item.to_row());
+        let mut row = item.to_row();
+        row.remove_cell(5);
+        row.insert_cell(5, Cell::new(item.get_owner().get_name()));
+        table.add_row(row);
         self.console.display_table(table);
     }
 

@@ -1,5 +1,7 @@
 #[cfg(test)]
 mod item_tests {
+    use chrono::Duration;
+
     use crate::models::{
         cdate::CDate,
         domain::{
@@ -87,6 +89,7 @@ mod item_tests {
             .cost_per_day(20f64)
             .owner(allan.clone());
 
+        let start = CDate::now();
         let contract = Contract::default()
             .owner(allan.clone())
             .lendee(bob.clone())
@@ -94,8 +97,21 @@ mod item_tests {
             .credits(200f64)
             .from_now_with_days(10)
             .build();
+        let end = CDate::now();
+
+        let end_date = CDate::in_days(10);
 
         assert_eq!(item.add_contract(contract).is_ok(), true);
+        let history = item.get_history().to_vec();
+        let c = history.first().unwrap();
+        assert_eq!(c.get_owner(), &allan);
+        assert_eq!(c.get_lendee(), &bob);
+        assert_eq!(c.get_credits(), &200f64);
+        assert_eq!(c.get_item(), &item);
+        assert_eq!(c.get_start_date() >= &start, true);
+        assert_eq!(c.get_start_date() <= &end, true);
+        assert_eq!(c.get_end_date(), &end_date);
+        assert_eq!(c.get_contract_len(), &10);
     }
 
     #[test]
@@ -110,19 +126,32 @@ mod item_tests {
             .email("bob@gmail.com".to_owned())
             .phone_nr("46291328475".to_owned())
             .build();
-        let mut item = Item::default()
+        let mut monopoly = Item::default()
             .name("Monopoly".to_owned())
             .description("A Family Game".to_owned())
             .category(Category::Game)
             .cost_per_day(20f64)
             .owner(allan.clone());
 
-        let contract = Contract::default()
+        let c1 = Contract::default()
             .owner(allan.clone())
             .lendee(bob.clone())
-            .contract_len(10)
+            .item(monopoly.clone())
+            .credits(200f64)
+            .from_now_with_days(10)
             .build();
 
-        assert_eq!(item.add_contract(contract).is_ok(), true);
+        let c2 = Contract::default()
+            .owner(allan.clone())
+            .lendee(bob.clone())
+            .item(monopoly.clone())
+            .credits(100f64)
+            .from_date_with_days(CDate::in_days(3), 5)
+            .build();
+
+        println!("{:#?}", monopoly.get_history());
+
+        assert_eq!(monopoly.add_contract(c1).is_ok(), true);
+        assert_eq!(monopoly.add_contract(c2).is_ok(), false);
     }
 }

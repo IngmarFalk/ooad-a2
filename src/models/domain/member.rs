@@ -36,7 +36,6 @@ pub trait MemberValidation {
 #[dissolve(rename = "unpack")]
 pub struct Member {
     #[getter(rename = "get_name")]
-    #[eq]
     name: String,
 
     #[getter(rename = "get_email")]
@@ -125,16 +124,10 @@ impl MemberValidation for Member {
             return Err(MemValError::PhoneNumberContainsNonNumeric);
         }
 
-        let reg = regex::Regex::new(r"([ 0-9]){10,16}$").unwrap();
+        let reg = regex::Regex::new(r"([ 0-9]){8,16}$").unwrap();
 
         if let false = reg.is_match(self.get_phone_nr()) {
             return Err(MemValError::PhoneNumberPattern);
-        }
-
-        let len = self.get_phone_nr().len();
-        match len {
-            len if len < 8 || len > 12 => return Err(MemValError::PhoneNumber),
-            _ => {}
         }
 
         Ok(())
@@ -156,14 +149,14 @@ impl MemberValidation for Member {
 
 impl Validate<Member> for Member {
     fn validate(&self) -> ValResult<()> {
-        if self.validate_email().is_err() {
-            return Err(Check::Invalid);
+        if let Err(err) = self.validate_email() {
+            return Err(Check::Invalid(err.to_string()));
         }
-        if self.validate_id().is_err() {
-            return Err(Check::Invalid);
+        if let Err(err) = self.validate_id() {
+            return Err(Check::Invalid(err.to_string()));
         }
-        if self.validate_phone_nr().is_err() {
-            return Err(Check::Invalid);
+        if let Err(err) = self.validate_phone_nr() {
+            return Err(Check::Invalid(err.to_string()));
         }
         Ok(())
     }

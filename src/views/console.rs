@@ -318,13 +318,13 @@ impl Ui for Console {
         self.display_table(table);
 
         let page_count = chunks.len();
-        let page_display = format!("Page: {} / {}", curr_page, page_count);
+        let page_display = format!("Page: {} / {}", curr_page + 1, page_count);
         self.write(page_display.as_str());
         let msg = "Press \n\tn\t(next)\n\tp\t(previous)\n\tq\t(quit)\n\te\t(go back to menu)\n\t0..9\t(select)\n\t";
         let inp = self.get_char_input(msg);
 
         if let Ok(res) = inp.to_string().parse::<usize>() {
-            return match res < 10 {
+            return match res < chunks[curr_page].len() {
                 true => Either::Left(vec_model[curr_page * 10 + res]),
                 false => self.display_page(vec_model.clone(), chunks.clone(), curr_page),
             };
@@ -376,6 +376,7 @@ impl Ui for Console {
         T: Data + FromMap + ToMap + Model,
     {
         self.title();
+        self.write("I you do not want to edit a certain parameter, simply hit enter without typing anything.");
         let new_model_info = self.get_consecutive_str_input(T::head_allowed_mutable());
         let obj_map = obj.to_map_allowed_mutable();
         let values_tuples = new_model_info

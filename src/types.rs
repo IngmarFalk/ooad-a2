@@ -1,3 +1,5 @@
+use std::clone;
+
 use thiserror::Error;
 
 /// All traits in this file can be implemented without any methods.
@@ -32,14 +34,14 @@ pub type ValResult<T> = Result<T, Check>;
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum Check {
     Ok,
-    Invalid,
+    Invalid(String),
 }
 
 impl std::fmt::Display for Check {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self {
+        match self {
             Check::Ok => f.write_str("Ok"),
-            Check::Invalid => f.write_str("Invalid"),
+            Check::Invalid(s) => f.write_str(s.as_str()),
         }
     }
 }
