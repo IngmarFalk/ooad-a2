@@ -58,7 +58,6 @@ impl Display for Category {
 #[derive(
     Debug,
     Clone,
-    Default,
     Getters,
     Dissolve,
     Builder,
@@ -106,6 +105,22 @@ pub struct Item {
     uuid: Uuid,
 }
 
+impl Default for Item {
+    fn default() -> Self {
+        Self {
+            name: Default::default(),
+            description: Default::default(),
+            category: Default::default(),
+            history: Default::default(),
+            owner: Default::default(),
+            day_of_creation: Default::default(),
+            cost_per_day: Default::default(),
+            is_available: true,
+            uuid: Default::default(),
+        }
+    }
+}
+
 impl Item {
     /// Creates a new item.
     pub fn new(
@@ -134,6 +149,9 @@ impl Item {
             Some(_) => Err(SysError::AlreadyExists),
             None => {
                 self.history.push(contract);
+                if let Some(_) = self.get_active_contract() {
+                    self.set_unavailable();
+                }
                 Ok(())
             }
         }
@@ -157,5 +175,13 @@ impl Item {
             }
         }
         None
+    }
+
+    fn set_unavailable(&mut self) {
+        self.is_available = false;
+    }
+
+    fn set_available(&mut self) {
+        self.is_available = true;
     }
 }

@@ -1,6 +1,7 @@
 use super::{item::Item, member::Member, FromMap};
 use crate::models::cdate::CDate;
 use crate::models::uuid::Uuid;
+use chrono::Duration;
 use derive_getters::{Dissolve, Getters};
 use shared::{Builder, CData, CFromMap, CFromStr, CPartialEq, CToMap, CToStr, Model};
 use std::collections::HashMap;
@@ -50,10 +51,14 @@ pub struct Contract {
 
     #[getter(rename = "get_contract_len")]
     #[mutable_ignore]
-    contract_len: u32,
+    contract_len: i64,
 
     #[getter(rename = "get_credits")]
     credits: f64,
+
+    #[getter(rename = "get_cost_per_day")]
+    #[mutable_ignore]
+    cost_per_day: f64,
 }
 
 impl Contract {
@@ -64,7 +69,7 @@ impl Contract {
         start_day: CDate,
         end_day: CDate,
         item: Item,
-        contract_len: u32,
+        contract_len: i64,
         credits: f64,
     ) -> Self {
         Self {
@@ -76,10 +81,26 @@ impl Contract {
             item,
             contract_len,
             credits,
+            cost_per_day: credits / contract_len as f64,
         }
     }
 
-    pub fn from_now_with_len(&mut self, len: usize) -> &mut Self {
-        todo!()
+    pub fn get_days_left(&self) -> Option<u32> {
+        let now = CDate::now();
+        if now < self.start_day || now > self.end_day {
+            return None;
+        }
+        Some(now.days_till(&self.end_day).unwrap() as u32)
+    }
+
+    ///! Required:
+    ///
+    ///! Before calling this method the `self.credits` have to already ben set.
+    pub fn from_now_with_days(&mut self, days: i64) -> Self {
+        self.contract_len = days;
+        self.start_day = CDate::now();
+        self.end_day = CDate::new(self.start_day.as_naive_date() + Duration::days(days));
+        self.cost_per_day = self.credits / days as f64;
+        self.clone()
     }
 }

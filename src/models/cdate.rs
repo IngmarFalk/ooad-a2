@@ -20,12 +20,28 @@ impl CDate {
     }
 
     pub fn add_days(&self, days: i64) -> Self {
-        let mut date = self.as_naive_date();
+        let date = self.as_naive_date();
         CDate::new(date + chrono::Duration::days(days))
     }
 
     pub fn as_naive_date(&self) -> chrono::NaiveDate {
         self.date.clone()
+    }
+
+    pub fn days_from(&self, other: &CDate) -> Option<i64> {
+        let total = self.date - other.date;
+        match total.num_days() {
+            i if i > 0 => Some(i),
+            _ => None,
+        }
+    }
+
+    pub fn days_till(&self, other: &CDate) -> Option<i64> {
+        let total = other.date - self.date;
+        match total.num_days() {
+            i if i > 0 => Some(i),
+            _ => None,
+        }
     }
 }
 
