@@ -13,7 +13,7 @@ To install docker, please refer to the official website:*
 **To build the project run:**
 
 ```docker
-~ docker build -t a2 .
+docker build -t a2 .
 ```
 
 ## **Running**
@@ -21,7 +21,7 @@ To install docker, please refer to the official website:*
 **First - Enter the environment:**
 
 ```bash
-~ docker container run --rm -it `build_name` bash
+docker container run --rm -it `build_name` bash
 ```
 
 **You will then enter the container environment:**
@@ -41,7 +41,7 @@ root@e7417beb0975:/usr/src/a2# ~ cargo run
 **First - Enter the environment:**
 
 ```bash
-~ docker container run --rm -it `build_name` bash
+docker container run --rm -it `build_name` bash
 ```
 
 **Then - in the container environment type:**
@@ -55,7 +55,7 @@ root@e7417beb0975:/usr/src/a2# ~ cargo test
 **First - Enter the environment:**
 
 ```bash
-~ docker container run --rm -it `build_name` bash
+docker container run --rm -it `build_name` bash
 ```
 
 **Then - in the container environment type:**
