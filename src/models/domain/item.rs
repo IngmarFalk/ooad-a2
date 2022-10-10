@@ -202,9 +202,9 @@ impl Item {
         HashMap::from([("past", past), ("future", future), ("active", active)])
     }
 
-    pub fn get_availability(&self) -> Vec<(String, bool)> {
+    pub fn get_availability(&self, now: usize) -> Vec<(String, bool)> {
         let mut out = Vec::new();
-        for i in 0..30 {
+        for i in now..(now + 30) {
             out.push((i.to_string(), self.has_contract_on_date(&i)));
         }
         out

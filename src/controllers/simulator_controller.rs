@@ -35,6 +35,8 @@ where
                 c.wait("")
             }
         }
+        self.view
+            .wait(format!("Day: {}", self.model.now()).as_str());
         self.model.clone()
     }
 }

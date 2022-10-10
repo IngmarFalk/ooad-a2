@@ -105,7 +105,7 @@ where
         let item = self.view.select_item(self.model.get_items());
         match item {
             Some(i) => {
-                self.view.display_availability(&i);
+                self.view.display_availability(self.model.now(), &i);
                 self.ret("")
             }
             None => self.model.clone(),

@@ -23,6 +23,8 @@ pub enum SimulatorOption {
 pub trait SimulatorView {
     /// Shows all the options for the simulator.
     fn simulator_menu(&self) -> SimulatorOption;
+    /// waits for user.
+    fn wait(&self, display: &str);
 }
 
 /// Implementation for simulator view trait.
@@ -47,5 +49,9 @@ impl SimulatorView for CliSimulatorView {
             SimulatorOption::Other => self.simulator_menu(),
             _ => choice,
         }
+    }
+
+    fn wait(&self, display: &str) {
+        self.console.wait(display)
     }
 }

@@ -41,9 +41,9 @@ pub trait ItemView {
     /// Selecting an item from a list of possible options.
     fn select_item<'a>(&'a self, items: Vec<&'a Item>) -> Option<&Item>;
     /// Displays the next 30 days and wether the item is available on the day.
-    fn display_availability(&self, item: &Item);
+    fn display_availability(&self, now: usize, item: &Item);
     /// Selecting a date
-    fn select_date(&self, item: &Item) -> Option<usize>;
+    fn select_date(&self, now: usize, item: &Item) -> Option<usize>;
     /// Displays a message to the user and waits for him to respond.
     fn wait(&self, display: &str);
 }
@@ -152,10 +152,10 @@ impl ItemView for CliItemView {
         self.console.select_model(items)
     }
 
-    fn display_availability(&self, item: &Item) {
+    fn display_availability(&self, now: usize, item: &Item) {
         let check = '✓';
         let cross = '✕';
-        let am = item.get_availability();
+        let am = item.get_availability(now);
         for chunk in am.chunks(10) {
             for tpl in chunk.iter() {
                 print!("|  {}\t:{}  ", tpl.0, if tpl.1 { cross } else { check });
@@ -164,8 +164,8 @@ impl ItemView for CliItemView {
         }
     }
 
-    fn select_date(&self, item: &Item) -> Option<usize> {
-        self.display_availability(item);
+    fn select_date(&self, now: usize, item: &Item) -> Option<usize> {
+        self.display_availability(now, item);
         let inp = self
             .console
             .get_str_input("Press (0..30) to select or (e) to go back: ");
@@ -174,7 +174,7 @@ impl ItemView for CliItemView {
         } else {
             match inp.as_str() {
                 "e" => None,
-                _ => self.select_date(item),
+                _ => self.select_date(now, item),
             }
         }
     }

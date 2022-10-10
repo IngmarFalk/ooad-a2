@@ -223,35 +223,42 @@ impl LendingSystem for System {
     fn incr_time(&mut self) -> SysResult<()> {
         self.day += 1;
         let cp = self.clone();
+        let mut out: SysResult<()> = Ok(());
         for item in cp.get_items() {
-            match item.get_active_contract(self.day) {
+            let res = match item.get_active_contract(self.day) {
                 Some(con) => {
                     let owner = self.get_member(con.get_owner());
-                    if let Ok(mut o) = owner {
-                        match o.add_credits(*item.get_cost_per_day()) {
+                    let res1 = match owner {
+                        Ok(mut o) => match o.add_credits(*item.get_cost_per_day()) {
                             Ok(_) => match self.update_member(con.get_owner(), &o) {
-                                Err(err) => return Err(err),
-                                Ok(_) => return Ok(()),
+                                Err(err) => Err(err),
+                                Ok(_) => Ok(()),
                             },
-                            Err(_) => return Err(SysError::CannotUpdate),
-                        }
-                    }
+                            Err(_) => Err(SysError::CannotUpdate),
+                        },
+                        Err(_) => Ok(()),
+                    };
                     let lendee = self.get_member(con.get_lendee());
-                    match lendee {
+                    let res2 = match lendee {
                         Ok(mut l) => match l.deduce_credits(*item.get_cost_per_day()) {
                             Ok(_) => match self.update_member(con.get_lendee(), &l) {
-                                Ok(_) => return Ok(()),
-                                Err(err) => return Err(err),
+                                Ok(_) => Ok(()),
+                                Err(err) => Err(err),
                             },
-                            Err(_) => return Err(SysError::CannotUpdate),
+                            Err(_) => Err(SysError::CannotUpdate),
                         },
-                        Err(_) => return Err(SysError::CannotUpdate),
+                        Err(_) => Err(SysError::CannotUpdate),
+                    };
+                    match (res1, res2) {
+                        (Ok(_), Ok(_)) => Ok(()),
+                        _ => Err(SysError::CannotUpdate),
                     }
                 }
-                None => return Ok(()),
-            }
+                None => Ok(()),
+            };
+            out = res
         }
-        Ok(())
+        out
     }
 
     fn now(&self) -> usize {
@@ -323,7 +330,7 @@ impl Demo for System {
                 "Hammer".to_owned(),
                 "A useful tool".to_owned(),
                 Category::Tool,
-                members[2].clone(),
+                members[1].clone(),
                 150f64,
                 sys.now(),
             ),
@@ -351,14 +358,25 @@ impl Demo for System {
                 10,
                 items[3].get_cost_per_day() * 10f64,
             ),
+            Contract::new(
+                items[1].get_owner().clone(),
+                members[1].clone(),
+                sys.now(),
+                5,
+                items[1].get_cost_per_day() * 20f64,
+            ),
         ];
 
         for member in members.iter() {
             self.add_member(member.clone()).expect("");
+            let mut temp = member.clone();
+            temp.add_credits(700f64).expect("");
+            self.update_member(member, &temp).expect("");
         }
         items[0].add_contract(contracts[0].clone()).expect("");
         items[1].add_contract(contracts[1].clone()).expect("");
         items[1].add_contract(contracts[2].clone()).expect("");
+        items[2].add_contract(contracts[3].clone()).expect("");
         for item in items.iter() {
             self.add_item(item.clone()).expect("");
         }

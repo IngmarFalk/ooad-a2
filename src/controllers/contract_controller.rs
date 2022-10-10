@@ -72,7 +72,7 @@ where
                     if lendee == i.get_owner() {
                         return self.ret("Cannot lend to yourself.");
                     }
-                    match iview.select_date(&i) {
+                    match iview.select_date(self.model.now(), &i) {
                         Some(start_date) => {
                             let data = self.view.get_contract_info();
                             let contract = Contract::new(
@@ -83,6 +83,9 @@ where
                                 *i.get_cost_per_day() * *data.get_contract_len() as f64,
                             );
                             let mut temp = i.clone();
+                            if let false = lendee.get_credits() >= contract.get_credits() {
+                                return self.ret("Lendee doesnt have enough credits.");
+                            };
                             match temp.add_contract(contract) {
                                 Ok(_) => match self.model.update_item(&temp) {
                                     Ok(_) => {
