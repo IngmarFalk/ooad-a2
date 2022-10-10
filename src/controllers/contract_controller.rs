@@ -1,3 +1,4 @@
+use super::app::Page;
 use crate::{
     models::domain::{contract::Contract, item::Item, system::LendingSystem},
     types::{Model, View},
@@ -134,12 +135,12 @@ where
     }
 }
 
-impl<M, V> App<M> for ContractController<M, V>
+impl<M, V> Page<M> for ContractController<M, V>
 where
     M: Model + LendingSystem + Clone,
     V: View + ContractView,
 {
-    fn run(&mut self, sys: M) -> M {
+    fn show(&mut self, sys: M) -> M {
         let choice = self.view.contract_menu();
         let state = match choice {
             ContractOption::DisplayContractSimple => self.display_contract_simple(),
@@ -148,6 +149,6 @@ where
             ContractOption::Quit => std::process::exit(0),
             _ => return sys,
         };
-        self.run(state)
+        self.show(state)
     }
 }
