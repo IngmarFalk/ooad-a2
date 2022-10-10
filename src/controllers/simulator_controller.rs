@@ -2,11 +2,15 @@ use super::app::Page;
 use crate::{
     models::domain::system::LendingSystem,
     types::{Model, View},
-    views::simulator_view::SimulatorView,
+    views::{
+        console::{Console, Ui},
+        simulator_view::{SimulatorOption, SimulatorView},
+    },
 };
 use shared::controller;
 
 /// The simulator.
+#[derive(Debug, Clone)]
 #[controller(SimulatorView)]
 pub struct SimulatorController<M, V>
 where
@@ -17,12 +21,37 @@ where
     view: V,
 }
 
+impl<M, V> SimulatorController<M, V>
+where
+    M: Model + LendingSystem + Clone,
+    V: View + SimulatorView,
+{
+    fn incr_day(&mut self) -> M {
+        match self.model.incr_time() {
+            Ok(_) => {}
+            Err(err) => {
+                let c = Console::new();
+                c.write(err.to_string().as_str());
+                c.wait("")
+            }
+        }
+        self.model.clone()
+    }
+}
+
 impl<M, V> Page<M> for SimulatorController<M, V>
 where
-    M: Model + LendingSystem,
+    M: Model + LendingSystem + Clone,
     V: View + SimulatorView,
 {
     fn show(&mut self, sys: M) -> M {
-        todo!()
+        let choice = self.view.simulator_menu();
+        let state = match choice {
+            SimulatorOption::IncrDay => self.incr_day(),
+            SimulatorOption::Back => return sys,
+            SimulatorOption::Quit => std::process::exit(0),
+            SimulatorOption::Other => sys,
+        };
+        self.show(state)
     }
 }

@@ -3,7 +3,7 @@ use crate::models::domain::item::Item;
 use crate::models::domain::member::Member;
 use crate::models::domain::Data;
 use crate::views::Options;
-use prettytable::{table, Cell, Row, Table};
+use prettytable::{Cell, Row, Table};
 use shared::{COptions, View};
 use std::str::FromStr;
 

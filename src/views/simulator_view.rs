@@ -1,9 +1,29 @@
+use super::{
+    console::{Console, Ui},
+    Options,
+};
 use crate::types::View;
+use shared::COptions;
+use std::str::FromStr;
 
-use super::console::Console;
+#[derive(Debug, COptions)]
+pub enum SimulatorOption {
+    /// Increments Day for the system.
+    IncrDay,
+    /// Goes Back.
+    Back,
+    /// Quits The Application.
+    Quit,
+    /// Any Other other choice.
+    #[other]
+    Other,
+}
 
-/// The simulators view.
-pub trait SimulatorView {}
+/// Defines all methods for the simulator view.
+pub trait SimulatorView {
+    /// Shows all the options for the simulator.
+    fn simulator_menu(&self) -> SimulatorOption;
+}
 
 /// Implementation for simulator view trait.
 pub struct CliSimulatorView {
@@ -19,4 +39,13 @@ impl CliSimulatorView {
     }
 }
 
-impl SimulatorView for CliSimulatorView {}
+impl SimulatorView for CliSimulatorView {
+    fn simulator_menu(&self) -> SimulatorOption {
+        self.console.title();
+        let choice = self.console.show_menu(SimulatorOption::options());
+        match choice {
+            SimulatorOption::Other => self.simulator_menu(),
+            _ => choice,
+        }
+    }
+}

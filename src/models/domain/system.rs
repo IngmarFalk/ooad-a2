@@ -49,7 +49,7 @@ pub trait LendingSystem {
     fn count_items_for_member(&self, member: &Member) -> usize;
     /// Increments system day counter and calls all required methods to update contracts
     /// items and members information.
-    fn incr_time(&mut self);
+    fn incr_time(&mut self) -> SysResult<()>;
     /// Gets current time.
     fn now(&self) -> usize;
 }
@@ -220,7 +220,7 @@ impl LendingSystem for System {
         })
     }
 
-    fn incr_time(&mut self) {
+    fn incr_time(&mut self) -> SysResult<()> {
         self.day += 1;
         let cp = self.clone();
         for item in cp.get_items() {
@@ -230,21 +230,28 @@ impl LendingSystem for System {
                     if let Ok(mut o) = owner {
                         match o.add_credits(*item.get_cost_per_day()) {
                             Ok(_) => match self.update_member(con.get_owner(), &o) {
-                                Ok(_) => {}
-                                Err(_) => {}
+                                Err(err) => return Err(err),
+                                Ok(_) => return Ok(()),
                             },
-                            Err(err) => {}
+                            Err(_) => return Err(SysError::CannotUpdate),
                         }
                     }
                     let lendee = self.get_member(con.get_lendee());
-                    if let Ok(mut l) = lendee {
-                        l.deduce_credits(*item.get_cost_per_day());
-                        self.update_member(con.get_lendee(), &l);
+                    match lendee {
+                        Ok(mut l) => match l.deduce_credits(*item.get_cost_per_day()) {
+                            Ok(_) => match self.update_member(con.get_lendee(), &l) {
+                                Ok(_) => return Ok(()),
+                                Err(err) => return Err(err),
+                            },
+                            Err(_) => return Err(SysError::CannotUpdate),
+                        },
+                        Err(_) => return Err(SysError::CannotUpdate),
                     }
                 }
-                None => {}
+                None => return Ok(()),
             }
         }
+        Ok(())
     }
 
     fn now(&self) -> usize {

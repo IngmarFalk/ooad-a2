@@ -100,6 +100,17 @@ where
             None => self.model.clone(),
         }
     }
+
+    fn show_availability(&self) -> M {
+        let item = self.view.select_item(self.model.get_items());
+        match item {
+            Some(i) => {
+                self.view.display_availability(&i);
+                self.ret("")
+            }
+            None => self.model.clone(),
+        }
+    }
 }
 
 impl<M, V> Page<M> for ItemController<M, V>
@@ -115,6 +126,7 @@ where
             ItemMenuOption::EditItemInfo => self.edit_item(),
             ItemMenuOption::CreateItem => self.create_item(),
             ItemMenuOption::DeleteItem => self.delete_item(),
+            ItemMenuOption::ShowAvailability => self.show_availability(),
             ItemMenuOption::Quit => std::process::exit(0),
             ItemMenuOption::Back => return sys,
             ItemMenuOption::Other => sys,

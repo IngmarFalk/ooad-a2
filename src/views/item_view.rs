@@ -1,6 +1,5 @@
 use super::console::{Console, Ui};
 use super::Options;
-use crate::models::domain::contract::Contract;
 use crate::models::domain::item::Category;
 use crate::models::domain::{item::Item, Data};
 use shared::{COptions, View};
@@ -18,6 +17,8 @@ pub enum ItemMenuOption {
     CreateItem,
     /// Delets a specific item.
     DeleteItem,
+    /// Shows availability
+    ShowAvailability,
     /// Go back to the previous page.
     Back,
     /// Quits the entire application.
