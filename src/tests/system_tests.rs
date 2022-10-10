@@ -182,12 +182,14 @@ mod system_tests {
         )
         .expect("Should not fail.");
 
-        let item = Item::default()
-            .name("Monopoly".to_owned())
-            .description("A beautiful Family Game.".to_owned())
-            .cost_per_day(20f64)
-            .category(Category::Game)
-            .build();
+        let item = Item::new(
+            "Monopoly".to_owned(),
+            "A beautiful Family Game.".to_owned(),
+            Category::Game,
+            turing.clone(),
+            20f64,
+            0,
+        );
 
         let mut system = System::new();
         system
@@ -208,11 +210,14 @@ mod system_tests {
         )
         .expect("Should not fail.");
 
-        let item = Item::default()
-            .name("Monopoly".to_owned())
-            .description("A beautiful Family Game.".to_owned())
-            .cost_per_day(20f64)
-            .category(Category::Game);
+        let item = Item::new(
+            "Monopoly".to_owned(),
+            "A beautiful Family Game.".to_owned(),
+            Category::Game,
+            turing.clone(),
+            20f64,
+            0,
+        );
 
         let mut system = System::new();
         system
@@ -223,6 +228,7 @@ mod system_tests {
         assert_eq!(r1, Ok(()));
 
         let r2 = system.get_item(&item);
+        println!("{:#?}", system.get_items());
         assert_eq!(r2.is_ok(), true);
     }
 
@@ -236,11 +242,14 @@ mod system_tests {
         )
         .expect("Should not fail.");
 
-        let item = Item::default()
-            .name("Monopoly".to_owned())
-            .description("A beautiful Family Game.".to_owned())
-            .cost_per_day(20f64)
-            .category(Category::Game);
+        let item = Item::new(
+            "Monopoly".to_owned(),
+            "A beautiful Family Game.".to_owned(),
+            Category::Game,
+            turing.clone(),
+            20f64,
+            0,
+        );
 
         let mut system = System::new();
         system
