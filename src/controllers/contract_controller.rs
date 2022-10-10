@@ -1,4 +1,3 @@
-use super::app::Page;
 use crate::{
     models::domain::{contract::Contract, item::Item, system::LendingSystem},
     types::{Model, View},
@@ -106,8 +105,6 @@ where
     fn edit_contract(&mut self) -> M {
         let iview = CliItemView::new();
         let item = iview.select_item(self.model.get_items());
-        iview.display_item_info(item.unwrap());
-        iview.wait("");
         match item {
             Some(i) => {
                 let mut history = i.get_history().clone();
@@ -127,7 +124,6 @@ where
                                 self.view.wait("Couldnt edit contract.");
                             }
                         };
-
                         self.model.clone()
                     }
                     None => self.model.clone(),
@@ -138,12 +134,12 @@ where
     }
 }
 
-impl<M, V> Page<M> for ContractController<M, V>
+impl<M, V> App<M> for ContractController<M, V>
 where
     M: Model + LendingSystem + Clone,
     V: View + ContractView,
 {
-    fn show(&mut self, sys: M) -> M {
+    fn run(&mut self, sys: M) -> M {
         let choice = self.view.contract_menu();
         let state = match choice {
             ContractOption::DisplayContractSimple => self.display_contract_simple(),
@@ -152,6 +148,6 @@ where
             ContractOption::Quit => std::process::exit(0),
             _ => return sys,
         };
-        self.show(state)
+        self.run(state)
     }
 }

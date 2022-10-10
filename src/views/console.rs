@@ -361,11 +361,7 @@ impl Ui for Console {
 
         if let Ok(res) = inp.to_string().parse::<usize>() {
             return match res < chunks[curr_page].len() {
-                true => {
-                    println!("{}", vec_model[curr_page * 10 + res]);
-                    self.wait("");
-                    Either::Left(vec_model[curr_page * 10 + res])
-                }
+                true => Either::Left(vec_model[curr_page * 10 + res]),
                 false => self.display_page(vec_model.clone(), chunks.clone(), curr_page),
             };
         } else {
