@@ -66,4 +66,4 @@ root@e7417beb0975:/usr/src/a2# ~ cargo clippy --all
 
 ## The Test Report
 
-The test report is an automatically generated table derived from the output of the `cargo test` command piped into the `test_results` file via the command: `cargo test > test_results`
+The test report is an automatically generated table derived from the output of the `cargo test` command piped into the `test_results` file via the command: `cargo test > test_results`. After that you can generate the report by running `python test.py` (requires python 3.10).
