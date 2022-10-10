@@ -1,5 +1,6 @@
-use super::domain::system::SysError;
 use std::{fmt::Display, str::FromStr};
+
+use crate::errors::SysError;
 
 /// Wrapper fro `Vec<T>`
 #[derive(Debug, PartialEq, Eq, Default, Clone)]

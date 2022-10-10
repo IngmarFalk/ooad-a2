@@ -1,6 +1,7 @@
-use crate::models::domain::FromMap;
+use crate::errors::{Check, MemValError};
 use crate::models::uuid::Uuid;
-use crate::types::{Check, ValResult, Validate};
+use crate::types::FromMap;
+use crate::types::{MemValResult, ValResult, Validate};
 use derive_getters::{Dissolve, Getters};
 use shared::{
     Builder, DeriveData, DeriveFromMap, DeriveFromStr, DerivePartialEq, DeriveToMap, DeriveToStr,
@@ -8,7 +9,6 @@ use shared::{
 };
 use std::collections::HashMap;
 use std::str::FromStr;
-use thiserror::Error;
 
 /// Defines methods needed for member validation.
 pub trait MemberValidation {
@@ -189,58 +189,6 @@ impl Default for Member {
             credits: 0f64,
             day_of_creation: 0,
             uuid: Uuid::new(),
-        }
-    }
-}
-
-/// Member validation result.
-///
-/// This is the result returned by the member validation,
-pub type MemValResult<T> = Result<T, MemValError>;
-
-/// Member Validation Error.
-#[derive(Debug, Error, PartialEq, Eq)]
-pub enum MemValError {
-    /// Negative Credits
-    NegativeCreditInput,
-    /// Would go into negative
-    DeduceAmountToHigh,
-    /// Id error.
-    Id,
-    /// If the id contains anything else then integers or alphabetic characters.
-    IdContainsNonAlphaNumeric,
-    /// Email error.
-    Email,
-    /// If the email doesnt match the validation pattern.
-    EmailPattern,
-    /// Phone number error.
-    PhoneNumber,
-    /// if the phone number contains anything but integers.
-    PhoneNumberContainsNonNumeric,
-    /// If the phone number doesnt match the validation pattern.
-    PhoneNumberPattern,
-}
-
-impl std::fmt::Display for MemValError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self {
-            MemValError::Id => f.write_str("Invalid Id"),
-            MemValError::IdContainsNonAlphaNumeric => {
-                f.write_str("Id contains non alpha-numeric characters.")
-            }
-            MemValError::Email => f.write_str("Invalid Email"),
-            MemValError::EmailPattern => f.write_str("Email doesnt match any valid patterns."),
-            MemValError::PhoneNumber => f.write_str("Invalid Phone number"),
-            MemValError::PhoneNumberContainsNonNumeric => {
-                f.write_str("Phone number contains non-numeric values.")
-            }
-            MemValError::PhoneNumberPattern => {
-                f.write_str("Phone number doesnt match any valid patterns.")
-            }
-            MemValError::NegativeCreditInput => {
-                f.write_str("Tried adding/substracting negative amount of credits.")
-            }
-            MemValError::DeduceAmountToHigh => f.write_str("The amount of credits to deduce is higher than the amount that the member currently owns.")
         }
     }
 }

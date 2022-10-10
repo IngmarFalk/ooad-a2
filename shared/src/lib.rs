@@ -103,7 +103,7 @@ pub fn derive_from_str(inp: TokenStream) -> TokenStream {
 
     let res = quote! {
         impl FromStr for #ident {
-            type Err = crate::models::domain::system::SysError;
+            type Err = crate::errors::SysError;
 
             fn from_str(s: &str) -> Result<Self, Self::Err> {
 
@@ -251,7 +251,7 @@ pub fn derive_from_map(inp: TokenStream) -> TokenStream {
     });
 
     let res = quote! {
-    impl crate::models::domain::FromMap for #ident {
+    impl crate::types::FromMap for #ident {
         fn from_complete_map(data: ::std::collections::HashMap<::std::string::String, ::std::string::String>) -> Self {
             Self {
                 #(#from_map_args,)*
@@ -331,7 +331,7 @@ pub fn derive_to_map(inp: TokenStream) -> TokenStream {
     });
 
     let res = quote! {
-    impl crate::models::domain::ToMap for #ident {
+    impl crate::types::ToMap for #ident {
         fn to_map(&self) -> ::std::collections::HashMap<::std::string::String, ::std::string::String> {
             ::std::collections::HashMap::from([
                 #(#to_map_args,)*
@@ -419,7 +419,7 @@ pub fn derive_to_table(inp: TokenStream) -> TokenStream {
     });
 
     let res = quote! {
-    impl crate::models::domain::Data for #ident {
+    impl crate::types::Data for #ident {
         fn to_row(&self) -> prettytable::Row {
             prettytable::row![
                 #(#row_attrs,)*

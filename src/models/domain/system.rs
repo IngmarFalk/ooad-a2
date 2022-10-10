@@ -3,11 +3,9 @@ use super::{
     item::{Category, Item},
     member::Member,
 };
-use crate::models::uuid::Uuid;
-use anyhow::Result;
+use crate::{errors::SysError, models::uuid::Uuid, types::SysResult};
 use shared::{Builder, Model};
 use std::collections::HashMap;
-use thiserror::Error;
 
 pub trait Demo {
     fn init_demo(&mut self);
@@ -379,36 +377,6 @@ impl Demo for System {
         items[2].add_contract(contracts[3].clone()).expect("");
         for item in items.iter() {
             self.add_item(item.clone()).expect("");
-        }
-    }
-}
-
-/// System error result.
-pub type SysResult<T> = Result<T, SysError>;
-
-/// System Error.
-#[derive(Debug, Error, PartialEq, Eq)]
-pub enum SysError {
-    /// If an object already exists.
-    AlreadyExists,
-    /// If an object doesnt exists.
-    DoesntExist,
-    /// Cannot insert an object.
-    CannotInsert,
-    /// Cannot delete an object.
-    CannotDelete,
-    /// Cannot update an object.
-    CannotUpdate,
-}
-
-impl std::fmt::Display for SysError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match *self {
-            SysError::AlreadyExists => f.write_str("This object already exists."),
-            SysError::DoesntExist => f.write_str("This object doesnt exists."),
-            SysError::CannotInsert => f.write_str("There was an problem inserting this object."),
-            SysError::CannotDelete => f.write_str("There was a problem deleting this object."),
-            SysError::CannotUpdate => f.write_str("There was a problem updating this object."),
         }
     }
 }

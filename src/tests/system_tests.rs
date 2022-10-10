@@ -1,9 +1,12 @@
 #[cfg(test)]
 mod system_tests {
-    use crate::models::domain::{
-        item::{Category, Item},
-        member::Member,
-        system::{LendingSystem, SysError, System},
+    use crate::{
+        errors::SysError,
+        models::domain::{
+            item::{Category, Item},
+            member::Member,
+            system::{LendingSystem, System},
+        },
     };
 
     #[test]

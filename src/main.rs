@@ -26,6 +26,10 @@ pub mod tests;
 /// Contains Shared types.
 pub mod types;
 
+/// Error Module
+///
+/// Contains errors needed in the system.
+pub mod errors;
 /// Views Module
 ///
 /// Contains all ui/ux related functionality.

@@ -1,7 +1,7 @@
 use super::console::{Console, Ui};
 use crate::models::domain::item::Item;
 use crate::models::domain::member::Member;
-use crate::models::domain::Data;
+use crate::types::Data;
 use crate::views::Options;
 use prettytable::{Cell, Row, Table};
 use shared::{DeriveOptions, View};

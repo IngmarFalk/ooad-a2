@@ -1,7 +1,8 @@
 use super::console::{Console, Ui};
 use super::Options;
 use crate::models::domain::item::Category;
-use crate::models::domain::{item::Item, Data};
+use crate::models::domain::item::Item;
+use crate::types::Data;
 use shared::{DeriveOptions, View};
 use std::str::FromStr;
 

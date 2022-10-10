@@ -1,4 +1,4 @@
-use crate::models::domain::FromMap;
+use crate::types::FromMap;
 use derive_getters::Getters;
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
 use shared::{DeriveFromMap, DeriveFromStr, DeriveToMap, DeriveToStr};

@@ -1,7 +1,7 @@
 use super::Options;
 use crate::{
-    models::domain::{item::Item, Data, FromMap, ToMap},
-    types::Model,
+    models::domain::item::Item,
+    types::{Data, FromMap, Model, ToMap},
 };
 use prettytable::{Cell, Row, Table};
 use std::{

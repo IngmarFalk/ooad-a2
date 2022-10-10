@@ -1,8 +1,10 @@
 use super::contract::Status;
-use super::system::{SysError, SysResult};
-use super::{contract::Contract, member::Member, FromMap};
+use super::{contract::Contract, member::Member};
+use crate::errors::SysError;
 use crate::models::uuid::Uuid;
 use crate::models::vec_wrapper::VecWrapper;
+use crate::types::FromMap;
+use crate::types::SysResult;
 use derive_getters::{Dissolve, Getters};
 use shared::{
     Builder, DeriveData, DeriveFromMap, DeriveFromStr, DerivePartialEq, DeriveToMap, DeriveToStr,
