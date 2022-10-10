@@ -55,7 +55,7 @@ where
                         Ok(_) => self.ret("Updated item data successfully."),
                         Err(_) => self.ret("Unable to update item information."),
                     },
-                    None => todo!(),
+                    None => self.model.clone(),
                 }
             }
             None => self.model.clone(),

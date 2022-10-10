@@ -1,5 +1,6 @@
 use super::console::{Console, Ui};
 use super::Options;
+use crate::models::domain::contract::Contract;
 use crate::models::domain::item::Category;
 use crate::models::domain::{item::Item, Data};
 use shared::{COptions, View};
@@ -63,14 +64,39 @@ impl ItemView for CliItemView {
     }
 
     fn display_item_info(&self, item: &Item) {
+        let hm = item.get_history_map();
+        let history = hm
+            .iter()
+            .map(|(key, val)| {
+                let contracts = val
+                    .iter()
+                    .map(|cons| {
+                        format!(
+                            "\n[\n\tOwner:\t{}\n\tLendee:\t{}\n\tCredits:\t{}\n\tLength:\t{}\n]",
+                            cons.get_owner().get_name(),
+                            cons.get_lendee().get_name(),
+                            cons.get_credits(),
+                            cons.get_contract_len(),
+                        )
+                    })
+                    .collect::<Vec<String>>();
+                let s = contracts.join("\n");
+                (*key, s)
+            })
+            .collect::<Vec<(&str, String)>>();
+        let out = history
+            .iter()
+            .map(|(k, v)| format!("{}: {}", k, v))
+            .collect::<Vec<String>>()
+            .join("\n");
         let out = format!(
-            "Name:\t\t{}\nDescriptioin:\t{}\nCategory:\t{}\nOwner:\t\t{}\nCost/Day:\t\t{}\nHistory\t\t\n{:#?}",
+            "Name:\t\t{}\nDescriptioin:\t{}\nCategory:\t{}\nOwner:\t\t{}\nCost/Day:\t{}\nHistory:\n{}",
             item.get_name(),
             item.get_description(),
             item.get_category(),
             item.get_owner().get_name(),
             item.get_cost_per_day(),
-            item.get_history_map(),
+            out,
         );
 
         self.console.clear();

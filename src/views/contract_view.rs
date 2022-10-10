@@ -77,7 +77,7 @@ impl ContractView for CliContractView {
         let out = format!(
             "Owner:\t{}\nLendee:\t{}\nCredits:\t{}\nStatus:\t{}\nStart Date:\t{}\nEnd Date:\t{}",
             contract.get_owner().get_name(),
-            contract.get_lendee(),
+            contract.get_lendee().get_name(),
             contract.get_credits(),
             contract.get_status(),
             contract.get_start_date(),

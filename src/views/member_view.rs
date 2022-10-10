@@ -3,7 +3,7 @@ use crate::models::domain::item::Item;
 use crate::models::domain::member::Member;
 use crate::models::domain::Data;
 use crate::views::Options;
-use prettytable::{Cell, Row, Table};
+use prettytable::{table, Cell, Row, Table};
 use shared::{COptions, View};
 use std::str::FromStr;
 
@@ -149,12 +149,20 @@ impl MemberView for CliMemberView {
         for entry in data {
             let mut buf = String::new();
             for item in entry.1 {
-                buf.push_str(item.to_string().as_str());
+                let out = format!(
+                    "Name: {}, Description: {}, Category: {}, Contracts: {}\n",
+                    &item.get_name(),
+                    &item.get_description(),
+                    &item.get_category(),
+                    &item.get_history().len,
+                );
+                buf.push_str(out.as_str())
             }
+
             let mut row = entry.0.to_row();
             row.remove_cell(5);
             row.add_cell(Cell::new(entry.0.get_uuid().get_value()));
-            let cell = Cell::new(buf.as_str());
+            let cell = Cell::new(&buf);
             row.add_cell(cell);
             table.add_row(row);
         }

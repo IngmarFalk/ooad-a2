@@ -128,10 +128,14 @@ impl MemberValidation for Member {
             return Err(MemValError::PhoneNumberContainsNonNumeric);
         }
 
-        let reg = regex::Regex::new(r"([ 0-9]){8,16}$").unwrap();
+        let reg = regex::Regex::new(r"([ 0-9]){8,12}$").unwrap();
 
         if let false = reg.is_match(self.get_phone_nr()) {
             return Err(MemValError::PhoneNumberPattern);
+        }
+
+        if self.get_phone_nr().len() > 12 || self.get_phone_nr().len() < 8 {
+            return Err(MemValError::PhoneNumber);
         }
 
         Ok(())

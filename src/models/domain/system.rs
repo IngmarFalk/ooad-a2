@@ -187,7 +187,7 @@ impl LendingSystem for System {
                         },
                         Err(_) => Err(SysError::CannotUpdate),
                     },
-                    Err(_) => todo!(),
+                    Err(err) => Err(err),
                 }
             }
         }
