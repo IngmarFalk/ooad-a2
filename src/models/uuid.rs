@@ -52,17 +52,3 @@ impl Default for Uuid {
         Uuid::new()
     }
 }
-
-#[cfg(test)]
-mod uuid_test {
-    use super::Uuid;
-
-    #[test]
-    fn test_len() {
-        let uuid = Uuid::default();
-        assert_eq!(uuid.len, 6);
-
-        let uuid2 = Uuid::with_len(15);
-        assert_eq!(uuid2.len, 15);
-    }
-}

@@ -4,5 +4,3 @@ test:cargo:
   script:
     - rustc --version && cargo --version
     - cargo test --workspace --verbose
-    - rustup component add clippy
-    - cargo clippy --all
