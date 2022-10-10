@@ -3,7 +3,10 @@ use super::system::SysError;
 use crate::models::domain::FromMap;
 use crate::models::uuid::Uuid;
 use derive_getters::{Dissolve, Getters};
-use shared::{Builder, CData, CFromMap, CFromStr, CPartialEq, CToMap, CToStr, Model};
+use shared::{
+    Builder, DeriveData, DeriveFromMap, DeriveFromStr, DerivePartialEq, DeriveToMap, DeriveToStr,
+    Model,
+};
 use std::collections::HashMap;
 use std::str::FromStr;
 
@@ -51,12 +54,12 @@ impl std::fmt::Display for Status {
     Getters,
     Dissolve,
     Builder,
-    CFromStr,
-    CFromMap,
-    CToStr,
-    CToMap,
-    CData,
-    CPartialEq,
+    DeriveFromStr,
+    DeriveFromMap,
+    DeriveToStr,
+    DeriveToMap,
+    DeriveData,
+    DerivePartialEq,
     Model,
 )]
 #[dissolve(rename = "unpack")]

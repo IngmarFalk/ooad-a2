@@ -4,11 +4,11 @@ use crate::models::domain::member::Member;
 use crate::models::domain::Data;
 use crate::views::Options;
 use prettytable::{Cell, Row, Table};
-use shared::{COptions, View};
+use shared::{DeriveOptions, View};
 use std::str::FromStr;
 
 /// All the options for the member menu.
-#[derive(Debug, COptions)]
+#[derive(Debug, DeriveOptions)]
 pub enum MemberMenuOption {
     /// Displaying a single member in a simple format.
     DisplayMemberSimple,

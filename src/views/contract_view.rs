@@ -3,11 +3,11 @@ use super::{
     Options,
 };
 use crate::models::domain::contract::Contract;
-use shared::{COptions, View};
+use shared::{DeriveOptions, View};
 use std::str::FromStr;
 
 /// Enum that contains all valid operations for the contract page.
-#[derive(Debug, COptions)]
+#[derive(Debug, DeriveOptions)]
 pub enum ContractOption {
     /// Displays a single contract in a simple format.
     /// ! Current implementation does not work and since it is not required

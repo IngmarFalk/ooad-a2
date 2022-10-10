@@ -1,14 +1,25 @@
-use super::domain::FromMap;
+use crate::models::domain::FromMap;
 use derive_getters::Getters;
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
-use shared::{CFromMap, CFromStr, CToMap, CToStr};
+use shared::{DeriveFromMap, DeriveFromStr, DeriveToMap, DeriveToStr};
 use std::collections::HashMap;
 use std::str::FromStr;
 
 /// Uuid struct.
 ///
 /// This struct is used to create a unique key for different objects.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, CFromStr, CToStr, CFromMap, CToMap, Getters)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    DeriveFromStr,
+    DeriveToStr,
+    DeriveFromMap,
+    DeriveToMap,
+    Getters,
+)]
 pub struct Uuid {
     #[getter(rename = "get_len")]
     len: usize,

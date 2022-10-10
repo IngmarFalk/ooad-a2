@@ -58,7 +58,7 @@ pub fn derive_builder(inp: TokenStream) -> TokenStream {
     res.into()
 }
 
-#[proc_macro_derive(CToStr)]
+#[proc_macro_derive(DeriveToStr)]
 pub fn derive_to_str(inp: TokenStream) -> TokenStream {
     let DeriveInput { ident, data, .. } = parse_macro_input!(inp as DeriveInput);
     let fields = match data {
@@ -97,7 +97,7 @@ pub fn derive_to_str(inp: TokenStream) -> TokenStream {
     res.into()
 }
 
-#[proc_macro_derive(CFromStr)]
+#[proc_macro_derive(DeriveFromStr)]
 pub fn derive_from_str(inp: TokenStream) -> TokenStream {
     let DeriveInput { ident, .. } = parse_macro_input!(inp as DeriveInput);
 
@@ -182,7 +182,7 @@ pub fn derive_from_str(inp: TokenStream) -> TokenStream {
     res.into()
 }
 
-#[proc_macro_derive(CFromMap)]
+#[proc_macro_derive(DeriveFromMap)]
 pub fn derive_from_map(inp: TokenStream) -> TokenStream {
     let DeriveInput { ident, data, .. } = parse_macro_input!(inp as DeriveInput);
     let fields = match data {
@@ -270,7 +270,7 @@ pub fn derive_from_map(inp: TokenStream) -> TokenStream {
     res.into()
 }
 
-#[proc_macro_derive(CToMap)]
+#[proc_macro_derive(DeriveToMap)]
 pub fn derive_to_map(inp: TokenStream) -> TokenStream {
     let DeriveInput { ident, data, .. } = parse_macro_input!(inp as DeriveInput);
     let fields = match data {
@@ -349,7 +349,7 @@ pub fn derive_to_map(inp: TokenStream) -> TokenStream {
     res.into()
 }
 
-#[proc_macro_derive(CData, attributes(mutable_ignore))]
+#[proc_macro_derive(DeriveData, attributes(mutable_ignore))]
 pub fn derive_to_table(inp: TokenStream) -> TokenStream {
     let DeriveInput { ident, data, .. } = parse_macro_input!(inp as DeriveInput);
     let fields = match data {
@@ -450,7 +450,7 @@ pub fn derive_to_table(inp: TokenStream) -> TokenStream {
     res.into()
 }
 
-#[proc_macro_derive(CPartialEq, attributes(eq))]
+#[proc_macro_derive(DerivePartialEq, attributes(eq))]
 pub fn derive_partial_eq(inp: TokenStream) -> TokenStream {
     let DeriveInput { ident, data, .. } = parse_macro_input!(inp as DeriveInput);
     let fields = match data {
@@ -507,7 +507,7 @@ pub fn derive_partial_eq(inp: TokenStream) -> TokenStream {
     res.into()
 }
 
-#[proc_macro_derive(COptions, attributes(other))]
+#[proc_macro_derive(DeriveOptions, attributes(other))]
 pub fn derive_options(inp: TokenStream) -> TokenStream {
     let DeriveInput { ident, data, .. } = parse_macro_input!(inp as DeriveInput);
     let name = ident.clone();

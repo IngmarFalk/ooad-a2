@@ -2,7 +2,10 @@ use crate::models::domain::FromMap;
 use crate::models::uuid::Uuid;
 use crate::types::{Check, ValResult, Validate};
 use derive_getters::{Dissolve, Getters};
-use shared::{Builder, CData, CFromMap, CFromStr, CPartialEq, CToMap, CToStr, Model};
+use shared::{
+    Builder, DeriveData, DeriveFromMap, DeriveFromStr, DerivePartialEq, DeriveToMap, DeriveToStr,
+    Model,
+};
 use std::collections::HashMap;
 use std::str::FromStr;
 use thiserror::Error;
@@ -23,12 +26,12 @@ pub trait MemberValidation {
     Debug,
     Getters,
     Dissolve,
-    CFromStr,
-    CToStr,
-    CFromMap,
-    CToMap,
-    CData,
-    CPartialEq,
+    DeriveFromStr,
+    DeriveToStr,
+    DeriveFromMap,
+    DeriveToMap,
+    DeriveData,
+    DerivePartialEq,
     Model,
     Builder,
 )]

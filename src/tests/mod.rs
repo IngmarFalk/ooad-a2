@@ -1,10 +1,12 @@
+/// CDate Tests
+mod cdate_tests;
 /// Contract tests
-pub mod contract_tests;
+mod contract_tests;
 /// Item tests
-pub mod item_tests;
+mod item_tests;
 /// Member tests
-pub mod member_tests;
+mod member_tests;
 /// System tests
-pub mod system_tests;
+mod system_tests;
 /// Uuid tests
-pub mod uuid_tests;
+mod uuid_tests;

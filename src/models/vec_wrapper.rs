@@ -3,7 +3,7 @@ use std::{fmt::Display, str::FromStr};
 
 /// Wrapper fro `Vec<T>`
 #[derive(Debug, PartialEq, Eq, Default, Clone)]
-pub struct CVec<T>
+pub struct VecWrapper<T>
 where
     T: Display + PartialEq + Clone + FromStr,
 {
@@ -13,13 +13,13 @@ where
     pub len: usize,
 }
 
-impl<T> CVec<T>
+impl<T> VecWrapper<T>
 where
     T: Display + PartialEq + Clone + FromStr,
 {
     /// Creates a new Cvec.
-    pub fn new() -> CVec<T> {
-        CVec {
+    pub fn new() -> VecWrapper<T> {
+        VecWrapper {
             values: Vec::new(),
             len: 0,
         }
@@ -82,7 +82,7 @@ where
     }
 }
 
-impl<T> Display for CVec<T>
+impl<T> Display for VecWrapper<T>
 where
     T: Display + PartialEq + Clone + FromStr,
 {
@@ -99,7 +99,7 @@ where
     }
 }
 
-impl<T> FromStr for CVec<T>
+impl<T> FromStr for VecWrapper<T>
 where
     T: Display + PartialEq + FromStr + Clone,
 {
@@ -107,7 +107,7 @@ where
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.eq("-") {
-            return Ok(CVec::new());
+            return Ok(VecWrapper::new());
         }
 
         let mut arr: Vec<T> = Vec::new();
@@ -120,6 +120,6 @@ where
         }
         let len = arr.len();
 
-        Ok(CVec { values: arr, len })
+        Ok(VecWrapper { values: arr, len })
     }
 }

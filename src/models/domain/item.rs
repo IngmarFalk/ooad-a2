@@ -1,10 +1,13 @@
 use super::contract::Status;
 use super::system::{SysError, SysResult};
 use super::{contract::Contract, member::Member, FromMap};
-use crate::models::cvec::CVec;
 use crate::models::uuid::Uuid;
+use crate::models::vec_wrapper::VecWrapper;
 use derive_getters::{Dissolve, Getters};
-use shared::{Builder, CData, CFromMap, CFromStr, CPartialEq, CToMap, CToStr, Model};
+use shared::{
+    Builder, DeriveData, DeriveFromMap, DeriveFromStr, DerivePartialEq, DeriveToMap, DeriveToStr,
+    Model,
+};
 use std::str::FromStr;
 use std::{collections::HashMap, fmt::Display};
 
@@ -61,12 +64,12 @@ impl Display for Category {
     Getters,
     Dissolve,
     Builder,
-    CFromStr,
-    CToStr,
-    CFromMap,
-    CToMap,
-    CData,
-    CPartialEq,
+    DeriveFromStr,
+    DeriveToStr,
+    DeriveFromMap,
+    DeriveToMap,
+    DeriveData,
+    DerivePartialEq,
     Model,
 )]
 #[dissolve(rename = "unpack")]
@@ -82,7 +85,7 @@ pub struct Item {
 
     #[mutable_ignore]
     #[getter(rename = "get_history")]
-    history: CVec<Contract>,
+    history: VecWrapper<Contract>,
 
     #[mutable_ignore]
     #[getter(rename = "get_owner")]
@@ -139,7 +142,7 @@ impl Item {
             cost_per_day,
             day_of_creation,
             uuid: Uuid::new(),
-            history: CVec::new(),
+            history: VecWrapper::new(),
             is_available: true,
         }
     }

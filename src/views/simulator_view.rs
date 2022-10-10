@@ -3,10 +3,10 @@ use super::{
     Options,
 };
 use crate::types::View;
-use shared::COptions;
+use shared::DeriveOptions;
 use std::str::FromStr;
 
-#[derive(Debug, COptions)]
+#[derive(Debug, DeriveOptions)]
 pub enum SimulatorOption {
     /// Increments Day for the system.
     IncrDay,

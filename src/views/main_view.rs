@@ -1,11 +1,11 @@
 use super::console::Console;
 use super::Options;
 use crate::views::console::Ui;
-use shared::{COptions, View};
+use shared::{DeriveOptions, View};
 use std::str::FromStr;
 
 /// All options for the main menu.
-#[derive(Debug, COptions)]
+#[derive(Debug, DeriveOptions)]
 pub enum MainMenuOption {
     /// goes to the members page.
     MembersPage,
