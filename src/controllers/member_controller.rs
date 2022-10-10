@@ -1,4 +1,4 @@
-use super::app::App;
+use super::app::Page;
 use crate::{
     models::domain::{item::Item, member::Member, system::LendingSystem},
     types::{Model, Validate, View},
@@ -132,12 +132,12 @@ where
     }
 }
 
-impl<M, V> App<M> for MemberController<M, V>
+impl<M, V> Page<M> for MemberController<M, V>
 where
     M: Model + LendingSystem + Clone,
     V: View + MemberView,
 {
-    fn run(&mut self, sys: M) -> M {
+    fn show(&mut self, sys: M) -> M {
         let choice = self.view.member_menu();
         self.model = sys.clone();
         let state = match choice {
@@ -152,6 +152,6 @@ where
             MemberMenuOption::Back => return sys,
             MemberMenuOption::Other => sys,
         };
-        self.run(state)
+        self.show(state)
     }
 }

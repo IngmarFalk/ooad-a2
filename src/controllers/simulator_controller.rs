@@ -1,4 +1,4 @@
-use super::app::App;
+use super::app::Page;
 use crate::{
     models::domain::system::LendingSystem,
     types::{Model, View},
@@ -17,12 +17,12 @@ where
     view: V,
 }
 
-impl<M, V> App<M> for SimulatorController<M, V>
+impl<M, V> Page<M> for SimulatorController<M, V>
 where
     M: Model + LendingSystem,
     V: View + SimulatorView,
 {
-    fn run(&mut self, sys: M) -> M {
+    fn show(&mut self, sys: M) -> M {
         todo!()
     }
 }

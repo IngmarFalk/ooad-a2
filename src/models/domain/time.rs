@@ -2,7 +2,7 @@
 use crate::types::Model;
 
 pub trait Listener<T> {
-    fn notify(&mut self, new: T);
+    fn update(&mut self, new: T);
     fn pull(&self) -> T;
 }
 
@@ -41,7 +41,7 @@ where
 
     fn notify_listeners(&mut self) {
         for listener in self.listeners.iter_mut() {
-            listener.notify(self.day)
+            listener.update(self.day)
         }
     }
 }

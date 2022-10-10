@@ -140,11 +140,38 @@ impl LendingSystem for System {
             .collect::<Vec<&Item>>()
     }
 
+    fn get_item_for_contract(&self, contract: &Contract) -> Option<&Item> {
+        for (_, item) in self.items.iter() {
+            for c in item.get_history().iter() {
+                if c.get_uuid() == contract.get_uuid() {
+                    return Some(item);
+                }
+            }
+        }
+        None
+    }
+
     fn get_item(&self, item: &Item) -> SysResult<Item> {
         if !self.items.contains_key(item.get_uuid()) {
             return Err(SysError::DoesntExist);
         }
         Ok(self.items[item.get_uuid()].clone())
+    }
+
+    fn get_contract(&self, contract: &Contract) -> SysResult<Contract> {
+        for item in self.items.values() {
+            if item
+                .get_history()
+                .iter()
+                .any(|c| c.get_uuid() == contract.get_uuid())
+            {
+                return match item.get_history().get(contract) {
+                    Some(c) => Ok(c.clone()),
+                    None => Err(SysError::DoesntExist),
+                };
+            }
+        }
+        Err(SysError::DoesntExist)
     }
 
     fn add_item(&mut self, item: Item) -> SysResult<()> {
@@ -195,37 +222,33 @@ impl LendingSystem for System {
 
     fn incr_time(&mut self) {
         self.day += 1;
+        let cp = self.clone();
+        for item in cp.get_items() {
+            match item.get_active_contract(self.day) {
+                Some(con) => {
+                    let owner = self.get_member(con.get_owner());
+                    if let Ok(mut o) = owner {
+                        match o.add_credits(*item.get_cost_per_day()) {
+                            Ok(_) => match self.update_member(con.get_owner(), &o) {
+                                Ok(_) => {}
+                                Err(_) => {}
+                            },
+                            Err(err) => {}
+                        }
+                    }
+                    let lendee = self.get_member(con.get_lendee());
+                    if let Ok(mut l) = lendee {
+                        l.deduce_credits(*item.get_cost_per_day());
+                        self.update_member(con.get_lendee(), &l);
+                    }
+                }
+                None => {}
+            }
+        }
     }
 
     fn now(&self) -> usize {
         self.day
-    }
-
-    fn get_contract(&self, contract: &Contract) -> SysResult<Contract> {
-        for item in self.items.values() {
-            if item
-                .get_history()
-                .iter()
-                .any(|c| c.get_uuid() == contract.get_uuid())
-            {
-                return match item.get_history().get(contract) {
-                    Some(c) => Ok(c.clone()),
-                    None => Err(SysError::DoesntExist),
-                };
-            }
-        }
-        Err(SysError::DoesntExist)
-    }
-
-    fn get_item_for_contract(&self, contract: &Contract) -> Option<&Item> {
-        for (_, item) in self.items.iter() {
-            for c in item.get_history().iter() {
-                if c.get_uuid() == contract.get_uuid() {
-                    return Some(item);
-                }
-            }
-        }
-        None
     }
 }
 

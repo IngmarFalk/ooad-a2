@@ -1,4 +1,4 @@
-use super::app::App;
+use super::app::Page;
 use crate::{
     models::domain::{item::Item, system::LendingSystem},
     types::{Model, View},
@@ -102,12 +102,12 @@ where
     }
 }
 
-impl<M, V> App<M> for ItemController<M, V>
+impl<M, V> Page<M> for ItemController<M, V>
 where
     M: Model + LendingSystem + Clone,
     V: View + ItemView,
 {
-    fn run(&mut self, sys: M) -> M {
+    fn show(&mut self, sys: M) -> M {
         let choice = self.view.item_menu();
         self.model = sys.clone();
         let state = match choice {
@@ -119,6 +119,6 @@ where
             ItemMenuOption::Back => return sys,
             ItemMenuOption::Other => sys,
         };
-        self.run(state)
+        self.show(state)
     }
 }
