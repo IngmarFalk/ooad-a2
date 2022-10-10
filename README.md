@@ -1,4 +1,8 @@
 
+# Members
+
+**Ingmar Falk - if222gq@student.lnu.se**
+
 # Setup
 
 *To be able to run this, you are going to have docker installed.
