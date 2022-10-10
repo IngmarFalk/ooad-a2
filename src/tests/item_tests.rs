@@ -90,18 +90,16 @@ mod item_tests {
         let contract = Contract::default()
             .owner(allan.clone())
             .lendee(bob.clone())
-            .item(item.clone())
             .credits(200f64)
             .from_date(0, 10)
             .build();
 
-        assert_eq!(item.add_contract(contract, 0).is_ok(), true);
+        assert_eq!(item.add_contract(contract).is_ok(), true);
         let history = item.get_history().to_vec();
         let c = history.first().unwrap();
         assert_eq!(c.get_owner(), &allan);
         assert_eq!(c.get_lendee(), &bob);
         assert_eq!(c.get_credits(), &200f64);
-        assert_eq!(c.get_item(), &item);
         assert_eq!(c.get_start_date(), &0);
         assert_eq!(c.get_end_date(), &10);
         assert_eq!(c.get_contract_len(), &10);
@@ -129,7 +127,6 @@ mod item_tests {
         let c1 = Contract::default()
             .owner(allan.clone())
             .lendee(bob.clone())
-            .item(monopoly.clone())
             .credits(200f64)
             .from_date(0, 10)
             .build();
@@ -137,14 +134,11 @@ mod item_tests {
         let c2 = Contract::default()
             .owner(allan.clone())
             .lendee(bob.clone())
-            .item(monopoly.clone())
             .credits(100f64)
             .from_date(3, 5)
             .build();
 
-        println!("{:#?}", monopoly.get_history());
-
-        assert_eq!(monopoly.add_contract(c1, 0).is_ok(), true);
-        assert_eq!(monopoly.add_contract(c2, 0).is_ok(), false);
+        assert_eq!(monopoly.add_contract(c1).is_ok(), true);
+        assert_eq!(monopoly.add_contract(c2).is_ok(), false);
     }
 }

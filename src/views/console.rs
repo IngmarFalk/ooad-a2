@@ -298,8 +298,6 @@ impl Ui for Console {
             for key in head.iter() {
                 let data = item.to_map();
                 let cell_data = data.get(key).unwrap();
-                println!("{key}: {cell_data}");
-                self.wait("Waiting... 293482u4");
                 match key.to_lowercase().as_str() {
                     "uuid" => {
                         let uuid_value = cell_data
@@ -363,7 +361,11 @@ impl Ui for Console {
 
         if let Ok(res) = inp.to_string().parse::<usize>() {
             return match res < chunks[curr_page].len() {
-                true => Either::Left(vec_model[curr_page * 10 + res]),
+                true => {
+                    println!("{}", vec_model[curr_page * 10 + res]);
+                    self.wait("");
+                    Either::Left(vec_model[curr_page * 10 + res])
+                }
                 false => self.display_page(vec_model.clone(), chunks.clone(), curr_page),
             };
         } else {
@@ -402,13 +404,6 @@ impl Ui for Console {
         let pages: Vec<&[&M]> = vec_model.chunks(10).collect::<Vec<_>>();
         self.clear();
         self.title();
-
-        // for c in pages.iter() {
-        //     for item in c.iter() {
-        //         println!("{:#?}", item.to_string());
-        //         self.wait("Waiting..");
-        //     }
-        // }
 
         let fun = |page: usize| -> Either<&M, usize> {
             self.display_page(vec_model.clone(), pages.clone(), page.to_owned())

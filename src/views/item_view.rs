@@ -126,17 +126,12 @@ impl ItemView for CliItemView {
     }
 
     fn display_availability(&self, item: &Item) {
-        let check = '☑';
-        let cross = '☒';
+        let check = '✓';
+        let cross = '✕';
         let am = item.get_availability();
-        for (tens, chunk) in am.chunks(10).into_iter().enumerate() {
-            for (day, tpl) in chunk.iter().enumerate() {
-                print!(
-                    "| {}\t: {} : {} ",
-                    tens + day,
-                    tpl.0,
-                    if tpl.1 { cross.clone() } else { check.clone() }
-                );
+        for chunk in am.chunks(10) {
+            for tpl in chunk.iter() {
+                print!("|  {}\t:{}  ", tpl.0, if tpl.1 { cross } else { check });
             }
             println!("|")
         }
@@ -146,12 +141,12 @@ impl ItemView for CliItemView {
         self.display_availability(item);
         let inp = self
             .console
-            .get_char_input("Press (0..30) to select or (e) to go back: ");
-        if let Ok(res) = inp.to_string().parse::<usize>() {
+            .get_str_input("Press (0..30) to select or (e) to go back: ");
+        if let Ok(res) = inp.parse::<usize>() {
             Some(res)
         } else {
-            match inp {
-                'e' => None,
+            match inp.as_str() {
+                "e" => None,
                 _ => self.select_date(item),
             }
         }

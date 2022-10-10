@@ -10,6 +10,9 @@ pub mod member;
 /// System model.
 pub mod system;
 
+/// Takes care of managing the time.
+pub mod time;
+
 /// Data trait. This trait is required to be implemented by all models that are to be used by the console.
 pub trait Data: FromMap + ToMap + FromStr + fmt::Display {
     /// Returns a `prettytable::Row`

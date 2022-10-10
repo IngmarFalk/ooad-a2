@@ -10,6 +10,8 @@ use std::str::FromStr;
 #[derive(Debug, COptions)]
 pub enum ContractOption {
     /// Displays a single contract in a simple format.
+    /// ! Current implementation does not work and since it is not required
+    /// ! It will not be available in the release version.
     DisplayContractSimple,
     /// Displays a single contract in a vernose format.
     CreateContract,
@@ -73,10 +75,9 @@ impl ContractView for CliContractView {
 
     fn display_contract_simple(&self, contract: &Contract) {
         let out = format!(
-            "Owner:\t{}\nLendee:\t{}\nItem:{}\nCredits:\t{}\nStatus:\t{}\nStart Date:\t{}\nEnd Date:\t{}",
+            "Owner:\t{}\nLendee:\t{}\nCredits:\t{}\nStatus:\t{}\nStart Date:\t{}\nEnd Date:\t{}",
             contract.get_owner().get_name(),
             contract.get_lendee(),
-            contract.get_item(),
             contract.get_credits(),
             contract.get_status(),
             contract.get_start_date(),

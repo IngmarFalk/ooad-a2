@@ -36,42 +36,37 @@ where
         let item_view: CliItemView = CliItemView::new();
         let items = self.model.get_items();
         let item = item_view.select_item(items);
-        match item {
-            Some(i) => Some(i.clone()),
-            None => None,
+        if let Some(i) = item {
+            return Some(i.clone());
         }
+        None
     }
 
-    fn fetch_contract<F>(&self, fun: F) -> M
-    where
-        F: Fn(&Contract),
-    {
-        let item = self.fetch_item();
+    fn display_contract_simple(&self) -> M {
+        let iview = CliItemView::new();
+        let items = self.model.get_items();
+        let item: Option<&Item> = iview.select_item(items);
         match item {
             Some(i) => {
-                let contracts = i.get_history().iter().collect::<Vec<&Contract>>();
-                let contract = self.view.select_contract(contracts);
-                println!("{:#?}", contract);
-                self.view.wait("");
-                if let Some(c) = contract {
-                    fun(c);
-                    self.view.wait("");
-                };
-                self.model.clone()
+                let cs = i.get_history().iter().collect::<Vec<&Contract>>();
+                let contract = self.view.select_contract(cs);
+                match contract {
+                    Some(c) => {
+                        self.view.display_contract_simple(c);
+                        self.ret("")
+                    }
+                    None => self.model.clone(),
+                }
             }
             None => self.model.clone(),
         }
     }
 
-    fn display_contract_simple(&self) -> M {
-        self.fetch_contract(|c: &Contract| self.view.display_contract_simple(c))
-    }
-
     fn create_contract(&mut self) -> M {
         let mview = CliMemberView::new();
         let iview = CliItemView::new();
-        let item = self.fetch_item();
-        match item {
+        let old_item = self.fetch_item();
+        match old_item {
             Some(i) => match mview.select_member(self.model.get_members()) {
                 Some(lendee) => {
                     if lendee == i.get_owner() {
@@ -81,18 +76,22 @@ where
                         Some(start_date) => {
                             let data = self.view.get_contract_info();
                             let contract = Contract::new(
+                                i.get_owner().clone(),
                                 lendee.clone(),
                                 start_date,
-                                i.clone(),
                                 *data.get_contract_len(),
+                                *i.get_cost_per_day() * *data.get_contract_len() as f64,
                             );
                             let mut temp = i.clone();
-                            match temp.add_contract(contract, self.model.now()) {
-                                Ok(_) => match self.model.update_item(&i, &temp) {
-                                    Ok(_) => self.ret("Successfully created contract."),
+                            match temp.add_contract(contract) {
+                                Ok(_) => match self.model.update_item(&temp) {
+                                    Ok(_) => {
+                                        iview.display_item_info(&temp);
+                                        self.ret("Successfully created contract.")
+                                    }
                                     Err(_) => self.ret("Failed to create contrct."),
                                 },
-                                Err(_) => self.model.clone(),
+                                Err(_) => self.ret("Item already booked during that period."),
                             }
                         }
                         None => self.model.clone(),
@@ -105,7 +104,10 @@ where
     }
 
     fn edit_contract(&mut self) -> M {
-        let item = self.fetch_item();
+        let iview = CliItemView::new();
+        let item = iview.select_item(self.model.get_items());
+        iview.display_item_info(item.unwrap());
+        iview.wait("");
         match item {
             Some(i) => {
                 let mut history = i.get_history().clone();

@@ -34,13 +34,17 @@ pub trait LendingSystem {
     /// Gets all the items for a specific member.
     fn get_items_for_member(&self, member: &Member) -> Vec<&Item>;
     /// Returns Some if item exists otherwise returns None.
+    fn get_item_for_contract(&self, contract: &Contract) -> Option<&Item>;
+    /// Returns Some if item exists otherwise returns None.
     fn get_item(&self, item: &Item) -> SysResult<Item>;
+    /// Gets contract for.
+    fn get_contract(&self, contract: &Contract) -> SysResult<Contract>;
     /// Adds item to the system.
     fn add_item(&mut self, item: Item) -> SysResult<()>;
     /// Removes item from the system.
     fn remove_item(&mut self, item: &Item) -> SysResult<()>;
     /// Updates item with the new information.
-    fn update_item(&mut self, old_info: &Item, new_info: &Item) -> SysResult<()>;
+    fn update_item(&mut self, info: &Item) -> SysResult<()>;
     /// Counts the number of items for a certain member.
     fn count_items_for_member(&self, member: &Member) -> usize;
     /// Increments system day counter and calls all required methods to update contracts
@@ -150,7 +154,7 @@ impl LendingSystem for System {
                 let temp = self.get_member(item.get_owner());
                 match temp {
                     Ok(mut member) => match member.add_credits(100f64) {
-                        Ok(_) => match self.update_member(&item.get_owner(), &member) {
+                        Ok(_) => match self.update_member(item.get_owner(), &member) {
                             Ok(_) => Ok(()),
                             Err(err) => Err(err),
                         },
@@ -169,10 +173,10 @@ impl LendingSystem for System {
         }
     }
 
-    fn update_item(&mut self, old_info: &Item, new_info: &Item) -> SysResult<()> {
-        match self.items.get_mut(old_info.get_uuid()) {
+    fn update_item(&mut self, info: &Item) -> SysResult<()> {
+        match self.items.get_mut(info.get_uuid()) {
             Some(_) => {
-                *self.items.get_mut(old_info.get_uuid()).unwrap() = new_info.clone();
+                *self.items.get_mut(info.get_uuid()).unwrap() = info.clone();
                 Ok(())
             }
             None => Err(SysError::CannotUpdate),
@@ -195,6 +199,33 @@ impl LendingSystem for System {
 
     fn now(&self) -> usize {
         self.day
+    }
+
+    fn get_contract(&self, contract: &Contract) -> SysResult<Contract> {
+        for item in self.items.values() {
+            if item
+                .get_history()
+                .iter()
+                .any(|c| c.get_uuid() == contract.get_uuid())
+            {
+                return match item.get_history().get(contract) {
+                    Some(c) => Ok(c.clone()),
+                    None => Err(SysError::DoesntExist),
+                };
+            }
+        }
+        Err(SysError::DoesntExist)
+    }
+
+    fn get_item_for_contract(&self, contract: &Contract) -> Option<&Item> {
+        for (_, item) in self.items.iter() {
+            for c in item.get_history().iter() {
+                if c.get_uuid() == contract.get_uuid() {
+                    return Some(item);
+                }
+            }
+        }
+        None
     }
 }
 
@@ -233,7 +264,7 @@ impl Demo for System {
             .expect("Should not fail."),
         ];
 
-        let items = vec![
+        let mut items = vec![
             Item::new(
                 "Monopoly".to_owned(),
                 "Family Game".to_owned(),
@@ -269,23 +300,37 @@ impl Demo for System {
         ];
 
         let contracts = vec![
-            Contract::new(members[1].clone(), sys.now() + 6, items[2].clone(), 6),
-            Contract::new(members[1].clone(), sys.now(), items[3].clone(), 2),
-            Contract::new(members[0].clone(), sys.now() + 2, items[2].clone(), 20),
+            Contract::new(
+                items[2].get_owner().clone(),
+                members[1].clone(),
+                sys.now() + 6,
+                6,
+                items[2].get_cost_per_day() * 6f64,
+            ),
+            Contract::new(
+                items[1].get_owner().clone(),
+                members[1].clone(),
+                sys.now() + 12,
+                9,
+                items[1].get_cost_per_day() * 9f64,
+            ),
+            Contract::new(
+                items[3].get_owner().clone(),
+                members[2].clone(),
+                sys.now(),
+                10,
+                items[3].get_cost_per_day() * 10f64,
+            ),
         ];
 
         for member in members.iter() {
             self.add_member(member.clone()).expect("");
         }
+        items[0].add_contract(contracts[0].clone()).expect("");
+        items[1].add_contract(contracts[1].clone()).expect("");
+        items[1].add_contract(contracts[2].clone()).expect("");
         for item in items.iter() {
             self.add_item(item.clone()).expect("");
-        }
-        for contract in contracts.iter() {
-            let mut item = contract.clone().get_item().clone();
-            match item.add_contract(contract.clone(), sys.now()) {
-                Ok(_) => self.update_item(contract.get_item(), &item).expect(""),
-                Err(_) => {}
-            };
         }
     }
 }

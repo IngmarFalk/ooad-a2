@@ -110,7 +110,6 @@ mod system_tests {
 
         let r3 = system.add_member(turing2);
         assert_eq!(r3, Ok(()));
-        println!("{:#?}", system.get_members());
 
         let r4 = system.add_member(turing3);
         assert_eq!(r4, Ok(()));

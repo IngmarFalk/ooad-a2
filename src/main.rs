@@ -1,6 +1,5 @@
 //! This is the entry point for the lending app.
 // #![deny(missing_docs)]
-#![warn(clippy::perf)]
 #![crate_type = "proc-macro"]
 
 use controllers::app::MainApp;

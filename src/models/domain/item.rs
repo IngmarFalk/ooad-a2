@@ -145,21 +145,18 @@ impl Item {
     }
 
     /// Adds a contract to history.
-    pub fn add_contract(&mut self, contract: Contract, now: usize) -> SysResult<()> {
+    pub fn add_contract(&mut self, contract: Contract) -> SysResult<()> {
         match self.get_contract_in_period(contract.get_start_date(), contract.get_end_date()) {
             Some(_) => Err(SysError::AlreadyExists),
             None => {
                 self.history.push(contract);
-                if let Some(_) = self.get_active_contract(now) {
-                    self.set_unavailable();
-                }
                 Ok(())
             }
         }
     }
 
     /// Gets the active contract. Returns Some(contract) if contract exists else None
-    fn get_active_contract(&self, now: usize) -> Option<Contract> {
+    pub fn get_active_contract(&self, now: usize) -> Option<Contract> {
         for contract in self.history.iter() {
             if &now > contract.get_start_date() && &now < contract.get_end_date() {
                 return Some(contract.clone());
@@ -168,9 +165,11 @@ impl Item {
         None
     }
 
-    fn get_contract_in_period(&self, start_day: &usize, end_day: &usize) -> Option<Contract> {
+    pub fn get_contract_in_period(&self, start_date: &usize, end_date: &usize) -> Option<Contract> {
         for contract in self.history.iter() {
-            if &start_day > &contract.get_start_date() && &end_day < &contract.get_end_date() {
+            if start_date > contract.get_start_date() && start_date < contract.get_end_date()
+                || end_date > contract.get_start_date() && end_date < contract.get_end_date()
+            {
                 return Some(contract.clone());
             }
         }
@@ -184,14 +183,6 @@ impl Item {
             }
         }
         false
-    }
-
-    fn set_unavailable(&mut self) {
-        self.is_available = false;
-    }
-
-    fn set_available(&mut self) {
-        self.is_available = true;
     }
 
     pub fn get_history_map(&self) -> HashMap<&str, Vec<Contract>> {

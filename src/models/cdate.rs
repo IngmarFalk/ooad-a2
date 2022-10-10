@@ -31,7 +31,7 @@ impl CDate {
     }
 
     pub fn as_naive_date(&self) -> chrono::NaiveDate {
-        self.date.clone()
+        self.date
     }
 
     pub fn days_from(&self, other: &CDate) -> Option<i64> {

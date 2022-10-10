@@ -1,5 +1,6 @@
+use super::member::Member;
 use super::system::SysError;
-use super::{item::Item, member::Member, FromMap};
+use crate::models::domain::FromMap;
 use crate::models::uuid::Uuid;
 use derive_getters::{Dissolve, Getters};
 use shared::{Builder, CData, CFromMap, CFromStr, CPartialEq, CToMap, CToStr, Model};
@@ -20,11 +21,11 @@ impl FromStr for Status {
     type Err = SysError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "Active" => Ok(Status::Active),
-            "Finished" => Ok(Status::Finished),
-            "Canceled" => Ok(Status::Canceled),
-            "Future" => Ok(Status::Future),
+        match s.to_lowercase().as_str() {
+            "active" => Ok(Status::Active),
+            "finished" => Ok(Status::Finished),
+            "canceled" => Ok(Status::Canceled),
+            "future" => Ok(Status::Future),
             _ => Ok(Status::Other),
         }
     }
@@ -81,10 +82,6 @@ pub struct Contract {
     #[mutable_ignore]
     uuid: Uuid,
 
-    #[getter(rename = "get_item")]
-    #[mutable_ignore]
-    item: Item,
-
     #[getter(rename = "get_contract_len")]
     contract_len: usize,
 
@@ -99,16 +96,21 @@ pub struct Contract {
 
 impl Contract {
     /// Creates a new Contract.
-    pub fn new(lendee: Member, start_date: usize, item: Item, contract_len: usize) -> Self {
+    pub fn new(
+        owner: Member,
+        lendee: Member,
+        start_date: usize,
+        contract_len: usize,
+        credits: f64,
+    ) -> Self {
         Self {
-            owner: item.get_owner().clone(),
+            owner,
             uuid: Uuid::new(),
-            credits: item.get_cost_per_day() * contract_len as f64,
+            credits,
             end_date: start_date + contract_len as usize,
             status: Status::Future,
             start_date,
             lendee,
-            item,
             contract_len,
         }
     }
@@ -125,17 +127,12 @@ impl Contract {
         if now < self.start_date || now > self.end_date {
             return None;
         }
-        Some(&self.end_date - now)
+        Some(self.end_date - now)
     }
 
-    /// ! IMPORTANT
-    ///
-    /// ! Before calling this method to build a new contract instance, the item has to
-    /// have already been set.
     pub fn from_date(&mut self, date: usize, days: usize) -> Self {
         self.contract_len = days;
         self.end_date = self.start_date + days;
-        self.credits = self.item.get_cost_per_day() * days as f64;
         self.set_status(date);
         self.clone()
     }
