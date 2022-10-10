@@ -3,13 +3,13 @@ use super::{
     item::{Category, Item},
     member::Member,
 };
-use crate::{errors::SysError, models::uuid::Uuid, types::SysResult};
+use crate::{
+    errors::SysError,
+    models::uuid::Uuid,
+    types::{Demo, SysResult},
+};
 use shared::{Builder, Model};
 use std::collections::HashMap;
-
-pub trait Demo {
-    fn init_demo(&mut self);
-}
 
 /// All methods for the lending system.
 pub trait LendingSystem {

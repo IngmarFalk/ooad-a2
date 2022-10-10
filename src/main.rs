@@ -3,7 +3,8 @@
 #![crate_type = "proc-macro"]
 
 use controllers::app::MainApp;
-use models::domain::system::{Demo, System};
+use models::domain::system::System;
+use types::Demo;
 use views::main_view::CliMainView;
 
 /// Controllers Module.

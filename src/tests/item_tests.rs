@@ -79,6 +79,7 @@ mod item_tests {
             .name("Bob".to_owned())
             .email("bob@gmail.com".to_owned())
             .phone_nr("46291328475".to_owned())
+            .credits(500f64)
             .build();
         let mut item = Item::default()
             .name("Monopoly".to_owned())
@@ -116,6 +117,7 @@ mod item_tests {
             .name("Bob".to_owned())
             .email("bob@gmail.com".to_owned())
             .phone_nr("46291328475".to_owned())
+            .credits(500f64)
             .build();
         let mut monopoly = Item::default()
             .name("Monopoly".to_owned())
@@ -136,6 +138,44 @@ mod item_tests {
             .lendee(bob.clone())
             .credits(100f64)
             .from_date(3, 5)
+            .build();
+
+        assert_eq!(monopoly.add_contract(c1).is_ok(), true);
+        assert_eq!(monopoly.add_contract(c2).is_ok(), false);
+    }
+
+    #[test]
+    fn test_contract_not_enough_funds() {
+        let allan = Member::default()
+            .name("Allan".to_owned())
+            .email("allan@turing.com".to_owned())
+            .phone_nr("4602134567".to_owned())
+            .build();
+        let bob = Member::default()
+            .name("Bob".to_owned())
+            .email("bob@gmail.com".to_owned())
+            .phone_nr("46291328475".to_owned())
+            .credits(200f64)
+            .build();
+        let mut monopoly = Item::default()
+            .name("Monopoly".to_owned())
+            .description("A Family Game".to_owned())
+            .category(Category::Game)
+            .cost_per_day(20f64)
+            .owner(allan.clone());
+
+        let c1 = Contract::default()
+            .owner(allan.clone())
+            .lendee(bob.clone())
+            .credits(200f64)
+            .from_date(0, 10)
+            .build();
+
+        let c2 = Contract::default()
+            .owner(allan.clone())
+            .lendee(bob.clone())
+            .credits(400f64)
+            .from_date(11, 15)
             .build();
 
         assert_eq!(monopoly.add_contract(c1).is_ok(), true);

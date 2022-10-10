@@ -1,7 +1,5 @@
 /// CDate Tests
-mod cdate_tests;
-/// Contract tests
-mod contract_tests;
+mod date_wrapper_tests;
 /// Item tests
 mod item_tests;
 /// Member tests

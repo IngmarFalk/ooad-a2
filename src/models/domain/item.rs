@@ -154,6 +154,9 @@ impl Item {
         match self.get_contract_in_period(contract.get_start_date(), contract.get_end_date()) {
             Some(_) => Err(SysError::AlreadyExists),
             None => {
+                if contract.get_lendee().get_credits() < contract.get_credits() {
+                    return Err(SysError::CannotInsert);
+                }
                 self.history.push(contract);
                 Ok(())
             }

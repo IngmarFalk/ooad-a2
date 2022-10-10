@@ -30,6 +30,10 @@ pub trait View {}
 /// All Controllers implement this trait.
 pub trait Controller {}
 
+pub trait Demo {
+    fn init_demo(&mut self);
+}
+
 /// Result Types.
 pub type ValResult<T> = Result<T, Check>;
 pub type MemValResult<T> = Result<T, MemValError>;
